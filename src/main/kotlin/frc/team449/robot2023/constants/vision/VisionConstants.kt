@@ -2,6 +2,7 @@ package frc.team449.robot2023.constants.vision
 
 import edu.wpi.first.apriltag.AprilTag
 import edu.wpi.first.apriltag.AprilTagFieldLayout
+import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.Nat
@@ -29,8 +30,8 @@ object VisionConstants {
   )
 
   /** WPILib's AprilTagFieldLayout for the 2023 Charged Up Game */
-  val TAG_LAYOUT: AprilTagFieldLayout = AprilTagFieldLayout(
-    Filesystem.getDeployDirectory().absolutePath.plus("/vision/Bunnybots2023.json")
+  val TAG_LAYOUT: AprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(
+    AprilTagFields.k2023ChargedUp.m_resourceFile
   )
 
 //    AprilTagFieldLayout.loadFromResource(
@@ -40,7 +41,7 @@ object VisionConstants {
   /** Robot to Camera distance */
   val robotToCamera = Transform3d(
     Translation3d(Units.inchesToMeters(-11.48657), Units.inchesToMeters(0.0), Units.inchesToMeters(8.3416)),
-    Rotation3d(0.0, Units.degreesToRadians(15.0), Units.degreesToRadians(180.0))
+    Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(180.0))
   )
 
   val TAG_MODEL = TargetModel(

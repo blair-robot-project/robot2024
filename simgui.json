@@ -95,7 +95,10 @@
       },
       "/SmartDashboard/Field": {
         "height": 8.013679504394531,
-        "width": 16.541748046875
+        "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
       },
       "/SmartDashboard/Routine Chooser": {
         "window": {

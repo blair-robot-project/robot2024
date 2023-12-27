@@ -210,7 +210,7 @@ open class SwerveDrive(
         numTargets[index] = presentResult.targetsUsed.size.toDouble()
         tagDistance[index] = 0.0
         avgAmbiguity[index] = 0.0
-        heightError[index] = abs(presentResult.estimatedPose.z - camera.robotToCam.z)
+        heightError[index] = abs(presentResult.estimatedPose.z)
 
         for (tag in presentResult.targetsUsed) {
           val tagPose = camera.estimator.fieldTags.getTagPose(tag.fiducialId)
