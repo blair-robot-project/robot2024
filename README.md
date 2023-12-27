@@ -1,5 +1,5 @@
-# Bunnybots 2023
-Our source code for our veteran-led Bunnybot for our 2023 Bunnybots Game: Hibernation Harvest!
+# Robot 2024
+Repository for Team 449's code for the 2024 FRC Crescendo game.
 
 Credit to 6328 for characterization commands and analysis.
 
