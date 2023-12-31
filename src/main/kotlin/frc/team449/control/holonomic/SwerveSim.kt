@@ -13,6 +13,7 @@ import kotlin.math.abs
 import kotlin.math.hypot
 import kotlin.math.pow
 import kotlin.math.sqrt
+import kotlin.random.Random
 
 class SwerveSim(
   modules: List<SwerveModule>,
@@ -50,6 +51,20 @@ class SwerveSim(
       )
     }
 
+  fun resetPos() {
+    val newPose = Pose2d(
+      odometry.poseMeters.x + Random.nextDouble(-1.0, 1.0),
+      odometry.poseMeters.y + Random.nextDouble(-1.0, 1.0),
+      Rotation2d(odometry.poseMeters.rotation.radians + Random.nextDouble(-1.0, 1.0))
+    )
+
+    odometry.resetPosition(
+      currHeading,
+      getPositions(),
+      newPose
+    )
+  }
+
   override fun localize() = try {
     for ((index, camera) in cameras.withIndex()) {
       val result = camera.estimatedPose(Pose2d(pose.x, pose.y, currHeading))
@@ -73,22 +88,29 @@ class SwerveSim(
           }
         }
 
-        visionPose = presentResult.estimatedPose.toPose2d()
+        val estVisionPose = presentResult.estimatedPose.toPose2d()
+
+        visionPose[0 + 3 * index] = estVisionPose.x
+        visionPose[1 + 3 * index] = estVisionPose.y
+        visionPose[2 + 3 * index] = estVisionPose.rotation.radians
+
 
         if (presentResult.timestampSeconds > 0 &&
           avgAmbiguity[index] <= VisionConstants.MAX_AMBIGUITY &&
           numTargets[index] < 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_SINGLE_TAG ||
-          numTargets[index] >= 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_MULTI_TAG * (1 + (numTargets[index] - 2) * VisionConstants.TAG_MULTIPLIER) &&
+          numTargets[index] >= 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_MULTI_TAG + (numTargets[index] - 2) * VisionConstants.TAG_DIST &&
           heightError[index] < VisionConstants.MAX_HEIGHT_ERR_METERS
         ) {
           poseEstimator.addVisionMeasurement(
-            visionPose,
+            estVisionPose,
             presentResult.timestampSeconds,
             camera.getEstimationStdDevs(numTargets[index].toInt(), tagDistance[index])
           )
           usedVision[index] = true
+          usedVisionSights[index] += 1.toLong()
         } else {
           usedVision[index] = false
+          rejectedVisionSights[index] += 1.toLong()
         }
       }
     }

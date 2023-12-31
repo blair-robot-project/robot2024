@@ -23,7 +23,7 @@ import kotlin.math.pow
 class VisionSubsystem(
   name: String,
   tagLayout: AprilTagFieldLayout,
-  val robotToCam: Transform3d,
+  robotToCam: Transform3d,
   private val visionSystemSim: VisionSystemSim?
 ) {
   val estimator = VisionEstimator(
@@ -97,10 +97,5 @@ class VisionSubsystem(
 
   fun simulationPeriodic(robotSimPose: Pose2d?) {
     visionSystemSim!!.update(robotSimPose)
-  }
-
-  /** Reset pose history of the robot in the vision system simulation.  */
-  fun resetSimPose(pose: Pose2d?) {
-    if (RobotBase.isSimulation()) visionSystemSim!!.resetRobotPose(pose)
   }
 }

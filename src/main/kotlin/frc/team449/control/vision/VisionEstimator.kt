@@ -88,6 +88,7 @@ class VisionEstimator(
       // Run fallback strategy instead
       return lowestAmbiguityStrategy(result)
     }
+
     for (target: PhotonTrackedTarget in result.getTargets()) {
       val tagPoseOpt = tagLayout.getTagPose(target.fiducialId)
       if (tagPoseOpt.isEmpty) {
@@ -96,7 +97,13 @@ class VisionEstimator(
       }
       val tagPose = tagPoseOpt.get()
 
-      usedTargets.add(target)
+      var unique = true
+
+      for (addedTarget in usedTargets) {
+        if (addedTarget.fiducialId == target.fiducialId) unique = false
+      }
+
+      if (unique) usedTargets.add(target)
 
       visCorners.addAll(target.detectedCorners)
       // actual layout poses of visible tags -- not exposed, so have to recreate
@@ -125,7 +132,7 @@ class VisionEstimator(
         EstimatedRobotPose(
           checkBest(lastPose, best, alternate) ?: best,
           result.timestampSeconds,
-          result.targets,
+          usedTargets,
           PoseStrategy.MULTI_TAG_PNP_ON_RIO
         )
       )

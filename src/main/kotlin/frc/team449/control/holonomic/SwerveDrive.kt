@@ -46,11 +46,13 @@ open class SwerveDrive(
 ) : SubsystemBase(), HolonomicDrive {
 
   /** Vision statistics */
-  protected var numTargets = DoubleArray(cameras.size)
-  protected var tagDistance = DoubleArray(cameras.size)
-  protected var avgAmbiguity = DoubleArray(cameras.size)
-  protected var heightError = DoubleArray(cameras.size)
-  protected var usedVision = BooleanArray(cameras.size)
+  protected val numTargets = DoubleArray(cameras.size)
+  protected val tagDistance = DoubleArray(cameras.size)
+  protected val avgAmbiguity = DoubleArray(cameras.size)
+  protected val heightError = DoubleArray(cameras.size)
+  protected val usedVision = BooleanArray(cameras.size)
+  protected val usedVisionSights = LongArray(cameras.size)
+  protected val rejectedVisionSights = LongArray(cameras.size)
 
   /** The kinematics that convert [ChassisSpeeds] into multiple [SwerveModuleState] objects. */
   protected val kinematics = SwerveDriveKinematics(
@@ -61,7 +63,7 @@ open class SwerveDrive(
   var currentSpeeds = ChassisSpeeds()
 
   /** Current estimated vision pose */
-  var visionPose = Pose2d()
+  var visionPose = DoubleArray(cameras.size * 3)
 
   /** Pose estimator that estimates the robot's position as a [Pose2d]. */
   protected val poseEstimator = SwerveDrivePoseEstimator(
@@ -225,22 +227,29 @@ open class SwerveDrive(
           }
         }
 
-        visionPose = presentResult.estimatedPose.toPose2d()
+        val estVisionPose = presentResult.estimatedPose.toPose2d()
+
+        visionPose[0 + 3 * index] = estVisionPose.x
+        visionPose[1 + 3 * index] = estVisionPose.y
+        visionPose[2 + 3 * index] = estVisionPose.rotation.radians
+
 
         if (presentResult.timestampSeconds > 0 &&
           avgAmbiguity[index] <= VisionConstants.MAX_AMBIGUITY &&
           numTargets[index] < 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_SINGLE_TAG ||
-          numTargets[index] >= 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_MULTI_TAG * (1 + (numTargets[index] - 2) * VisionConstants.TAG_MULTIPLIER) &&
+          numTargets[index] >= 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_MULTI_TAG + (numTargets[index] - 2) * VisionConstants.TAG_DIST &&
           heightError[index] < VisionConstants.MAX_HEIGHT_ERR_METERS
         ) {
           poseEstimator.addVisionMeasurement(
-            visionPose,
+            estVisionPose,
             presentResult.timestampSeconds,
             camera.getEstimationStdDevs(numTargets[index].toInt(), tagDistance[index])
           )
           usedVision[index] = true
+          usedVisionSights[index] += 1.toLong()
         } else {
           usedVision[index] = false
+          rejectedVisionSights[index] += 1.toLong()
         }
       }
     }
@@ -254,10 +263,9 @@ open class SwerveDrive(
   override fun initSendable(builder: SendableBuilder) {
     builder.publishConstString("1.0", "Poses and ChassisSpeeds")
     builder.addDoubleArrayProperty("1.1 Estimated Pose", { doubleArrayOf(pose.x, pose.y, pose.rotation.radians) }, null)
-    builder.addDoubleArrayProperty("1.2 Vision Pose", { doubleArrayOf(visionPose.x, visionPose.y, visionPose.rotation.radians) }, null)
-    builder.addDoubleArrayProperty("1.3 Current Chassis Speeds", { doubleArrayOf(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond, currentSpeeds.omegaRadiansPerSecond) }, null)
-    builder.addDoubleArrayProperty("1.4 Desired Chassis Speeds", { doubleArrayOf(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, desiredSpeeds.omegaRadiansPerSecond) }, null)
-    builder.addDoubleProperty("1.5 Max Recorded Speed", { maxSpeed }, null)
+    builder.addDoubleArrayProperty("1.2 Current Chassis Speeds", { doubleArrayOf(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond, currentSpeeds.omegaRadiansPerSecond) }, null)
+    builder.addDoubleArrayProperty("1.3 Desired Chassis Speeds", { doubleArrayOf(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, desiredSpeeds.omegaRadiansPerSecond) }, null)
+    builder.addDoubleProperty("1.4 Max Recorded Speed", { maxSpeed }, null)
 
     builder.publishConstString("2.0", "Vision Stats")
     builder.addBooleanArrayProperty("2.1 Used Last Vision Estimate?", { usedVision }, null)
@@ -265,6 +273,12 @@ open class SwerveDrive(
     builder.addDoubleArrayProperty("2.3 Avg Tag Distance", { tagDistance }, null)
     builder.addDoubleArrayProperty("2.4 Average Ambiguity", { avgAmbiguity }, null)
     builder.addDoubleArrayProperty("2.5 Cam Height Error", { heightError }, null)
+    builder.addIntegerArrayProperty("2.6 Total Used Vision Sights", { usedVisionSights }, null)
+    builder.addIntegerArrayProperty("2.7 Total Rejected Vision Sights", { rejectedVisionSights }, null)
+    for ((index, _) in cameras.withIndex()) {
+      builder.addDoubleArrayProperty("2.8${1 + index} Vision Pose Cam $index", { visionPose.slice(IntRange(0 + 3 * index, 2 + 3 * index)).toDoubleArray() }, null)
+      println(index)
+    }
 
     builder.publishConstString("3.0", "Steering Rot (Std Order FL, FR, BL, BR)")
     builder.addDoubleArrayProperty(
@@ -290,17 +304,58 @@ open class SwerveDrive(
       null
     )
 
-    builder.publishConstString("5.0", "Last Module Voltages (Standard Order, FL, FR, BL, BR)")
+    builder.publishConstString("5.0", "Motor Stats (Standard Order, FL, FR, BL, BR)")
     builder.addDoubleArrayProperty(
-      "5.1 Driving",
+      "5.11 Driving Motor Voltage",
       { DoubleArray(modules.size) { index -> modules[index].lastDrivingVoltage() } },
       null
     )
     builder.addDoubleArrayProperty(
-      "5.2 Steering",
+      "5.12 Steering Motor Voltage",
       { DoubleArray(modules.size) { index -> modules[index].lastSteeringVoltage() } },
       null
     )
+    builder.addDoubleArrayProperty(
+      "5.21 Driving Requested Duty Cycle",
+      { DoubleArray(modules.size) { index -> modules[index].requestedDutyCycleDriving() } },
+      null
+    )
+    builder.addDoubleArrayProperty(
+      "5.22 Steering Requested Duty Cycle",
+      { DoubleArray(modules.size) { index -> modules[index].requestedDutyCycleSteering() } },
+      null
+    )
+    builder.addDoubleArrayProperty(
+      "5.31 Driving Applied Duty Cycle",
+      { DoubleArray(modules.size) { index -> modules[index].appliedDutyCycleDriving() } },
+      null
+    )
+    builder.addDoubleArrayProperty(
+      "5.32 Steering Applied Duty Cycle",
+      { DoubleArray(modules.size) { index -> modules[index].appliedDutyCycleSteering() } },
+      null
+    )
+    builder.addDoubleArrayProperty(
+      "5.41 Driving Bus Voltage",
+      { DoubleArray(modules.size) { index -> modules[index].busVoltageDriving() } },
+      null
+    )
+    builder.addDoubleArrayProperty(
+      "5.42 Steering Bus Voltage",
+      { DoubleArray(modules.size) { index -> modules[index].busVoltageSteering() } },
+      null
+    )
+    builder.addDoubleArrayProperty(
+      "5.51 Driving Output Current",
+      { DoubleArray(modules.size) { index -> modules[index].outputCurrentDriving() } },
+      null
+    )
+    builder.addDoubleArrayProperty(
+      "5.52 Steering Output Current",
+      { DoubleArray(modules.size) { index -> modules[index].outputCurrentSteering() } },
+      null
+    )
+
 
     builder.publishConstString("6.0", "AHRS Values")
     builder.addDoubleProperty("6.1 Heading Degrees", { ahrs.heading.degrees }, null)

@@ -89,7 +89,7 @@ fun createSparkMax(
 
   motor.burnFlash()
 
-  return WrappedMotor(motor, enc)
+  return WrappedMotor(motor, enc, { motor.get() }, { motor.appliedOutput }, { motor.busVoltage }, { motor.outputCurrent })
 }
 
 /**

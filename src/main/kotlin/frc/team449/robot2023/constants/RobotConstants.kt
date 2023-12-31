@@ -33,7 +33,7 @@ object RobotConstants {
     MotorConstants.FREE_SPEED,
     1
   ).getTorque(55.0) /
-    (Units.inchesToMeters(2.0) * ROBOT_WEIGHT * SwerveConstants.DRIVE_GEARING) // m/s/s
+    ((SwerveConstants.DRIVE_UPR / (2 * PI)) * ROBOT_WEIGHT * SwerveConstants.DRIVE_GEARING) // m/s/s
 
   val INITIAL_POSE = Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0))
 

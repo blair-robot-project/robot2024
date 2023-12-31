@@ -33,10 +33,6 @@ object VisionConstants {
     AprilTagFields.k2023ChargedUp.m_resourceFile
   )
 
-//    AprilTagFieldLayout.loadFromResource(
-//    AprilTagFields.k2023ChargedUp.m_resourceFile
-//  )
-
   /** Robot to Camera distance */
   val robotToCamera = Transform3d(
     Translation3d(Units.inchesToMeters(-11.48657), Units.inchesToMeters(0.0), Units.inchesToMeters(8.3416)),
@@ -54,7 +50,7 @@ object VisionConstants {
   const val MAX_DISTANCE_MULTI_TAG = 4.5
   const val SINGLE_TAG_HEADING_MAX_DEV_DEG = 5.0
   const val MAX_HEIGHT_ERR_METERS = 0.075
-  const val TAG_MULTIPLIER = 0.5
+  const val TAG_DIST = 2.0
 
   /** Std Dev Calculation Constants */
   const val ORDER = 2
@@ -83,11 +79,29 @@ object VisionConstants {
       TAG_LAYOUT,
       robotToCamera,
       VISION_SIM
+    ),
+    VisionSubsystem(
+      "arducam2",
+      TAG_LAYOUT,
+      Transform3d(
+        Translation3d(Units.inchesToMeters(11.48657), Units.inchesToMeters(-10.0), Units.inchesToMeters(8.3416)),
+        Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(-45.0))
+      ),
+      VISION_SIM
+    ),
+    VisionSubsystem(
+      "arducam3",
+      TAG_LAYOUT,
+      Transform3d(
+        Translation3d(Units.inchesToMeters(11.48657), Units.inchesToMeters(10.0), Units.inchesToMeters(8.3416)),
+        Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(45.0))
+      ),
+      VISION_SIM
     )
   )
 
   val ENCODER_TRUST: Matrix<N3, N1> = MatBuilder(Nat.N3(), Nat.N1()).fill(.085, .085, .015)
-  val SINGLE_TAG_TRUST: Matrix<N3, N1> = MatBuilder(Nat.N3(), Nat.N1()).fill(.125, .125, .80)
+  val SINGLE_TAG_TRUST: Matrix<N3, N1> = MatBuilder(Nat.N3(), Nat.N1()).fill(.055, .055, .80)
   val MULTI_TAG_TRUST: Matrix<N3, N1> = MatBuilder(Nat.N3(), Nat.N1()).fill(.0275, .0275, .30)
 
 }

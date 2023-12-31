@@ -128,18 +128,23 @@
             0.0,
             1.0,
             255.0
-          ]
+          ],
+          "style": "Box/Image"
         },
         "bottom": 544,
         "builtin": "2023 Charged Up",
         "cameras": {
           "arrows": false,
-          "style": "Track"
+          "style": "Hidden"
         },
         "height": 8.013679504394531,
         "left": 46,
         "right": 1088,
         "top": 36,
+        "visibleTargetPoses": {
+          "selectable": false,
+          "style": "Hidden"
+        },
         "width": 16.541748046875,
         "window": {
           "visible": true
@@ -159,6 +164,12 @@
             "open": true
           }
         },
+        "arducam2-processed": {
+          "open": true,
+          "string[]##v_/CameraPublisher/arducam2-processed/streams": {
+            "open": true
+          }
+        },
         "open": true
       },
       "Monologuing": {
@@ -166,6 +177,9 @@
         "robot": {
           "drive": {
             "boolean[]##v_/Monologuing/robot/drive/2.1 Used Last Vision Estimate?": {
+              "open": true
+            },
+            "boolean[]##v_/Monologuing/robot/drive/2.2 Used Last Vision Estimate?": {
               "open": true
             },
             "double[]##v_/Monologuing/robot/drive/1.1 Estimated Pose": {
@@ -186,6 +200,9 @@
             "double[]##v_/Monologuing/robot/drive/2.1 Current Rotation": {
               "open": true
             },
+            "double[]##v_/Monologuing/robot/drive/2.1 Vision Pose": {
+              "open": true
+            },
             "double[]##v_/Monologuing/robot/drive/2.2 Desired Rotation": {
               "open": true
             },
@@ -195,16 +212,43 @@
             "double[]##v_/Monologuing/robot/drive/2.3 Avg Tag Distance": {
               "open": true
             },
+            "double[]##v_/Monologuing/robot/drive/2.3 Number of Targets": {
+              "open": true
+            },
             "double[]##v_/Monologuing/robot/drive/2.4 Average Ambiguity": {
               "open": true
             },
+            "double[]##v_/Monologuing/robot/drive/2.4 Avg Tag Distance": {
+              "open": true
+            },
             "double[]##v_/Monologuing/robot/drive/2.5 Cam Height Error": {
+              "open": true
+            },
+            "double[]##v_/Monologuing/robot/drive/2.81 Vision Pose Cam 0": {
+              "open": true
+            },
+            "double[]##v_/Monologuing/robot/drive/2.82 Vision Pose Cam 1": {
+              "open": true
+            },
+            "double[]##v_/Monologuing/robot/drive/2.83 Vision Pose Cam 2": {
+              "open": true
+            },
+            "double[]##v_/Monologuing/robot/drive/5.1 Driving": {
+              "open": true
+            },
+            "double[]##v_/Monologuing/robot/drive/5.2 Steering": {
               "open": true
             },
             "double[]##v_/Monologuing/robot/drive/Current Chassis Speeds": {
               "open": true
             },
             "double[]##v_/Monologuing/robot/drive/Estimated Pose": {
+              "open": true
+            },
+            "int[]##v_/Monologuing/robot/drive/2.6 Total Used Vision Sights": {
+              "open": true
+            },
+            "int[]##v_/Monologuing/robot/drive/2.7 Total Rejected Vision Sights": {
               "open": true
             },
             "open": true
