@@ -4,7 +4,7 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file at
 // the root directory of this project.
-package frc.team449.robot2023.commands.characterization
+package frc.team449.util.characterization
 
 import Jama.Matrix
 import Jama.QRDecomposition

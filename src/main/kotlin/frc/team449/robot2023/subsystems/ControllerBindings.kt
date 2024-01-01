@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.team449.control.holonomic.SwerveSim
 import frc.team449.robot2023.Robot
-import frc.team449.robot2023.commands.characterization.Characterization
+import frc.team449.util.characterization.Characterization
 import frc.team449.robot2023.constants.RobotConstants
 import kotlin.math.PI
 

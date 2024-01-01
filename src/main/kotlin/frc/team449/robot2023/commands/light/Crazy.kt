@@ -1,7 +1,7 @@
 package frc.team449.robot2023.commands.light
 
 import edu.wpi.first.wpilibj2.command.Command
-import frc.team449.robot2023.subsystems.light.Light
+import frc.team449.system.light.Light
 import kotlin.random.Random
 
 /** Description: Have a random color set for every led every 20ms

@@ -3,7 +3,7 @@ package frc.team449.robot2023.commands.light
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.wpilibj2.command.Command
 import frc.team449.robot2023.constants.subsystem.LightConstants
-import frc.team449.robot2023.subsystems.light.Light
+import frc.team449.system.light.Light
 
 /** Description: Have a linear transition from a darker to brighter specified hue */
 class BreatheHue(

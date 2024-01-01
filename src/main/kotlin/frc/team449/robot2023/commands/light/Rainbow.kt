@@ -3,7 +3,7 @@ package frc.team449.robot2023.commands.light
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.wpilibj2.command.Command
 import frc.team449.robot2023.constants.subsystem.LightConstants
-import frc.team449.robot2023.subsystems.light.Light
+import frc.team449.system.light.Light
 
 class Rainbow(
   private val led: Light
