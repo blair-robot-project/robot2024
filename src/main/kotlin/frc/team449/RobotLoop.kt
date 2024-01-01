@@ -1,5 +1,7 @@
 package frc.team449
 
+import edu.wpi.first.hal.FRCNetComm
+import edu.wpi.first.hal.HAL
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.TimedRobot
@@ -39,6 +41,8 @@ class RobotLoop : TimedRobot(), Logged {
   override fun robotInit() {
     // Yes this should be a print statement, it's useful to know that robotInit started.
     println("Started robotInit.")
+
+    HAL.report(FRCNetComm.tResourceType.kResourceType_Language, FRCNetComm.tInstances.kLanguage_Kotlin)
 
     if (RobotBase.isSimulation()) {
       // Don't complain about joysticks if there aren't going to be any
