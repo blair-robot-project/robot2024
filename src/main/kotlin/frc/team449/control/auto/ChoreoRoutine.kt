@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj2.command.*
 import frc.team449.control.holonomic.HolonomicDrive
-import frc.team449.robot2023.constants.auto.AutoConstants
+import frc.team449.robot2024.constants.auto.AutoConstants
 import kotlin.math.abs
 
 class ChoreoRoutine(
