@@ -5,7 +5,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds
 import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds
-import frc.team449.control.OI
+import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.InstantCommand
 import frc.team449.robot2024.constants.RobotConstants
 
 /**
@@ -29,7 +30,7 @@ object DifferentialOIs {
     rotThrottle: () -> Double,
     xRamp: SlewRateLimiter,
     rotRamp: SlewRateLimiter
-  ): OI = OI {
+  ): Command = InstantCommand({
     scaleAndApplyRamping(
       edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK(
         xThrottle(),
@@ -40,7 +41,7 @@ object DifferentialOIs {
       xRamp,
       rotRamp
     )
-  }
+  }).repeatedly()
 
   /**
    * Create OI for curvature drive (drives like a car). One throttle controls
@@ -62,7 +63,7 @@ object DifferentialOIs {
     xRamp: SlewRateLimiter,
     rotRamp: SlewRateLimiter,
     turnInPlace: () -> Boolean
-  ): OI = OI {
+  ): Command = InstantCommand({
     scaleAndApplyRamping(
       edu.wpi.first.wpilibj.drive.DifferentialDrive.curvatureDriveIK(
         xThrottle(),
@@ -73,7 +74,7 @@ object DifferentialOIs {
       xRamp,
       rotRamp
     )
-  }
+  }).repeatedly()
 
   /**
    * Create an OI for tank drive. Each throttle controls one side of the drive
@@ -94,7 +95,7 @@ object DifferentialOIs {
     rightThrottle: () -> Double,
     leftRamp: SlewRateLimiter,
     rightRamp: SlewRateLimiter
-  ): OI = OI {
+  ): Command = InstantCommand({
     drive.kinematics.toChassisSpeeds(
       DifferentialDriveWheelSpeeds(
         leftRamp.calculate(leftThrottle() * RobotConstants.MAX_LINEAR_SPEED),
@@ -103,7 +104,7 @@ object DifferentialOIs {
         )
       )
     )
-  }
+  }).repeatedly()
 
   /**
    * Scales differential drive throttles from [-1, 1] to [-maxSpeed, maxSpeed], then

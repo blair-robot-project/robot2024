@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds
-import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.control.DriveSubsystem
 import frc.team449.robot2024.constants.RobotConstants
@@ -52,18 +51,18 @@ open class DifferentialDrive(
   )
 
   /** Velocity PID controller for left side. */
-  private val leftPID = makeSidePID()
+  protected val leftPID = makeSidePID()
 
   /** Velocity PID controller for right side. */
-  private val rightPID = makeSidePID()
+  protected val rightPID = makeSidePID()
 
   var desiredWheelSpeeds = DifferentialDriveWheelSpeeds(0.0, 0.0)
 
   private var previousTime = Double.NaN
   private var prevWheelSpeeds = DifferentialDriveWheelSpeeds(0.0, 0.0)
 
-  private var prevLeftVel = 0.0
-  private var prevRightVel = 0.0
+  protected var prevLeftVel = 0.0
+  protected var prevRightVel = 0.0
   private var leftVel = 0.0
   private var rightVel = 0.0
 
@@ -79,25 +78,6 @@ open class DifferentialDrive(
 
     leftVel = desiredWheelSpeeds.leftMetersPerSecond
     rightVel = desiredWheelSpeeds.rightMetersPerSecond
-  }
-
-  /** The (x, y, theta) position of the robot on the field. */
-  override var pose: Pose2d
-    get() = this.poseEstimator.estimatedPosition
-    set(pose) {
-      leftLeader.encoder.resetPosition(0.0)
-      rightLeader.encoder.resetPosition(0.0)
-      this.poseEstimator.resetPosition(ahrs.heading, leftLeader.position, rightLeader.position, pose)
-    }
-
-  override fun stop() {
-    this.set(ChassisSpeeds(0.0, 0.0, 0.0))
-  }
-
-  override fun periodic() {
-    val currentTime = Timer.getFPGATimestamp()
-
-    val dt = if (previousTime.isNaN()) 0.02 else currentTime - previousTime
 
     leftPID.setpoint = leftVel
     rightPID.setpoint = rightVel
@@ -108,16 +88,27 @@ open class DifferentialDrive(
       leftVel,
       prevRightVel,
       rightVel,
-      dt
+      0.02
     )
 
     leftLeader.setVoltage(sideVoltages.left + leftPID.calculate(prevLeftVel))
 
     rightLeader.setVoltage(sideVoltages.right + rightPID.calculate(prevRightVel))
+  }
 
+  /** The (x, y, theta) position of the robot on the field. */
+  override var pose: Pose2d
+    get() = this.poseEstimator.estimatedPosition
+    set(pose) {
+      this.poseEstimator.resetPosition(ahrs.heading, leftLeader.position, rightLeader.position, pose)
+    }
+
+  override fun stop() {
+    this.set(ChassisSpeeds(0.0, 0.0, 0.0))
+  }
+
+  override fun periodic() {
     this.poseEstimator.update(ahrs.heading, this.leftLeader.position, this.rightLeader.position)
-
-    previousTime = currentTime
   }
 
   companion object {
@@ -183,30 +174,5 @@ open class DifferentialDrive(
         DifferentialConstants.TRACK_WIDTH
       )
     }
-
-//    fun simOf(
-//      drive: DifferentialDrive,
-//      kV: Double,
-//      kA: Double,
-//      angleKV: Double,
-//      angleKA: Double,
-//      wheelRadius: Double
-//    ): DifferentialSim {
-//      val drivePlant = LinearSystemId.identifyDrivetrainSystem(
-//        kV,
-//        kA,
-//        angleKV,
-//        angleKA
-//      )
-//      val driveSim = DifferentialDrivetrainSim(
-//        drivePlant,
-//        DCMotor.getNEO(3),
-//        DifferentialConstants.DRIVE_GEARING,
-//        drive.trackwidth,
-//        wheelRadius,
-//        VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
-//      )
-//      return DifferentialSim(driveSim, drive.leftLeader, drive.rightLeader, drive.ahrs, drive.feedforward, drive.makeVelPID, drive.trackwidth)
-//    }
   }
 }

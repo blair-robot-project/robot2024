@@ -2,14 +2,13 @@ package frc.team449.control.holonomic
 
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.filter.SlewRateLimiter
-import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.util.sendable.Sendable
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.XboxController
-import frc.team449.control.OI
+import edu.wpi.first.wpilibj2.command.Command
 import frc.team449.robot2024.constants.RobotConstants
 import java.util.function.DoubleSupplier
 import kotlin.math.abs
@@ -40,7 +39,7 @@ class HolonomicOI(
   private val rotRamp: SlewRateLimiter,
   private val maxAccel: Double,
   private val fieldOriented: () -> Boolean
-) : OI, Sendable {
+) : Command(), Sendable {
 
   /** Previous X velocity (scaled and clamped). */
   private var prevX = 0.0
@@ -59,10 +58,10 @@ class HolonomicOI(
   /**
    * @return The [ChassisSpeeds] for the given x, y and
    * rotation input from the joystick */
-  override fun get(): ChassisSpeeds {
+  override fun execute() {
     val currTime = Timer.getFPGATimestamp()
     if (this.prevTime.isNaN()) {
-      this.prevTime = currTime - 0.02
+      this.prevTime = currTime - RobotConstants.LOOP_TIME
     }
     this.dt = currTime - prevTime
     this.prevTime = currTime
@@ -92,22 +91,22 @@ class HolonomicOI(
     // translation velocity vector
     val vel = Translation2d(xClamped, yClamped)
 
-    return if (this.fieldOriented()) {
-      /** Quick fix for the velocity skewing towards the direction of rotation
-       * by rotating it with offset proportional to how much we are rotating
-       **/
-      vel.rotateBy(Rotation2d(-rotScaled * dt / 2))
-      ChassisSpeeds.fromFieldRelativeSpeeds(
-        vel.x,
-        vel.y,
-        rotScaled,
-        drive.heading
+    if (this.fieldOriented()) {
+      drive.set(
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+          vel.x,
+          vel.y,
+          rotScaled,
+          drive.heading
+        )
       )
     } else {
-      ChassisSpeeds(
-        vel.x,
-        vel.y,
-        rotScaled
+      drive.set(
+        ChassisSpeeds(
+          vel.x,
+          vel.y,
+          rotScaled
+        )
       )
     }
   }
@@ -122,7 +121,6 @@ class HolonomicOI(
     builder.addDoubleProperty("dt", { this.dt }, null)
     builder.addDoubleProperty("magAcc", { this.magAcc }, null)
     builder.addDoubleProperty("magAccClamped", { this.magAccClamped }, null)
-    builder.addStringProperty("speeds", { this.get().toString() }, null)
   }
 
   companion object {

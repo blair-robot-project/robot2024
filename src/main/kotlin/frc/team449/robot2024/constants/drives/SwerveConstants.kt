@@ -53,6 +53,7 @@ object SwerveConstants {
   const val DRIVE_CURRENT_LIM = 55
   const val STEERING_CURRENT_LIM = 40
   const val JOYSTICK_FILTER_ORDER = 2
+  const val SKEW_CONSTANT = 11.5
 
   /** Wheelbase = wheel-to-wheel distance from front to back of the robot */
   /** Trackwidth = wheel-to-wheel distance from side to side of the robot */
