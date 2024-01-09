@@ -4,8 +4,8 @@ plugins {
     id "java"
     id "idea"
     id "org.jetbrains.kotlin.jvm" version "1.8.20"
-    id "edu.wpi.first.GradleRIO" version "2024.1.1-beta-3"
-    id "org.jlleitschuh.gradle.ktlint" version "11.3.1"
+    id "edu.wpi.first.GradleRIO" version "2024.1.1"
+    id "org.jlleitschuh.gradle.ktlint" version "12.0.3"
     id "org.jetbrains.dokka" version "1.8.10"
 }
 java {
@@ -51,6 +51,11 @@ wpi.java.debugJni = false
 
 // Set this to true to enable desktop support.
 def includeDesktopSupport = false
+
+ktlint {
+    version = "0.47.0"
+    disabledRules = ["no-wildcard-imports", "trailing-comma-on-call-site"]
+}
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.

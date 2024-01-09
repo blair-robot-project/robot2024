@@ -13,7 +13,6 @@ import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.util.characterization.Characterization
 import kotlin.math.PI
 
-
 class ControllerBindings(
   private val driveController: XboxController,
   private val mechanismController: XboxController,
@@ -61,6 +60,5 @@ class ControllerBindings(
         }
       })
     )
-
   }
 }

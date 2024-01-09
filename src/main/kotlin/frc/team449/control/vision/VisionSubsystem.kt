@@ -19,7 +19,6 @@ import java.util.Optional
 import kotlin.math.abs
 import kotlin.math.pow
 
-
 class VisionSubsystem(
   name: String,
   tagLayout: AprilTagFieldLayout,

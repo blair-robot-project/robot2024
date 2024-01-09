@@ -94,7 +94,6 @@ class SwerveSim(
         visionPose[1 + 3 * index] = estVisionPose.y
         visionPose[2 + 3 * index] = estVisionPose.rotation.radians
 
-
         if (presentResult.timestampSeconds > 0 &&
           avgAmbiguity[index] <= VisionConstants.MAX_AMBIGUITY &&
           numTargets[index] < 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_SINGLE_TAG ||

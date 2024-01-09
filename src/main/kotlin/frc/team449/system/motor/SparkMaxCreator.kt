@@ -1,9 +1,6 @@
 package frc.team449.system.motor
 
-import com.revrobotics.CANSparkMax
-import com.revrobotics.CANSparkMaxLowLevel
-import com.revrobotics.REVLibError
-import com.revrobotics.SparkMaxLimitSwitch
+import com.revrobotics.*
 import edu.wpi.first.wpilibj.RobotController
 import frc.team449.system.encoder.EncoderCreator
 
@@ -25,11 +22,11 @@ fun createSparkMax(
   enableVoltageComp: Boolean = false,
   slaveSparks: Map<Int, Boolean> = mapOf(),
   controlFrameRateMillis: Int = -1,
-  statusFrameRatesMillis: Map<CANSparkMaxLowLevel.PeriodicFrame, Int> = mapOf()
+  statusFrameRatesMillis: Map<CANSparkLowLevel.PeriodicFrame, Int> = mapOf()
 ): WrappedMotor {
   val motor = CANSparkMax(
     id,
-    CANSparkMaxLowLevel.MotorType.kBrushless
+    CANSparkLowLevel.MotorType.kBrushless
   )
   if (motor.lastError != REVLibError.kOk) {
     println(
@@ -46,9 +43,9 @@ fun createSparkMax(
 
   val brakeMode =
     if (enableBrakeMode) {
-      CANSparkMax.IdleMode.kBrake
+      CANSparkBase.IdleMode.kBrake
     } else {
-      CANSparkMax.IdleMode.kCoast
+      CANSparkBase.IdleMode.kCoast
     }
 
   motor.inverted = inverted
@@ -100,26 +97,26 @@ fun createSparkMax(
 private fun createFollowerSpark(port: Int): CANSparkMax {
   val follower = CANSparkMax(
     port,
-    CANSparkMaxLowLevel.MotorType.kBrushless
+    CANSparkLowLevel.MotorType.kBrushless
   )
 
   follower
-    .getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen)
+    .getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen)
     .enableLimitSwitch(false)
   follower
-    .getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen)
+    .getReverseLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen)
     .enableLimitSwitch(false)
 
   follower.setPeriodicFramePeriod(
-    CANSparkMaxLowLevel.PeriodicFrame.kStatus0,
+    CANSparkLowLevel.PeriodicFrame.kStatus0,
     100
   )
   follower.setPeriodicFramePeriod(
-    CANSparkMaxLowLevel.PeriodicFrame.kStatus1,
+    CANSparkLowLevel.PeriodicFrame.kStatus1,
     100
   )
   follower.setPeriodicFramePeriod(
-    CANSparkMaxLowLevel.PeriodicFrame.kStatus2,
+    CANSparkLowLevel.PeriodicFrame.kStatus2,
     100
   )
 

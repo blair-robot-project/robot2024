@@ -46,7 +46,7 @@ object SwerveConstants {
   const val DRIVE_KD = 0.0
 
   /** Drive configuration */
-  const val DRIVE_GEARING = (14 / 50) * (28 / 16) * (15 / 45)
+  const val DRIVE_GEARING = (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 45.0)
   const val DRIVE_UPR = 0.31818905832
   const val TURN_UPR = 2 * Math.PI
   const val MAX_ATTAINABLE_MK4I_SPEED = (12 - DRIVE_KS) / DRIVE_KV

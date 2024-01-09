@@ -13,7 +13,7 @@ import org.photonvision.EstimatedRobotPose
 import org.photonvision.PhotonCamera
 import org.photonvision.PhotonPoseEstimator
 import org.photonvision.estimation.OpenCVHelp
-import org.photonvision.targeting.PNPResults
+import org.photonvision.targeting.PNPResult
 import org.photonvision.targeting.PhotonPipelineResult
 import org.photonvision.targeting.PhotonTrackedTarget
 import org.photonvision.targeting.TargetCorner
@@ -217,7 +217,6 @@ class VisionEstimator(
         return Optional.empty()
       }
     } else {
-
       val camAltPose = targetPosition
         .get()
         .transformBy(
@@ -257,10 +256,10 @@ class VisionEstimator(
   private fun estimateCamPosePNP(
     cameraMatrix: Matrix<N3?, N3?>?,
     distCoeffs: Matrix<N5?, N1?>?,
-    visTags: List<PhotonTrackedTarget>?,
-  ): PNPResults {
+    visTags: List<PhotonTrackedTarget>?
+  ): PNPResult {
     if (visTags == null || tagLayout.tags.isEmpty() || visTags.isEmpty()) {
-      return PNPResults()
+      return PNPResult()
     }
     val corners = java.util.ArrayList<TargetCorner>()
     val knownTags = java.util.ArrayList<AprilTag>()
@@ -275,19 +274,19 @@ class VisionEstimator(
         }
     }
     if (knownTags.size == 0 || corners.size == 0 || corners.size % 4 != 0) {
-      return PNPResults()
+      return PNPResult()
     }
     val points = OpenCVHelp.cornersToPoints(corners)
 
     // single-tag pnp
     return if (knownTags.size == 1) {
       val camToTag = OpenCVHelp.solvePNP_SQUARE(cameraMatrix, distCoeffs, VisionConstants.TAG_MODEL.vertices, points)
-      if (!camToTag.isPresent) return PNPResults()
+      if (!camToTag.isPresent) return PNPResult()
       val bestPose = knownTags[0].pose.transformBy(camToTag.best.inverse())
       var altPose: Pose3d? = Pose3d()
       if (camToTag.ambiguity != 0.0) altPose = knownTags[0].pose.transformBy(camToTag.alt.inverse())
       val o = Pose3d()
-      PNPResults(
+      PNPResult(
         Transform3d(o, bestPose),
         Transform3d(o, altPose),
         camToTag.ambiguity,
@@ -298,13 +297,17 @@ class VisionEstimator(
       val objectTrls = java.util.ArrayList<Translation3d>()
       for (tag in knownTags) objectTrls.addAll(VisionConstants.TAG_MODEL.getFieldVertices(tag.pose))
       val camToOrigin = OpenCVHelp.solvePNP_SQPNP(cameraMatrix, distCoeffs, objectTrls, points)
-      if (!camToOrigin.isPresent) PNPResults() else PNPResults(
-        camToOrigin.best.inverse(),
-        camToOrigin.alt.inverse(),
-        camToOrigin.ambiguity,
-        camToOrigin.bestReprojErr,
-        camToOrigin.altReprojErr
-      )
+      if (!camToOrigin.isPresent) {
+        PNPResult()
+      } else {
+        PNPResult(
+          camToOrigin.best.inverse(),
+          camToOrigin.alt.inverse(),
+          camToOrigin.ambiguity,
+          camToOrigin.bestReprojErr,
+          camToOrigin.altReprojErr
+        )
+      }
     }
   }
 }

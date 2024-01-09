@@ -72,8 +72,8 @@ open class MecanumDrive(
     ahrs.heading,
     getPositions(),
     RobotConstants.INITIAL_POSE,
-    MatBuilder(Nat.N3(), Nat.N1()).fill(.005, .005, .0005), // [x, y, theta] other estimates
-    MatBuilder(Nat.N3(), Nat.N1()).fill(.005, .005, .0005) // [x, y, theta] vision estimates
+    MatBuilder.fill(Nat.N3(), Nat.N1(), .005, .005, .0005), // [x, y, theta] other estimates
+    MatBuilder.fill(Nat.N3(), Nat.N1(), .005, .005, .0005) // [x, y, theta] vision estimates
   )
 
   override var pose: Pose2d

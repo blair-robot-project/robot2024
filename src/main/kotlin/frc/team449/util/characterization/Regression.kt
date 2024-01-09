@@ -32,14 +32,14 @@ import kotlin.math.pow
  * @author Kevin Wayne
  */
 class Regression @JvmOverloads constructor(
-  x: DoubleArray, y: DoubleArray, // degree of the polynomial regression
+  x: DoubleArray,
+  y: DoubleArray, // degree of the polynomial regression
   private var degree: Int, // name of the predictor variable
   private var variableName: String = "n"
 ) : Comparable<Regression?> {
-  private val beta // the polynomial regression coefficients
-    : Matrix
-  private val sse // sum of squares due to error
-    : Double
+
+  private val beta: Matrix // the polynomial regression coefficients
+  private val sse: Double // sum of squares due to error
   private var sst = 0.0 // total sum of squares
 
   init {
@@ -153,8 +153,10 @@ class Regression @JvmOverloads constructor(
         1 -> s.append(String.format("%.10f %s + ", beta(j), variableName))
         else -> s.append(
           String.format(
-            "%.10f %s^%d + ", beta(j),
-            variableName, j
+            "%.10f %s^%d + ",
+            beta(j),
+            variableName,
+            j
           )
         )
       }

@@ -28,7 +28,6 @@ class Characterization(
     addRequirements(subsystem)
   }
 
-
   // Called when the command is initially scheduled.
   override fun initialize() {
     timer.reset()

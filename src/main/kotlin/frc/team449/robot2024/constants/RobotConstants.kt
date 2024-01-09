@@ -37,7 +37,6 @@ object RobotConstants {
 
   val INITIAL_POSE = Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0))
 
-
   init {
     println("Max Accel $MAX_ACCEL")
   }

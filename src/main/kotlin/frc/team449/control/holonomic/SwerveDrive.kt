@@ -114,12 +114,13 @@ open class SwerveDrive(
     }
 
     val scale =
-      if (realMaxSpeed > 0 && k < 1)
+      if (realMaxSpeed > 0 && k < 1) {
         k * SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED / realMaxSpeed
-      else if (realMaxSpeed > 0)
+      } else if (realMaxSpeed > 0) {
         SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED / realMaxSpeed
-      else
+      } else {
         1.0
+      }
 
     for (moduleState in desiredStates) {
       moduleState.speedMetersPerSecond *= scale
@@ -232,7 +233,6 @@ open class SwerveDrive(
         visionPose[0 + 3 * index] = estVisionPose.x
         visionPose[1 + 3 * index] = estVisionPose.y
         visionPose[2 + 3 * index] = estVisionPose.rotation.radians
-
 
         if (presentResult.timestampSeconds > 0 &&
           avgAmbiguity[index] <= VisionConstants.MAX_AMBIGUITY &&
@@ -355,7 +355,6 @@ open class SwerveDrive(
       { DoubleArray(modules.size) { index -> modules[index].outputCurrentSteering() } },
       null
     )
-
 
     builder.publishConstString("6.0", "AHRS Values")
     builder.addDoubleProperty("6.1 Heading Degrees", { ahrs.heading.degrees }, null)

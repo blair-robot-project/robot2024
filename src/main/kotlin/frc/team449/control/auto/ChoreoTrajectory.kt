@@ -3,6 +3,7 @@ package frc.team449.control.auto
 import edu.wpi.first.math.InterpolatingMatrixTreeMap
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.MathUtil
+import edu.wpi.first.math.Nat
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.numbers.N2
@@ -97,8 +98,8 @@ class ChoreoTrajectory(
 
         timestamps.add(stateTime)
 
-        val builder = MatBuilder(N2.instance, N3.instance)
-        val matrix = builder.fill(
+        val matrix = MatBuilder.fill(
+          Nat.N2(), Nat.N3(),
           state["x"].toString().toDouble(),
           state["y"].toString().toDouble(),
           state["heading"].toString().toDouble(),

@@ -22,7 +22,6 @@ class BreatheHue(
   private var firstIntensity1 = 175.0
   private var firstIntensity2 = 175.0
 
-
   override fun execute() {
     for (i in LightConstants.SECTION_1_START..LightConstants.SECTION_1_END) {
       // This number is related to how many lights will show up between the high and low intensity

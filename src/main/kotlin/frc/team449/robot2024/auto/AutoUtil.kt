@@ -2,8 +2,7 @@ package frc.team449.robot2024.auto
 
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.MathUtil
-import edu.wpi.first.math.numbers.N2
-import edu.wpi.first.math.numbers.N3
+import edu.wpi.first.math.Nat
 import frc.team449.control.auto.ChoreoTrajectory
 import frc.team449.robot2024.constants.field.FieldConstants
 import kotlin.math.PI
@@ -14,7 +13,9 @@ object AutoUtil {
       for (time in pathGroup[index].objectiveTimestamps) {
         val currentMatrix = pathGroup[index].stateMap.get(time)
 
-        val newMatrix = MatBuilder(N2.instance, N3.instance).fill(
+        val newMatrix = MatBuilder.fill(
+          Nat.N2(),
+          Nat.N3(),
           currentMatrix[0, 0],
           FieldConstants.fieldWidth - currentMatrix[0, 1],
           -currentMatrix[0, 2],
@@ -35,7 +36,9 @@ object AutoUtil {
       for (time in pathGroup[index].objectiveTimestamps) {
         val currentMatrix = pathGroup[index].stateMap.get(time)
 
-        val newMatrix = MatBuilder(N2.instance, N3.instance).fill(
+        val newMatrix = MatBuilder.fill(
+          Nat.N2(),
+          Nat.N3(),
           FieldConstants.fieldLength - currentMatrix[0, 0],
           FieldConstants.fieldWidth - currentMatrix[0, 1],
           MathUtil.angleModulus(PI + currentMatrix[0, 2]),

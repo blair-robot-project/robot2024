@@ -14,7 +14,7 @@ object SparkUtil {
     enableVoltageComp: Boolean = false,
     slaveSparks: Map<Int, Boolean> = mapOf(),
     controlFrameRateMillis: Int = -1,
-    statusFrameRatesMillis: Map<CANSparkMaxLowLevel.PeriodicFrame, Int> = mapOf(),
+    statusFrameRatesMillis: Map<CANSparkLowLevel.PeriodicFrame, Int> = mapOf(),
 
     // encoder information
     encoder: MotorFeedbackSensor,
@@ -24,7 +24,7 @@ object SparkUtil {
     encInverted: Boolean = false
   ) {
     sparkMax.restoreFactoryDefaults()
-    sparkMax.idleMode = if (enableBrakeMode) CANSparkMax.IdleMode.kBrake else CANSparkMax.IdleMode.kCoast
+    sparkMax.idleMode = if (enableBrakeMode) CANSparkBase.IdleMode.kBrake else CANSparkBase.IdleMode.kCoast
     sparkMax.inverted = inverted
     if (currentLimit > 0) sparkMax.setSmartCurrentLimit(currentLimit)
     if (enableVoltageComp) sparkMax.enableVoltageCompensation(RobotController.getBatteryVoltage()) else sparkMax.disableVoltageCompensation()
@@ -34,7 +34,7 @@ object SparkUtil {
     }
 
     for ((slavePort, slaveInverted) in slaveSparks) {
-      val slave = CANSparkMax(slavePort, CANSparkMaxLowLevel.MotorType.kBrushless)
+      val slave = CANSparkMax(slavePort, CANSparkLowLevel.MotorType.kBrushless)
       slave.restoreFactoryDefaults()
       slave.follow(sparkMax, slaveInverted)
       slave.idleMode = sparkMax.idleMode
@@ -43,14 +43,14 @@ object SparkUtil {
     }
 
     when (encoder) {
-      is SparkMaxAbsoluteEncoder -> {
+      is SparkAbsoluteEncoder -> {
         encoder.positionConversionFactor = unitPerRotation * gearing
         encoder.velocityConversionFactor = unitPerRotation * gearing / 60
         encoder.zeroOffset = offset
         encoder.setInverted(encInverted)
       }
 
-      is SparkMaxRelativeEncoder -> {
+      is SparkRelativeEncoder -> {
         encoder.positionConversionFactor = unitPerRotation * gearing
         encoder.velocityConversionFactor = unitPerRotation * gearing / 60
       }

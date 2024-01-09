@@ -71,7 +71,6 @@ object VisionConstants {
   const val SIM_STDDEV_LATENCY = 10.0
   const val ENABLE_WIREFRAME = true
 
-
   /** List of cameras that we want to use */
   val ESTIMATORS: ArrayList<VisionSubsystem> = arrayListOf(
     VisionSubsystem(
@@ -100,8 +99,7 @@ object VisionConstants {
     )
   )
 
-  val ENCODER_TRUST: Matrix<N3, N1> = MatBuilder(Nat.N3(), Nat.N1()).fill(.085, .085, .015)
-  val SINGLE_TAG_TRUST: Matrix<N3, N1> = MatBuilder(Nat.N3(), Nat.N1()).fill(.055, .055, .80)
-  val MULTI_TAG_TRUST: Matrix<N3, N1> = MatBuilder(Nat.N3(), Nat.N1()).fill(.0275, .0275, .30)
-
+  val ENCODER_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .085, .085, .015)
+  val SINGLE_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .055, .055, .80)
+  val MULTI_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .0275, .0275, .30)
 }
