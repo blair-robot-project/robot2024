@@ -21,6 +21,7 @@ import frc.team449.robot2024.subsystems.ControllerBindings
 import monologue.Logged
 import monologue.Monologue
 import monologue.Monologue.LogBoth
+import org.littletonrobotics.urcl.URCL
 import kotlin.jvm.optionals.getOrNull
 
 /** The main class of the robot, constructs all the subsystems and initializes default commands. */
@@ -65,6 +66,7 @@ class RobotLoop : TimedRobot(), Logged {
     controllerBinder.bindButtons()
 
     Monologue.setupLogging(this, "/Monologuing")
+    URCL.start()
   }
 
   override fun robotPeriodic() {

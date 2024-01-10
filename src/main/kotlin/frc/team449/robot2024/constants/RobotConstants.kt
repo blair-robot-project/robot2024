@@ -20,7 +20,7 @@ object RobotConstants {
   const val ROTATION_DEADBAND = .15
 
   /** In kilograms, include bumpers and battery and all */
-  const val ROBOT_WEIGHT = 55
+  const val ROBOT_WEIGHT = 55.0
 
   /** Drive configuration */
   const val MAX_LINEAR_SPEED = SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED // m/s
