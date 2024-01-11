@@ -132,12 +132,12 @@
           "style": "Box/Image"
         },
         "bottom": 544,
-        "builtin": "2023 Charged Up",
+        "builtin": "2024 Crescendo",
         "cameras": {
           "arrows": false,
           "style": "Hidden"
         },
-        "height": 8.013679504394531,
+        "height": 8.210550308227539,
         "left": 46,
         "right": 1088,
         "top": 36,
@@ -145,7 +145,7 @@
           "selectable": false,
           "style": "Hidden"
         },
-        "width": 16.541748046875,
+        "width": 16.541749954223633,
         "window": {
           "visible": true
         }

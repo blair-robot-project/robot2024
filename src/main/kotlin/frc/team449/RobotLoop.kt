@@ -2,6 +2,8 @@ package frc.team449
 
 import edu.wpi.first.hal.FRCNetComm
 import edu.wpi.first.hal.HAL
+import edu.wpi.first.math.MatBuilder
+import edu.wpi.first.math.Nat
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.TimedRobot
@@ -66,7 +68,7 @@ class RobotLoop : TimedRobot(), Logged {
     controllerBinder.bindButtons()
 
     Monologue.setupLogging(this, "/Monologuing")
-    URCL.start()
+//    URCL.start()
   }
 
   override fun robotPeriodic() {
@@ -86,6 +88,8 @@ class RobotLoop : TimedRobot(), Logged {
   }
 
   override fun autonomousInit() {
+    VisionConstants.ENCODER_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .0225, .0225, .010))
+
     /** Every time auto starts, we update the chosen auto command */
     this.autoCommand = routineMap[routineChooser.selected]
     CommandScheduler.getInstance().schedule(this.autoCommand)
@@ -100,6 +104,9 @@ class RobotLoop : TimedRobot(), Logged {
   override fun autonomousPeriodic() {}
 
   override fun teleopInit() {
+    VisionConstants.ENCODER_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .085, .085, .015))
+
+
     if (autoCommand != null) {
       CommandScheduler.getInstance().cancel(autoCommand)
     }

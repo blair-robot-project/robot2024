@@ -6,8 +6,8 @@ import edu.wpi.first.math.util.Units
 import frc.team449.robot2024.constants.RobotConstants
 
 object FieldConstants {
-  val fieldLength = Units.feetToMeters(54.0)
-  val fieldWidth = Units.feetToMeters(27.0)
+  val fieldLength = 16.54175
+  val fieldWidth = 8.21055
 
   val wallNodeY = Units.inchesToMeters(20.19)
   val nodeSeparationY = Units.inchesToMeters(22.0)

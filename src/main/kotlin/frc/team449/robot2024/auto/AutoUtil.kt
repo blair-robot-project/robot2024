@@ -40,10 +40,10 @@ object AutoUtil {
           Nat.N2(),
           Nat.N3(),
           FieldConstants.fieldLength - currentMatrix[0, 0],
-          FieldConstants.fieldWidth - currentMatrix[0, 1],
+          currentMatrix[0, 1],
           MathUtil.angleModulus(PI + currentMatrix[0, 2]),
           -currentMatrix[1, 0],
-          -currentMatrix[1, 1],
+          currentMatrix[1, 1],
           currentMatrix[1, 2]
         )
 

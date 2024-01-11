@@ -30,7 +30,7 @@ object VisionConstants {
 
   /** WPILib's AprilTagFieldLayout for the 2023 Charged Up Game */
   val TAG_LAYOUT: AprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(
-    AprilTagFields.k2023ChargedUp.m_resourceFile
+    AprilTagFields.k2024Crescendo.m_resourceFile
   )
 
   /** Robot to Camera distance */
