@@ -99,7 +99,8 @@ class ChoreoTrajectory(
         timestamps.add(stateTime)
 
         val matrix = MatBuilder.fill(
-          Nat.N2(), Nat.N3(),
+          Nat.N2(),
+          Nat.N3(),
           state["x"].toString().toDouble(),
           state["y"].toString().toDouble(),
           state["heading"].toString().toDouble(),

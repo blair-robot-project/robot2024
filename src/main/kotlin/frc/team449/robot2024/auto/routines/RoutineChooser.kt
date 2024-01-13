@@ -2,7 +2,6 @@ package frc.team449.robot2024.auto.routines
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj2.command.Command
-import frc.team449.robot2023.auto.routines.Experimental4Piece
 import frc.team449.robot2024.Robot
 
 class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
