@@ -162,7 +162,6 @@
     "transitory": {
       "CameraPublisher": {
         "arducam-processed": {
-          "open": true,
           "string[]##v_/CameraPublisher/arducam-processed/streams": {
             "open": true
           }
@@ -176,6 +175,9 @@
         "open": true
       },
       "Monologuing": {
+        "field": {
+          "open": true
+        },
         "open": true,
         "robot": {
           "drive": {

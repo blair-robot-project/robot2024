@@ -20,20 +20,20 @@ import frc.team449.robot2024.commands.light.BreatheHue
 import frc.team449.robot2024.commands.light.Rainbow
 import frc.team449.robot2024.constants.vision.VisionConstants
 import frc.team449.robot2024.subsystems.ControllerBindings
+import monologue.Annotations
 import monologue.Logged
 import monologue.Monologue
-import monologue.Monologue.LogBoth
 import kotlin.jvm.optionals.getOrNull
 
 /** The main class of the robot, constructs all the subsystems and initializes default commands. */
 class RobotLoop : TimedRobot(), Logged {
 
-  @LogBoth
+  @Annotations.Log.NT
   private val robot = Robot()
 
   private val routineChooser: RoutineChooser = RoutineChooser(robot)
 
-  @LogBoth
+  @Annotations.Log.NT
   private val field = robot.field
 
   private var autoCommand: Command? = null
@@ -66,7 +66,7 @@ class RobotLoop : TimedRobot(), Logged {
 
     controllerBinder.bindButtons()
 
-    Monologue.setupLogging(this, "/Monologuing")
+    Monologue.setupMonologue(this, "/Monologuing", false, false)
 //    URCL.start()
   }
 
@@ -77,13 +77,8 @@ class RobotLoop : TimedRobot(), Logged {
 
     robot.field.getObject("bumpers").pose = robot.drive.pose
 
-    if (SmartDashboard.getBoolean("Enable Logging?", false)) {
-      Monologue.update()
-    } else if (RobotBase.isSimulation()) {
-      Monologue.updateNT()
-    } else {
-      Monologue.updateFileLog()
-    }
+    Monologue.setFileOnly(DriverStation.isFMSAttached())
+    Monologue.updateAll()
   }
 
   override fun autonomousInit() {

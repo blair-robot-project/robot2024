@@ -9,8 +9,8 @@ import frc.team449.control.holonomic.SwerveOrthogonalCommand
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.system.AHRS
 import frc.team449.system.light.Light
+import monologue.Annotations
 import monologue.Logged
-import monologue.Monologue.LogBoth
 
 class Robot : RobotBase(), Logged {
 
@@ -22,16 +22,16 @@ class Robot : RobotBase(), Logged {
 
   // Instantiate/declare PDP and other stuff here
 
-  @LogBoth
+  @Annotations.Log.NT
   override val powerDistribution: PowerDistribution = PowerDistribution(
     RobotConstants.PDH_CAN,
     PowerDistribution.ModuleType.kRev
   )
 
-  @LogBoth
+  @Annotations.Log.NT
   override val drive = SwerveDrive.createSwerve(ahrs, field)
 
-  @LogBoth
+  @Annotations.Log.NT
   override val driveCommand = SwerveOrthogonalCommand(drive, driveController)
 
   val light = Light.createLight()
