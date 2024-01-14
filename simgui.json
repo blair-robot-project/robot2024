@@ -68,24 +68,25 @@
     },
     "windows": {
       "/Monologuing/field": {
-        "bottom": 544,
-        "builtin": "2023 Charged Up",
-        "bumpers": {
-          "length": 0.9271000027656555,
-          "width": 0.8510000109672546
+        "Robot": {
+          "length": 0.7111999988555908,
+          "width": 0.7111999988555908
         },
-        "height": 8.013679504394531,
-        "left": 46,
+        "bumpers": {
+          "length": 0.8762999773025513,
+          "width": 0.8762999773025513
+        },
+        "height": 8.211000442504883,
+        "image": "C:\\Users\\jpoth\\Downloads\\image(1).png",
         "odo": {
           "color": [
             0.7647056579589844,
             0.0,
             1.0,
             255.0
-          ]
+          ],
+          "style": "Hidden"
         },
-        "right": 1088,
-        "top": 36,
         "units": "meters",
         "width": 16.541748046875,
         "window": {
@@ -143,7 +144,7 @@
         },
         "height": 8.210550308227539,
         "image": "C:\\Users\\jpoth\\Downloads\\image(1).png",
-        "units": "inches",
+        "units": "meters",
         "visibleTargetPoses": {
           "selectable": false,
           "style": "Hidden"

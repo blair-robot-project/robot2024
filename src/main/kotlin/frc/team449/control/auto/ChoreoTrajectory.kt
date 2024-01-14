@@ -14,6 +14,7 @@ import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
 import java.io.File
 import java.io.FileReader
+import kotlin.math.abs
 
 class ChoreoTrajectory(
   val name: String,
@@ -87,6 +88,10 @@ class ChoreoTrajectory(
       return trajList
     }
 
+    private fun deadband(value: Double, deadband: Double = 1e-6): Double {
+      return if (abs(value) > deadband) value else 0.0
+    }
+
     private fun parse(trajectory: JSONArray): Pair<InterpolatingMatrixTreeMap<Double, N2, N3>, ArrayList<Double>> {
       val stateMap = InterpolatingMatrixTreeMap<Double, N2, N3>()
 
@@ -101,12 +106,12 @@ class ChoreoTrajectory(
         val matrix = MatBuilder.fill(
           Nat.N2(),
           Nat.N3(),
-          state["x"].toString().toDouble(),
-          state["y"].toString().toDouble(),
-          state["heading"].toString().toDouble(),
-          state["velocityX"].toString().toDouble(),
-          state["velocityY"].toString().toDouble(),
-          state["angularVelocity"].toString().toDouble()
+          deadband(state["x"].toString().toDouble()),
+          deadband(state["y"].toString().toDouble()),
+          deadband(state["heading"].toString().toDouble()),
+          deadband(state["velocityX"].toString().toDouble()),
+          deadband(state["velocityY"].toString().toDouble()),
+          deadband(state["angularVelocity"].toString().toDouble())
         )
 
         stateMap.put(stateTime, matrix)
