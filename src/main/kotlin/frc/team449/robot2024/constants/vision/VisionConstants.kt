@@ -73,12 +73,12 @@ object VisionConstants {
 
   /** List of cameras that we want to use */
   val ESTIMATORS: ArrayList<VisionSubsystem> = arrayListOf(
-    VisionSubsystem(
-      "arducam",
-      TAG_LAYOUT,
-      robotToCamera,
-      VISION_SIM
-    ),
+//    VisionSubsystem(
+//      "arducam",
+//      TAG_LAYOUT,
+//      robotToCamera,
+//      VISION_SIM
+//    ),
 //    VisionSubsystem(
 //      "arducam2",
 //      TAG_LAYOUT,

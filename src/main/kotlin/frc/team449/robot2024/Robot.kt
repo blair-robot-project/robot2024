@@ -7,6 +7,7 @@ import frc.team449.RobotBase
 import frc.team449.control.holonomic.SwerveDrive
 import frc.team449.control.holonomic.SwerveOrthogonalCommand
 import frc.team449.robot2024.constants.RobotConstants
+import frc.team449.robot2024.subsystems.ProtoIntake.Companion.createProtoIntake
 import frc.team449.system.AHRS
 import frc.team449.system.light.Light
 import monologue.Annotations
@@ -35,6 +36,9 @@ class Robot : RobotBase(), Logged {
   override val driveCommand = SwerveOrthogonalCommand(drive, driveController)
 
   val light = Light.createLight()
+
+  val protoIntake = createProtoIntake()
+
 //
 //  val infrared = DigitalInput(RobotConstants.IR_CHANNEL)
 }
