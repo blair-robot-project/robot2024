@@ -72,7 +72,7 @@ class SwerveOrthogonalCommand(
       drive.currentSpeeds.omegaRadiansPerSecond
     )
 
-    var atGoal = true
+    atGoal = true
   }
 
   override fun execute() {
