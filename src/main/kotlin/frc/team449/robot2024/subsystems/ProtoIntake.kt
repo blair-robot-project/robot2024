@@ -45,7 +45,8 @@ class ProtoIntake(
           1.0
         ),
         inverted = ProtoIntakeConstants.INVERTED,
-        currentLimit = ProtoIntakeConstants.CURRENT_LIM
+        currentLimit = ProtoIntakeConstants.CURRENT_LIM,
+        slaveSparks = mapOf(Pair(ProtoIntakeConstants.FOLLOLWER_ID, ProtoIntakeConstants.FOLLOWER_INV))
       )
 
       return ProtoIntake(motor)

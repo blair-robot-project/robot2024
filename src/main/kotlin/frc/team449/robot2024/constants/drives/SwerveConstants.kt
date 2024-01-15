@@ -6,26 +6,26 @@ object SwerveConstants {
   const val EFFICIENCY = 0.95
 
   /** Drive motor ports */
-  const val DRIVE_MOTOR_FL = 11
-  const val DRIVE_MOTOR_FR = 17
-  const val DRIVE_MOTOR_BL = 38
+  const val DRIVE_MOTOR_FL = 3
+  const val DRIVE_MOTOR_FR = 33
+  const val DRIVE_MOTOR_BL = 11
   const val DRIVE_MOTOR_BR = 22
-  const val TURN_MOTOR_FL = 20
-  const val TURN_MOTOR_FR = 3
+  const val TURN_MOTOR_FL = 38
+  const val TURN_MOTOR_FR = 17
   const val TURN_MOTOR_BL = 41
   const val TURN_MOTOR_BR = 45
 
   /** Turning encoder channels */
-  const val TURN_ENC_CHAN_FL = 6
-  const val TURN_ENC_CHAN_FR = 9
-  const val TURN_ENC_CHAN_BL = 5
-  const val TURN_ENC_CHAN_BR = 8
+  const val TURN_ENC_CHAN_FL = 8
+  const val TURN_ENC_CHAN_FR = 5
+  const val TURN_ENC_CHAN_BL = 9
+  const val TURN_ENC_CHAN_BR = 6
 
   /** Offsets for the absolute encoders in rotations */
-  const val TURN_ENC_OFFSET_FL = 0.396987
-  const val TURN_ENC_OFFSET_FR = 0.389095
-  const val TURN_ENC_OFFSET_BL = 0.787267 - 0.5
-  const val TURN_ENC_OFFSET_BR = 0.215026
+  const val TURN_ENC_OFFSET_FL = 1.0 - 0.108883 + 0.5
+  const val TURN_ENC_OFFSET_FR = 1.0 - 0.037868
+  const val TURN_ENC_OFFSET_BL = 0.297095
+  const val TURN_ENC_OFFSET_BR = 1.0 - 0.359929
 
   /** PID gains for turning each module */
   const val TURN_KP = 0.85
