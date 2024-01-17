@@ -20,20 +20,21 @@ import frc.team449.robot2024.commands.light.BreatheHue
 import frc.team449.robot2024.commands.light.Rainbow
 import frc.team449.robot2024.constants.vision.VisionConstants
 import frc.team449.robot2024.subsystems.ControllerBindings
-import monologue.Annotations
+import monologue.Annotations.Log
 import monologue.Logged
 import monologue.Monologue
+import org.littletonrobotics.urcl.URCL
 import kotlin.jvm.optionals.getOrNull
 
 /** The main class of the robot, constructs all the subsystems and initializes default commands. */
 class RobotLoop : TimedRobot(), Logged {
 
-  @Annotations.Log.NT
+  @Log.NT
   private val robot = Robot()
 
   private val routineChooser: RoutineChooser = RoutineChooser(robot)
 
-  @Annotations.Log.NT
+  @Log.NT
   private val field = robot.field
 
   private var autoCommand: Command? = null
@@ -60,14 +61,16 @@ class RobotLoop : TimedRobot(), Logged {
 
     SmartDashboard.putData("Routine Chooser", routineChooser)
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance())
-    SmartDashboard.putBoolean("Enable Logging?", false)
 
     robot.light.defaultCommand = BlairChasing(robot.light)
 
     controllerBinder.bindButtons()
 
     Monologue.setupMonologue(this, "/Monologuing", false, false)
-//    URCL.start()
+
+    if (RobotBase.isReal()) {
+      URCL.start()
+    }
   }
 
   override fun robotPeriodic() {
@@ -82,7 +85,7 @@ class RobotLoop : TimedRobot(), Logged {
   }
 
   override fun autonomousInit() {
-    VisionConstants.ENCODER_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .0225, .0225, .010))
+    VisionConstants.ENCODER_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .0125, .0125, .010))
 
     /** Every time auto starts, we update the chosen auto command */
     this.autoCommand = routineMap[routineChooser.selected]

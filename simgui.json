@@ -168,7 +168,6 @@
           }
         },
         "arducam2-processed": {
-          "open": true,
           "string[]##v_/CameraPublisher/arducam2-processed/streams": {
             "open": true
           }
@@ -176,9 +175,6 @@
         "open": true
       },
       "Monologuing": {
-        "field": {
-          "open": true
-        },
         "open": true,
         "robot": {
           "drive": {

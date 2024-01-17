@@ -55,7 +55,7 @@ class SwerveSim(
     val newPose = Pose2d(
       odometry.poseMeters.x + Random.nextDouble(-1.0, 1.0),
       odometry.poseMeters.y + Random.nextDouble(-1.0, 1.0),
-      Rotation2d(odometry.poseMeters.rotation.radians + Random.nextDouble(-1.0, 1.0))
+      odometry.poseMeters.rotation
     )
 
     odometry.resetPosition(
@@ -97,7 +97,7 @@ class SwerveSim(
         if (presentResult.timestampSeconds > 0 &&
           avgAmbiguity[index] <= VisionConstants.MAX_AMBIGUITY &&
           numTargets[index] < 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_SINGLE_TAG ||
-          numTargets[index] >= 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_MULTI_TAG + (numTargets[index] - 2) * VisionConstants.TAG_DIST &&
+          numTargets[index] >= 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_MULTI_TAG + (numTargets[index] - 2) * VisionConstants.NUM_TAG_FACTOR &&
           heightError[index] < VisionConstants.MAX_HEIGHT_ERR_METERS
         ) {
           poseEstimator.addVisionMeasurement(

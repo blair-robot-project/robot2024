@@ -87,8 +87,8 @@ class SwerveOrthogonalCommand(
 
     val ctrlTheta = atan2(ctrlY, ctrlX)
 
-    val xScaled = ctrlRadius * cos(ctrlTheta) * RobotConstants.MAX_LINEAR_SPEED
-    val yScaled = ctrlRadius * sin(ctrlTheta) * RobotConstants.MAX_LINEAR_SPEED
+    val xScaled = ctrlRadius * cos(ctrlTheta) * drive.maxLinearSpeed
+    val yScaled = ctrlRadius * sin(ctrlTheta) * drive.maxLinearSpeed
 
     dx = xScaled - prevX
     dy = yScaled - prevY
