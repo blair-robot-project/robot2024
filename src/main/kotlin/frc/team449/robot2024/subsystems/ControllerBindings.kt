@@ -52,16 +52,24 @@ class ControllerBindings(
       robot.driveCommand
     )
 
-    JoystickButton(driveController, XboxController.Button.kLeftBumper.value).onTrue(
+    /*JoystickButton(driveController, XboxController.Button.kLeftBumper.value).onTrue(
       robot.protoIntake.outtake()
     ).onFalse(
       robot.protoIntake.stop()
     )
 
     JoystickButton(driveController, XboxController.Button.kRightBumper.value).onTrue(
-      robot.protoIntake.intake()
+      robot.intake.intake()
     ).onFalse(
-      robot.protoIntake.stop()
+      robot.intake.stop()
+    )*/
+
+    JoystickButton(driveController, XboxController.Button.kX.value).onTrue(
+      InstantCommand({
+        robot.intake.driveMotors()
+      })
+    ).onFalse(
+      InstantCommand({ robot.intake.stopMotors() })
     )
 
     // introduce "noise" to the simulated pose
