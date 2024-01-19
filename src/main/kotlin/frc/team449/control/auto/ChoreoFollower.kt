@@ -10,16 +10,6 @@ import frc.team449.control.holonomic.SwerveDrive
 import frc.team449.robot2024.constants.auto.AutoConstants
 import kotlin.math.PI
 
-
-
-
-
-
-
-
-
-
-
 /**
  * Follower command so a robot can follow a parsed Choreo Trajectory with feedback
  * @see ChoreoTrajectory
