@@ -8,7 +8,7 @@ import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 
-class ProtoIntake(
+class ProtoUndertaker(
   private val motor: WrappedMotor
 ) : SubsystemBase() {
 
@@ -36,9 +36,9 @@ class ProtoIntake(
   }
 
   companion object {
-    fun createProtoIntake(): ProtoIntake {
+    fun createProtoUndertaker(): ProtoUndertaker {
       val motor = createSparkMax(
-        "ProtoIntake",
+        "ProtoUndertaker Motor",
         ProtoIntakeConstants.MOTOR_ID,
         NEOEncoder.creator(
           1.0,
@@ -49,7 +49,7 @@ class ProtoIntake(
         slaveSparks = mapOf(Pair(ProtoIntakeConstants.FOLLOLWER_ID, ProtoIntakeConstants.FOLLOWER_INV))
       )
 
-      return ProtoIntake(motor)
+      return ProtoUndertaker(motor)
     }
   }
 }

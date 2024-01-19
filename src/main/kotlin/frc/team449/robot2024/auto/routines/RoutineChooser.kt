@@ -30,20 +30,19 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
 
     this.addOption(
       "Experimental 4 Piece",
-      if (isRed) {
-        "Red4Piece"
-      } else {
-        "Blue4Piece"
-      }
+      if (isRed) "Red4Piece" else "Blue4Piece"
     )
+
     this.addOption(
       "3 Piece Mid",
       if (isRed) "Red3PieceMid" else "Blue3PieceMid"
     )
+
     this.addOption(
       "1 Piece Taxi",
       if (isRed) "Red1PieceTaxi" else "Blue1PieceTaxi"
     )
+
     this.addOption(
       "Taxi",
       if (isRed) "RedTaxi" else "BlueTaxi"
