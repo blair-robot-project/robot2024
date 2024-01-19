@@ -6,12 +6,35 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
-import frc.team449.control.holonomic.HolonomicDrive
+import frc.team449.control.holonomic.SwerveDrive
 import frc.team449.robot2024.constants.auto.AutoConstants
 import kotlin.math.PI
 
+
+
+
+
+
+
+
+
+
+
+/**
+ * Follower command so a robot can follow a parsed Choreo Trajectory with feedback
+ * @see ChoreoTrajectory
+ * @param drivetrain Swerve Drivetrain to use
+ * @param trajectory Parsed Choreo Trajectory
+ * @param xController PID Controller to use for x-position error (output is next desired x velocity, not volts)
+ * @param yController PID Controller to use for y-position error (output is next desired y velocity, not volts)
+ * @param thetaController PID Controller to use for rotation error (output is next desired rotation velocity, not volts)
+ * @param poseTol Tolerance within final pose to say it is "good enough"
+ * @param timeout Maximum time to wait after trajectory has finished to get in tolerance. A very low timeout may end this command before you get in tolerance.
+ * @param resetPose Whether to reset the pose to the first pose in the trajectory
+ * @param debug Whether to run on trajectory expected velocities only (no feedback control)
+ */
 class ChoreoFollower(
-  private val drivetrain: HolonomicDrive,
+  private val drivetrain: SwerveDrive,
   private val trajectory: ChoreoTrajectory,
   private val xController: PIDController = PIDController(AutoConstants.DEFAULT_X_KP, 0.0, 0.0),
   private val yController: PIDController = PIDController(AutoConstants.DEFAULT_Y_KP, 0.0, 0.0),

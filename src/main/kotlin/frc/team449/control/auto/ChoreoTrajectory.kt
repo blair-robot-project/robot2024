@@ -16,6 +16,10 @@ import java.io.File
 import java.io.FileReader
 import kotlin.math.abs
 
+/**
+ * Data structure for parsed Choreo Trajectory, and interpolates between points given in the Choreo file. Use the parser function below to create a ChoreoTrajectory.
+ * @see InterpolatingMatrixTreeMap
+ */
 class ChoreoTrajectory(
   val name: String,
   val stateMap: InterpolatingMatrixTreeMap<Double, N2, N3>,
@@ -57,6 +61,11 @@ class ChoreoTrajectory(
   )
 
   companion object {
+
+    /**
+     * Create all the Choreo Trajectories in a given Choreo .chor document file.
+     * @param filename Filename of .chor document file. By default, it will check in the deploy/choreo folder
+     */
     fun createTrajectory(
       filename: String
     ): MutableList<ChoreoTrajectory> {
