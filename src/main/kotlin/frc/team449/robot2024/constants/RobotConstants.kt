@@ -10,7 +10,9 @@ import kotlin.math.PI
 
 object RobotConstants {
 
-  /** Other CAN ID */
+  const val ODOMETRY_FREQUENCY = 250.0
+
+    /** Other CAN ID */
   const val PDH_CAN = 1
 
   /** Controller Configurations */

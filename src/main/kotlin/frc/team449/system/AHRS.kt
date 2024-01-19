@@ -5,32 +5,49 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.SPI
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.simulation.SimDeviceSim
+import frc.team449.control.holonomic.OdometryThread
 import frc.team449.util.simBooleanProp
 import frc.team449.util.simDoubleProp
+import java.util.concurrent.locks.ReentrantLock
 
 class AHRS(
-  private val navx: com.kauailabs.navx.frc.AHRS
+  private val navx: com.kauailabs.navx.frc.AHRS,
+  private val odometryLock: ReentrantLock
 ) {
 
   var prevPos = Double.NaN
   var prevTime = Double.NaN
+  val odometryThread = OdometryThread(odometryLock)
+  val pitchQueue = odometryThread.registerSignal { navx.pitch.toDouble() }
+  val rollQueue = odometryThread.registerSignal { navx.roll.toDouble() }
+  val headingQueue = odometryThread.registerSignal { navx.fusedHeading.toDouble() }
 
   private val filter = LinearFilter.movingAverage(5)
+
 
   /** The current reading of the gyro with the offset included */
   val heading: Rotation2d
     get() {
-      return -Rotation2d.fromDegrees(navx.fusedHeading.toDouble())
+      odometryLock.lock()
+      val output = -Rotation2d.fromDegrees(headingQueue.peek())
+      odometryLock.unlock()
+      return output
     }
 
   val pitch: Rotation2d
     get() {
-      return -Rotation2d.fromDegrees(navx.pitch.toDouble())
+      odometryLock.lock()
+      val output = -Rotation2d.fromDegrees(pitchQueue.peek())
+      odometryLock.unlock()
+      return output
     }
 
   val roll: Rotation2d
     get() {
-      return -Rotation2d.fromDegrees(navx.roll.toDouble())
+      odometryLock.lock()
+      val output = -Rotation2d.fromDegrees(rollQueue.peek())
+      odometryLock.unlock()
+      return output
     }
 
   fun angularXVel(): Double {
@@ -50,9 +67,11 @@ class AHRS(
   }
 
   constructor(
-    port: SPI.Port = SPI.Port.kMXP
+    port: SPI.Port = SPI.Port.kMXP,
+    lock: ReentrantLock
   ) : this(
-    com.kauailabs.navx.frc.AHRS(port)
+    com.kauailabs.navx.frc.AHRS(port),
+    lock
   )
 
   fun calibrated(): Boolean {

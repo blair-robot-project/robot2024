@@ -12,6 +12,7 @@ import frc.team449.system.AHRS
 import frc.team449.system.light.Light
 import monologue.Annotations.Log
 import monologue.Logged
+import java.util.concurrent.locks.ReentrantLock
 
 class Robot : RobotBase(), Logged {
 
@@ -19,7 +20,8 @@ class Robot : RobotBase(), Logged {
 
   val mechController = XboxController(1)
 
-  val ahrs = AHRS(SPI.Port.kMXP)
+  val odometryLock = ReentrantLock()
+  val ahrs = AHRS(SPI.Port.kMXP, odometryLock)
 
   // Instantiate/declare PDP and other stuff here
 

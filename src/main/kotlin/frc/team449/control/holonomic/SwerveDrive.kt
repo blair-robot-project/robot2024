@@ -75,6 +75,9 @@ open class SwerveDrive(
     VisionConstants.MULTI_TAG_TRUST
   )
 
+  /** Things to do with odometry */
+
+
   var desiredSpeeds: ChassisSpeeds = ChassisSpeeds()
 
   protected var maxSpeed: Double = 0.0
