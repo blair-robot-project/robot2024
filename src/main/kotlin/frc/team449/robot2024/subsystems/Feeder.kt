@@ -15,7 +15,6 @@ class Feeder(
   fun intake(): Command {
     return this.runOnce {
       motor.setVoltage(FeederConstants.INTAKE_VOLTAGE)
-      motor.stopMotor()
     }
   }
 
