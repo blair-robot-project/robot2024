@@ -36,7 +36,7 @@ class Intake(
   }
 
   companion object {
-    fun createProtoUndertaker(): ProtoUndertaker {
+    fun createIntake(): Intake {
       val motor = createSparkMax(
         "ProtoUndertaker Motor",
         IntakeConstants.MOTOR_ID,
