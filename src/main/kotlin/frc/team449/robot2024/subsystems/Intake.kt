@@ -38,7 +38,7 @@ class Intake(
   companion object {
     fun createIntake(): Intake {
       val motor = createSparkMax(
-        "ProtoUndertaker Motor",
+        "Inkake Motor",
         IntakeConstants.MOTOR_ID,
         NEOEncoder.creator(
           1.0,
@@ -49,7 +49,7 @@ class Intake(
         slaveSparks = mapOf(Pair(IntakeConstants.FOLLOLWER_ID, IntakeConstants.FOLLOWER_INV))
       )
 
-      return ProtoUndertaker(motor)
+      return Intake(motor)
     }
   }
 }
