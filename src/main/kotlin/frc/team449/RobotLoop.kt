@@ -36,12 +36,10 @@ class RobotLoop : TimedRobot(), Logged {
 
   @Log.NT
   private val field = robot.field
-
   private var autoCommand: Command? = null
-  private var routineMap = hashMapOf<String, Command>()
+  private var routineMap = hashMapOf<String,Command>()
   private val controllerBinder = ControllerBindings(robot.driveController, robot.mechController, robot)
 
-  
   override fun robotInit() {
     // Yes this should be a print statement, it's useful to know that robotInit started.
     println("Started robotInit.")
