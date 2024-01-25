@@ -1,6 +1,5 @@
 package frc.team449.robot2024.subsystems
 
-import com.revrobotics.CANSparkMax
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
@@ -16,7 +15,7 @@ class Feeder(
   fun intake(): Command {
     return this.runOnce {
       motor.setVoltage(FeederConstants.INTAKE_VOLTAGE)
-      motor.stopMotor();
+      motor.stopMotor()
     }
   }
 
@@ -38,9 +37,9 @@ class Feeder(
   }
 
   companion object {
-    fun createProtoUndertaker(): Feeder {
+    fun createFeeder(): Feeder {
       val motor = createSparkMax(
-        "ProtoUndertaker Motor",
+        "Feeder Motor",
         FeederConstants.MOTOR_ID,
         NEOEncoder.creator(
           1.0,
