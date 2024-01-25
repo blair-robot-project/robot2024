@@ -8,7 +8,7 @@ import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 
-class ProtoUndertaker(
+class Intake(
   private val motor: WrappedMotor
 ) : SubsystemBase() {
 
