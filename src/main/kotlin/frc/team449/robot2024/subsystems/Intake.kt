@@ -3,7 +3,7 @@ package frc.team449.robot2024.subsystems
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import frc.team449.robot2024.constants.subsystem.ProtoIntakeConstants
+import frc.team449.robot2024.constants.subsystem.IntakeConstants
 import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
@@ -14,13 +14,13 @@ class Intake(
 
   fun intake(): Command {
     return this.runOnce {
-      motor.setVoltage(ProtoIntakeConstants.INTAKE_VOLTAGE)
+      motor.setVoltage(IntakeConstants.INTAKE_VOLTAGE)
     }
   }
 
   fun outtake(): Command {
     return this.runOnce {
-      motor.setVoltage(ProtoIntakeConstants.REVERSE_VOLTAGE)
+      motor.setVoltage(IntakeConstants.REVERSE_VOLTAGE)
     }
   }
 
@@ -39,14 +39,14 @@ class Intake(
     fun createProtoUndertaker(): ProtoUndertaker {
       val motor = createSparkMax(
         "ProtoUndertaker Motor",
-        ProtoIntakeConstants.MOTOR_ID,
+        IntakeConstants.MOTOR_ID,
         NEOEncoder.creator(
           1.0,
           1.0
         ),
-        inverted = ProtoIntakeConstants.INVERTED,
-        currentLimit = ProtoIntakeConstants.CURRENT_LIM,
-        slaveSparks = mapOf(Pair(ProtoIntakeConstants.FOLLOLWER_ID, ProtoIntakeConstants.FOLLOWER_INV))
+        inverted = IntakeConstants.INVERTED,
+        currentLimit = IntakeConstants.CURRENT_LIM,
+        slaveSparks = mapOf(Pair(IntakeConstants.FOLLOLWER_ID, IntakeConstants.FOLLOWER_INV))
       )
 
       return ProtoUndertaker(motor)
