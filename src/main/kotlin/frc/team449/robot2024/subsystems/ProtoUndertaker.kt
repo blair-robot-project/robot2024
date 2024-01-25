@@ -12,7 +12,7 @@ class ProtoUndertaker(
   private val motor: WrappedMotor
 ) : SubsystemBase() {
 
-  fun intake(): Command { // lalalallal lalalallal allalalalalla
+  fun intake(): Command {
     return this.runOnce {
       motor.setVoltage(ProtoIntakeConstants.INTAKE_VOLTAGE)
     }
