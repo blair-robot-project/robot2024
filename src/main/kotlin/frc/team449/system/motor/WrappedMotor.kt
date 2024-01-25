@@ -14,6 +14,7 @@ class WrappedMotor(
   val busVoltage: DoubleSupplier? = null,
   val outputCurrent: DoubleSupplier? = null
 ) : MotorController by motor {
+  
   /**
    * The last set voltage for this motor (through [setVoltage] or [set])
    */
