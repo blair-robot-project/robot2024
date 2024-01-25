@@ -31,7 +31,7 @@ class Feeder(
     builder.addDoubleProperty("1.1 Last Feeder Motor Voltage", { motor.lastVoltage }, null)
   }
   companion object {
-    fun createIntake(): Feeder {
+    fun createFeeder(): Feeder {
       val motor = createSparkMax(
         "Feeder Motor",
         FeederConstants.MOTOR_ID,
