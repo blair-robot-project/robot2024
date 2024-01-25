@@ -31,8 +31,8 @@ class Intake(
   }
 
   override fun initSendable(builder: SendableBuilder) {
-    builder.publishConstString("1.0", "Motor Voltages")
-    builder.addDoubleProperty("1.1 Last Voltage", { motor.lastVoltage }, null)
+    builder.publishConstString("1.0", "Intake Motor Voltages")
+    builder.addDoubleProperty("1.1 Last Intake Motor Voltage", { motor.lastVoltage }, null)
   }
 
   companion object {
