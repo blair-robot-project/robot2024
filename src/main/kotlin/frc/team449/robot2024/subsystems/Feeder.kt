@@ -41,7 +41,11 @@ class Feeder(
         ),
         inverted = FeederConstants.INVERTED,
         currentLimit = FeederConstants.CURRENT_LIM,
-        slaveSparks = mapOf(Pair(FeederConstants.FOLLOLWER_ID, FeederConstants.FOLLOWER_INV))
+        slaveSparks = mapOf(
+          Pair(FeederConstants.FOLLOLWER1_ID, FeederConstants.FOLLOWER1_INV),
+          Pair(FeederConstants.FOLLOLWER2_ID, FeederConstants.FOLLOWER2_INV),
+          Pair(FeederConstants.FOLLOLWER3_ID, FeederConstants.FOLLOWER3_INV),
+        )
       )
 
       return Feeder(motor)

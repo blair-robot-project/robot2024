@@ -2,8 +2,12 @@ package frc.team449.robot2024.constants.subsystem
 
 object FeederConstants {
   const val MOTOR_ID = 7
-  const val FOLLOLWER_ID = 55
-  const val FOLLOWER_INV = false
+  const val FOLLOLWER1_ID = 55
+  const val FOLLOWER1_INV = false
+  const val FOLLOLWER2_ID = 55
+  const val FOLLOWER2_INV = false
+  const val FOLLOLWER3_ID = 55
+  const val FOLLOWER3_INV = false
   const val INVERTED = true
   const val CURRENT_LIM = 15
 
