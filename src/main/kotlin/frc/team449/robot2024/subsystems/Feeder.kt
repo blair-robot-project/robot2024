@@ -3,7 +3,7 @@ import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.robot2024.constants.subsystem.FeederConstants
-import frc.team449.robot2024.constants.subsystem.IntakeConstants
+import frc.team449.robot2024.constants.subsystem.FeederConstants
 import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
@@ -12,13 +12,13 @@ class Feeder(
 ) : SubsystemBase() {
   fun feed(): Command {
     return this.runOnce {
-      motor.setVoltage(IntakeConstants.INTAKE_VOLTAGE)
+      motor.setVoltage(FeederConstants.FEEDER_VOLTAGE)
     }
   }
 
   fun reverse(): Command {
     return this.runOnce {
-      motor.setVoltage(IntakeConstants.REVERSE_VOLTAGE)
+      motor.setVoltage(FeederConstants.REVERSE_VOLTAGE)
     }
   }
 
