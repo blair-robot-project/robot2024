@@ -37,7 +37,7 @@ class RobotLoop : TimedRobot(), Logged {
   @Log.NT
   private val field = robot.field
   private var autoCommand: Command? = null
-  private var routineMap = hashMapOf<String,Command>()
+  private var routineMap = hashMapOf<String, Command>()
   private val controllerBinder = ControllerBindings(robot.driveController, robot.mechController, robot)
 
   override fun robotInit() {

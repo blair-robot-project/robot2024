@@ -18,26 +18,26 @@ class Climber(
   private val controller: PIDController
 ) : SubsystemBase() {
 
-    fun levelClimb() : Command {
-      return PIDCommand(
-        controller,
-        { robot.drive.roll.degrees },
-        { 0.0 },
-        { value ->
-          rightMotor.setVoltage(ClimberConstants.DEFAULT_PID_RETRACT + value)
-          leftMotor.setVoltage(ClimberConstants.DEFAULT_PID_RETRACT - value)
-        },
-        this
-      )
-    }
+  fun levelClimb(): Command {
+    return PIDCommand(
+      controller,
+      { robot.drive.roll.degrees },
+      { 0.0 },
+      { value ->
+        rightMotor.setVoltage(ClimberConstants.DEFAULT_PID_RETRACT + value)
+        leftMotor.setVoltage(ClimberConstants.DEFAULT_PID_RETRACT - value)
+      },
+      this
+    )
+  }
 
-    fun extend(): Command {
-      return this.runOnce {
-        rightMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
-        leftMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
-      }
-
+  fun extend(): Command {
+    return this.runOnce {
+      rightMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
+      leftMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
     }
+  }
+
   fun retract(): Command {
     return this.runOnce {
       rightMotor.setVoltage(ClimberConstants.RETRACT_VOLTAGE)
@@ -81,7 +81,6 @@ class Climber(
         inverted = ClimberConstants.LEFT_INVERTED,
         currentLimit = ClimberConstants.CURRENT_LIM,
       )
-
 
       val controller = PIDController(ClimberConstants.KP, ClimberConstants.KI, ClimberConstants.KD)
 

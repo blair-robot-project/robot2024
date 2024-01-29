@@ -1,6 +1,6 @@
 package frc.team449.robot2024.constants.subsystem
 
-object ProtoIntakeConstants {
+object UndertakerConstants {
   const val MOTOR_ID = 7
   const val FOLLOLWER_ID = 55
   const val FOLLOWER_INV = false
