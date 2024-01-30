@@ -12,9 +12,7 @@ import frc.team449.robot2024.constants.subsystem.ClimberConstants
 import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
-import kotlin.math.abs
 import kotlin.math.sign
-
 
 class Climber(
   private val robot: Robot,
@@ -24,26 +22,26 @@ class Climber(
 ) : SubsystemBase() {
   private var simCurrentPos = 0.0
 
-    fun levelClimb() : Command {
-      return PIDCommand(
-        controller,
-        { robot.drive.roll.degrees },
-        { 0.0 },
-        { value ->
-          rightMotor.setVoltage(ClimberConstants.DEFAULT_PID_RETRACT + value)
-          leftMotor.setVoltage(ClimberConstants.DEFAULT_PID_RETRACT - value)
-        },
-        this
-      )
-    }
+  fun levelClimb(): Command {
+    return PIDCommand(
+      controller,
+      { robot.drive.roll.degrees },
+      { 0.0 },
+      { value ->
+        rightMotor.setVoltage(ClimberConstants.DEFAULT_PID_RETRACT + value)
+        leftMotor.setVoltage(ClimberConstants.DEFAULT_PID_RETRACT - value)
+      },
+      this
+    )
+  }
 
-    fun extend(): Command {
-      return this.runOnce {
-        rightMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
-        leftMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
-      }
-
+  fun extend(): Command {
+    return this.runOnce {
+      rightMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
+      leftMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
     }
+  }
+
   fun retract(): Command {
     return this.runOnce {
       rightMotor.setVoltage(ClimberConstants.RETRACT_VOLTAGE)
@@ -63,7 +61,8 @@ class Climber(
     builder.addDoubleProperty("1.1 Last Right Voltage", { rightMotor.lastVoltage }, null)
     builder.addDoubleProperty("1.2 Last Left Voltage", { leftMotor.lastVoltage }, null)
     builder.publishConstString("2.0", "Advantage Scope 3D Pos")
-    builder.addDoubleArrayProperty("2.1 3D Position",
+    builder.addDoubleArrayProperty(
+      "2.1 3D Position",
       {
         doubleArrayOf(
           0.0,
@@ -82,7 +81,6 @@ class Climber(
     super.simulationPeriodic()
 
     simCurrentPos += MathUtil.clamp(ClimberConstants.SIM_SPEED * RobotConstants.LOOP_TIME * sign(leftMotor.lastVoltage), 0.0, ClimberConstants.MAX_SIM_POS)
-
   }
 
   companion object {
@@ -108,7 +106,6 @@ class Climber(
         inverted = ClimberConstants.LEFT_INVERTED,
         currentLimit = ClimberConstants.CURRENT_LIM,
       )
-
 
       val controller = PIDController(ClimberConstants.KP, ClimberConstants.KI, ClimberConstants.KD)
 
