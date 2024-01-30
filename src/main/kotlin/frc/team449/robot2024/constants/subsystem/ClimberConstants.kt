@@ -16,4 +16,7 @@ object ClimberConstants {
   const val KP = 1.0
   const val KI = 0.0
   const val KD = 0.0
+
+  const val MAX_SIM_POS = 1.5
+  const val SIM_SPEED = 0.25
 }

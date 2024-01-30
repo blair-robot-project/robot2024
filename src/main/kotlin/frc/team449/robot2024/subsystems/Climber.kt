@@ -1,15 +1,20 @@
 package frc.team449.robot2024.subsystems
 
+import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.PIDCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.robot2024.Robot
+import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.ClimberConstants
 import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
+import kotlin.math.abs
+import kotlin.math.sign
+
 
 class Climber(
   private val robot: Robot,
@@ -17,6 +22,7 @@ class Climber(
   private val leftMotor: WrappedMotor,
   private val controller: PIDController
 ) : SubsystemBase() {
+  private var simCurrentPos = 0.0
 
     fun levelClimb() : Command {
       return PIDCommand(
@@ -56,6 +62,27 @@ class Climber(
     builder.publishConstString("1.0", "Motor Voltages")
     builder.addDoubleProperty("1.1 Last Right Voltage", { rightMotor.lastVoltage }, null)
     builder.addDoubleProperty("1.2 Last Left Voltage", { leftMotor.lastVoltage }, null)
+    builder.publishConstString("2.0", "Advantage Scope 3D Pos")
+    builder.addDoubleArrayProperty("2.1 3D Position",
+      {
+        doubleArrayOf(
+          0.0,
+          0.0,
+          simCurrentPos,
+          0.0,
+          0.0,
+          0.0
+        )
+      },
+      null
+    )
+  }
+
+  override fun simulationPeriodic() {
+    super.simulationPeriodic()
+
+    simCurrentPos += MathUtil.clamp(ClimberConstants.SIM_SPEED * RobotConstants.LOOP_TIME * sign(leftMotor.lastVoltage), 0.0, ClimberConstants.MAX_SIM_POS)
+
   }
 
   companion object {
