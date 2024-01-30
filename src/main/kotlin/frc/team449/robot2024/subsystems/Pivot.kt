@@ -73,6 +73,8 @@ open class Pivot(
       loop.predict(RobotConstants.LOOP_TIME)
 
       motor.setVoltage(loop.getU(0))
+
+			lastProfileReference = TrapezoidProfile.State(goal, 0.0)
     }
   }
 
