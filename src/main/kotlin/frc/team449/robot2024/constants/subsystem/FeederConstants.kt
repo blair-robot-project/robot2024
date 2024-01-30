@@ -7,6 +7,8 @@ object FeederConstants {
   const val FOLLOWER1_INV = false
   const val FOLLOLWER2_ID = 55
   const val FOLLOWER2_INV = false
+  const val FOLLOLWER3_ID = 55
+  const val FOLLOWER3_INV = false
 
   const val INVERTED = true
   const val CURRENT_LIM = 15
