@@ -74,7 +74,7 @@ open class Pivot(
 
       motor.setVoltage(loop.getU(0))
 
-			lastProfileReference = TrapezoidProfile.State(goal, 0.0)
+      lastProfileReference = TrapezoidProfile.State(goal, 0.0)
     }
   }
 
