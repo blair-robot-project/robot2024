@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase.isReal
+import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.control.vision.VisionSubsystem
@@ -44,6 +45,9 @@ open class SwerveDrive(
   protected val cameras: List<VisionSubsystem> = mutableListOf(),
   protected val field: Field2d
 ) : SubsystemBase(), HolonomicDrive {
+
+  /** Lambdas for thing */
+  val rotFunction: (XboxController, HolonomicDrive, Boolean) -> Double = RotationCommands.regularRotation
 
   /** Vision statistics */
   protected val numTargets = DoubleArray(cameras.size)

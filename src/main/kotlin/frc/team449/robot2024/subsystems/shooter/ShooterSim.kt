@@ -4,19 +4,15 @@ import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.system.LinearSystemLoop
 import edu.wpi.first.math.system.plant.DCMotor
-import edu.wpi.first.math.util.Units
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.simulation.FlywheelSim
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
-import frc.team449.robot2024.subsystems.xhooter.Shooter
+import frc.team449.robot2024.subsystems.shooter.Shooter
 import frc.team449.system.motor.WrappedMotor
 import java.util.function.Supplier
-import kotlin.math.cos
-import kotlin.math.sin
 
 class ElevatorSim(
   private val rightMotor: WrappedMotor,
@@ -85,7 +81,7 @@ class ElevatorSim(
     builder.addDoubleProperty("4.1 Simulated current Draw", { currentDraw }, {})
 
     builder.publishConstString("5.0", "Velocity")
-    builder.addDoubleProperty("5.1 Left Motor Vel", {currentState.first}, {})
-    builder.addDoubleProperty("5.2 Right Motor Vel", {currentState.second}, {})
+    builder.addDoubleProperty("5.1 Left Motor Vel", { currentState.first }, {})
+    builder.addDoubleProperty("5.2 Right Motor Vel", { currentState.second }, {})
   }
 }

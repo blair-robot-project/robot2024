@@ -1,4 +1,4 @@
-package frc.team449.robot2024.subsystems.xhooter
+package frc.team449.robot2024.subsystems.shooter
 
 import edu.wpi.first.math.Nat
 import edu.wpi.first.math.VecBuilder

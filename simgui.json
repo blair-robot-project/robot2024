@@ -72,12 +72,14 @@
           "length": 0.7111999988555908,
           "width": 0.7111999988555908
         },
+        "bottom": 1476,
         "bumpers": {
           "length": 0.8762999773025513,
           "width": 0.8762999773025513
         },
-        "height": 8.211000442504883,
+        "height": 8.210550308227539,
         "image": "C:\\Users\\jpoth\\Downloads\\image(1).png",
+        "left": 150,
         "odo": {
           "color": [
             0.7647056579589844,
@@ -87,6 +89,8 @@
           ],
           "style": "Hidden"
         },
+        "right": 2961,
+        "top": 79,
         "units": "meters",
         "width": 16.541748046875,
         "window": {
@@ -99,7 +103,11 @@
         }
       },
       "/SmartDashboard/Field": {
-        "height": 8.013679504394531,
+        "bottom": 1476,
+        "height": 8.210550308227539,
+        "left": 150,
+        "right": 2961,
+        "top": 79,
         "width": 16.541748046875,
         "window": {
           "visible": true
@@ -138,18 +146,22 @@
           ],
           "style": "Box/Image"
         },
+        "bottom": 1476,
         "cameras": {
           "arrows": false,
           "style": "Hidden"
         },
         "height": 8.210550308227539,
         "image": "C:\\Users\\jpoth\\Downloads\\image(1).png",
+        "left": 150,
+        "right": 2961,
+        "top": 79,
         "units": "meters",
         "visibleTargetPoses": {
           "selectable": false,
           "style": "Hidden"
         },
-        "width": 16.541749954223633,
+        "width": 16.541748046875,
         "window": {
           "visible": true
         }
