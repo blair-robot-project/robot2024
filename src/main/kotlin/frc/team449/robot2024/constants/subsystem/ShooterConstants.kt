@@ -7,6 +7,7 @@ import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 
 object ShooterConstants {
+  const val EFFICIENCY = 1.0
   const val RIGHT_MOTOR_ID = 41
   const val RIGHT_MOTOR_INVERTED = false
   const val LEFT_MOTOR_ID = 42

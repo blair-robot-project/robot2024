@@ -1,4 +1,4 @@
-package frc.team449.robot2024.subsystems
+package frc.team449.robot2024.subsystems.xhooter
 
 import edu.wpi.first.math.Nat
 import edu.wpi.first.math.VecBuilder
@@ -21,6 +21,7 @@ import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
+
 
 open class Shooter(
   private val rightMotor: WrappedMotor,
