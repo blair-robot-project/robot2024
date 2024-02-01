@@ -36,7 +36,7 @@ class Undertaker(
   }
 
   companion object {
-    fun createProtoUndertaker(): Undertaker {
+    fun createUndertaker(): Undertaker {
       val motor = createSparkMax(
         "ProtoUndertaker Motor",
         UndertakerConstants.MOTOR_ID,

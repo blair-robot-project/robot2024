@@ -1,8 +1,8 @@
 package frc.team449.robot2024.constants.subsystem
 
 object ClimberConstants {
-  const val RIGHT_ID = 31
-  const val LEFT_ID = 30
+  const val RIGHT_ID = 58
+  const val LEFT_ID = 59
 
   const val RIGHT_INVERTED = true
   const val LEFT_INVERTED = true

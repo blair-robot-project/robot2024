@@ -12,7 +12,7 @@ object PivotConstants {
   const val FOLLOWER_INVERTED = true
 
   /** Encoder stuff */
-  const val ENC_CHANNEL = 6
+  const val ENC_CHANNEL = 0
   const val OFFSET = 0.0
   const val GEARING = 1.0 / 75.0
   const val UPR = 2 * PI
@@ -24,6 +24,8 @@ object PivotConstants {
   const val EFFICIENCY = 1.0
 
   const val ARM_LENGTH = 1.0
+
+  const val KS = 0.35
 
   /** Deviations for Kalman filter in units of radians or radians / seconds */
   val MODEL_POS_DEVIATION = Units.degreesToRadians(10.0)

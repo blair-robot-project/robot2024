@@ -8,9 +8,9 @@ import edu.wpi.first.math.numbers.N3
 
 object ShooterConstants {
   const val EFFICIENCY = 1.0
-  const val RIGHT_MOTOR_ID = 41
+  const val RIGHT_MOTOR_ID = 60
   const val RIGHT_MOTOR_INVERTED = false
-  const val LEFT_MOTOR_ID = 42
+  const val LEFT_MOTOR_ID = 61
   const val LEFT_MOTOR_INVERTED = false
   const val CURRENT_LIMIT = 40
 
@@ -39,10 +39,10 @@ object ShooterConstants {
   const val MAX_VOLTAGE = 12.0
 
   /** Encoder stuff */
-  const val LEFT_CHANNEL_A = 2
-  const val LEFT_CHANNEL_B = 3
-  const val RIGHT_CHANNEL_A = 4
-  const val RIGHT_CHANNEL_B = 5
+  const val LEFT_CHANNEL_A = 1
+  const val LEFT_CHANNEL_B = 2
+  const val RIGHT_CHANNEL_A = 3
+  const val RIGHT_CHANNEL_B = 4
   const val CPR = 2048
   const val UPR = 1.0
   const val GEARING = 1.0 / 1.0

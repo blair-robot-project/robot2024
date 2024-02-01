@@ -264,15 +264,17 @@
             },
             "int[]##v_/Monologuing/robot/drive/2.7 Total Rejected Vision Sights": {
               "open": true
-            },
-            "open": true
+            }
           },
           "intake": {
             "double[]##v_/Monologuing/robot/intake/3.1 Intake 3D Position": {
               "open": true
             }
           },
-          "open": true
+          "open": true,
+          "pivot": {
+            "open": true
+          }
         }
       },
       "Shuffleboard": {
@@ -326,25 +328,16 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 852,
+          "height": 804,
           "series": [
             {
               "color": [
-                0.3333333432674408,
-                0.658823549747467,
-                0.4078431725502014,
-                1.0
-              ],
-              "id": "NT:/Monologuing/robot/elevator/2.3 Desired Pos"
-            },
-            {
-              "color": [
-                0.7686275243759155,
-                0.30588236451148987,
+                0.8666667342185974,
+                0.5176470875740051,
                 0.32156863808631897,
                 1.0
               ],
-              "id": "NT:/Monologuing/robot/elevator/2.4 Desired Vel"
+              "id": "NT:/Monologuing/robot/pivot/1.1 Last Voltage"
             },
             {
               "color": [
@@ -353,7 +346,7 @@
                 0.4078431725502014,
                 1.0
               ],
-              "id": "NT:/Monologuing/robot/elevator/2.1 Estimated Pos"
+              "id": "NT:/Monologuing/robot/pivot/4.1 Simulated current Draw"
             },
             {
               "color": [
@@ -362,14 +355,29 @@
                 0.32156863808631897,
                 1.0
               ],
-              "id": "NT:/Monologuing/robot/elevator/2.2 Estimated Vel"
+              "id": "NT:/Monologuing/robot/pivot/2.2 Desired Position"
+            },
+            {
+              "color": [
+                0.5058823823928833,
+                0.44705885648727417,
+                0.7019608020782471,
+                1.0
+              ],
+              "id": "NT:/Monologuing/robot/pivot/2.3 Desired Position"
+            },
+            {
+              "color": [
+                0.23241281509399414,
+                0.0021367669105529785,
+                1.0,
+                1.0
+              ],
+              "id": "NT:/Monologuing/robot/pivot/2.1 Current Position"
             }
           ]
         }
-      ],
-      "window": {
-        "visible": false
-      }
+      ]
     },
     "Plot <1>": {
       "plots": [

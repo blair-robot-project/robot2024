@@ -48,6 +48,9 @@ class pivotSim(
   override val positionSupplier =
     Supplier { pivotSim.angleRads }
 
+  override val velocitySupplier =
+    Supplier { pivotSim.velocityRadPerSec }
+
   private var currentDraw = 0.0
 
   override fun periodic() {

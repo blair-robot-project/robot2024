@@ -11,6 +11,7 @@ import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.util.sendable.SendableBuilder
+import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.robot2024.Robot
@@ -23,6 +24,7 @@ import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
+import kotlin.math.sign
 
 open class Pivot(
   private val motor: WrappedMotor,
@@ -33,6 +35,9 @@ open class Pivot(
 
   open val positionSupplier: Supplier<Double> =
     Supplier { motor.position }
+
+  open val velocitySupplier: Supplier<Double> =
+    Supplier { motor.velocity }
 
   private var lastProfileReference = TrapezoidProfile.State(motor.position, motor.velocity)
 
@@ -69,10 +74,10 @@ open class Pivot(
       val goal = ShooterConstants.SHOOTING_MAP.get(distance).get(2, 0)
 
       loop.setNextR(goal, 0.0)
-      loop.correct(VecBuilder.fill(motor.position))
+      loop.correct(VecBuilder.fill(positionSupplier.get()))
       loop.predict(RobotConstants.LOOP_TIME)
 
-      motor.setVoltage(loop.getU(0))
+      motor.setVoltage(loop.getU(0) + sign(lastProfileReference.velocity) * PivotConstants.KS)
 
       lastProfileReference = TrapezoidProfile.State(goal, 0.0)
     }
@@ -82,10 +87,10 @@ open class Pivot(
     lastProfileReference = profile.calculate(RobotConstants.LOOP_TIME, lastProfileReference, TrapezoidProfile.State(goal, 0.0))
 
     loop.setNextR(lastProfileReference.position, lastProfileReference.velocity)
-    loop.correct(VecBuilder.fill(motor.position))
+    loop.correct(VecBuilder.fill(positionSupplier.get()))
     loop.predict(RobotConstants.LOOP_TIME)
 
-    motor.setVoltage(loop.getU(0))
+    motor.setVoltage(loop.getU(0) + sign(lastProfileReference.velocity) * PivotConstants.KS)
   }
 
   fun stop(): Command {
@@ -97,10 +102,15 @@ open class Pivot(
   override fun initSendable(builder: SendableBuilder) {
     builder.publishConstString("1.0", "Motor Voltages")
     builder.addDoubleProperty("1.1 Last Voltage", { motor.lastVoltage }, null)
+    builder.publishConstString("2.0", "Position and Velocity")
+    builder.addDoubleProperty("2.1 Current Position", { positionSupplier.get() }, null)
+    builder.addDoubleProperty("2.2 Current Position", { velocitySupplier.get() }, null)
+    builder.addDoubleProperty("2.3 Desired Position", { lastProfileReference.position }, null)
+    builder.addDoubleProperty("2.4 Desired Velocity", { lastProfileReference.velocity }, null)
   }
 
   companion object {
-    fun createShooter(robot: Robot): Pivot {
+    fun createPivot(robot: Robot): Pivot {
       val motor = createSparkMax(
         "Shooter Right Motor",
         PivotConstants.MOTOR_ID,
@@ -159,7 +169,11 @@ open class Pivot(
         )
       )
 
-      return Pivot(motor, loop, profile, robot)
+      return if (RobotBase.isReal()) {
+        Pivot(motor, loop, profile, robot)
+      } else {
+        pivotSim(motor, loop, plant, profile, robot)
+      }
     }
   }
 }
