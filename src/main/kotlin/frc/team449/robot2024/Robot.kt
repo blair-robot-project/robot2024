@@ -7,7 +7,12 @@ import frc.team449.RobotBase
 import frc.team449.control.holonomic.SwerveDrive
 import frc.team449.control.holonomic.SwerveOrthogonalCommand
 import frc.team449.robot2024.constants.RobotConstants
+import frc.team449.robot2024.subsystems.Feeder.Companion.createFeeder
 import frc.team449.robot2024.subsystems.Undertaker.Companion.createProtoUndertaker
+import frc.team449.robot2024.subsystems.pivot.Pivot
+import frc.team449.robot2024.subsystems.shooter.Shooter.Companion.createShooter
+import frc.team449.robot2024.subsystems.pivot.Pivot.Companion.createShooter
+import frc.team449.robot2024.subsystems.shooter.Shooter
 import frc.team449.system.AHRS
 import frc.team449.system.light.Light
 import monologue.Annotations.Log
@@ -38,6 +43,9 @@ class Robot : RobotBase(), Logged {
   val light = Light.createLight()
 
   val undertaker = createProtoUndertaker()
+  val feeder = createFeeder()
+  val shooter = Shooter.createShooter(this)
+  val pivot = Pivot.createShooter(this);
 //
 //  val infrared = DigitalInput(RobotConstants.IR_CHANNEL)
 }

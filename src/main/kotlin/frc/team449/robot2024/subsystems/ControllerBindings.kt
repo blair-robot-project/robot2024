@@ -19,16 +19,45 @@ class ControllerBindings(
 ) {
 
   private fun robotBindings() {
+    //Press right bumper to suck up, and feed.
     JoystickButton(driveController, XboxController.Button.kRightBumper.value).onTrue(
       robot.undertaker.intake()
     ).onFalse(
       robot.undertaker.stop()
     )
-
+    JoystickButton(driveController, XboxController.Button.kRightBumper.value).onTrue(
+      robot.feeder.intake()
+    ).onFalse(
+      robot.feeder.stop()
+    )
+    JoystickButton(driveController, XboxController.Button.kRightBumper.value).onTrue(
+      robot.shooter.duringIntake()
+    ).onFalse(
+      robot.shooter.stopIntake()
+    )
+    //Press left bumper to let out, and un-feed.
     JoystickButton(driveController, XboxController.Button.kLeftBumper.value).onTrue(
       robot.undertaker.outtake()
     ).onFalse(
       robot.undertaker.stop()
+    )
+    JoystickButton(driveController, XboxController.Button.kLeftBumper.value).onTrue(
+      robot.feeder.outtake()
+    ).onFalse(
+      robot.feeder.stop()
+    )
+
+    JoystickButton(driveController, XboxController.Button.kB.value).onTrue(
+      robot.shooter.shootSubwoofer()
+    )
+    JoystickButton(driveController, XboxController.Button.kA.value).onTrue(
+      robot.shooter.scoreAmp()
+    )
+    JoystickButton(driveController, XboxController.Button.kX.value).onTrue(
+      robot.shooter.shootAnywhere()
+    )
+    JoystickButton(driveController, XboxController.Button.kY.value).onTrue(
+      robot.pivot.hold()
     )
   }
 

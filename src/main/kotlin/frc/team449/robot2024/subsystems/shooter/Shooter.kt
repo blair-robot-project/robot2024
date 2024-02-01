@@ -82,6 +82,13 @@ open class Shooter(
     }
   }
 
+  fun stopIntake(): Command {
+    return this.runOnce {
+      rightMotor.stopMotor()
+      leftMotor.stopMotor()
+    }
+  }
+
   private fun shootPiece(rightSpeed: Double, leftSpeed: Double) {
     if (DriverStation.isDisabled()) {
       rightLoop.correct(VecBuilder.fill(rightVelocity.get()))
