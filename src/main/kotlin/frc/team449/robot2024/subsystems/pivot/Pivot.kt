@@ -1,4 +1,4 @@
-package frc.team449.robot2024.subsystems
+package frc.team449.robot2024.subsystems.pivot
 
 import edu.wpi.first.math.Nat
 import edu.wpi.first.math.VecBuilder

@@ -70,6 +70,7 @@ class Climber(
           simCurrentPos,
           0.0,
           0.0,
+          0.0,
           0.0
         )
       },

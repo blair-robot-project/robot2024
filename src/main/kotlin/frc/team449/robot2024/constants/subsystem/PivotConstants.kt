@@ -16,6 +16,10 @@ object PivotConstants {
   const val NUM_MOTORS = 2
   const val MOMENT_OF_INERTIA = 2.0
 
+  const val EFFICIENCY = 1.0
+
+  const val ARM_LENGTH = 1.0
+
   /** Deviations for Kalman filter in units of radians or radians / seconds */
   val MODEL_POS_DEVIATION = Units.degreesToRadians(10.0)
   val MODEL_VEL_DEVIATION = Units.degreesToRadians(20.0)
@@ -32,6 +36,8 @@ object PivotConstants {
   val MAX_VELOCITY = Units.degreesToRadians(100.0)
   val MAX_ACCEL = Units.degreesToRadians(75.0)
 
+  val MIN_ANGLE = Units.degreesToRadians(0.0)
+  val MAX_ANGLE = Units.degreesToRadians(90.0)
   val AMP_ANGLE = Units.degreesToRadians(75.0)
   val SUBWOOFER_ANGLE = Units.degreesToRadians(30.0)
 }
