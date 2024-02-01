@@ -13,7 +13,6 @@ object ShooterConstants {
   const val LEFT_MOTOR_ID = 42
   const val LEFT_MOTOR_INVERTED = false
   const val CURRENT_LIMIT = 40
-  const val UPR = 1.0
 
   const val SUBWOOFER_LEFT_SPEED = 100.0
   const val SUBWOOFER_RIGHT_SPEED = 125.0
@@ -32,13 +31,23 @@ object ShooterConstants {
   /** These constants are PER SIDE of the shooter */
   const val MOMENT_OF_INERTIA = 2.50
   const val NUM_MOTORS = 1
-  const val GEARING = 1.0 / 1.0
 
   const val MODEL_VEL_STDDEV = 3.0
   const val ENCODER_VEL_STDDEV = 0.01
   const val LQR_VEL_TOL = 10.0 / 60.0
   const val LQR_MAX_VOLTS = 12.0
   const val MAX_VOLTAGE = 12.0
+
+  /** Encoder stuff */
+  const val LEFT_CHANNEL_A = 2
+  const val LEFT_CHANNEL_B = 3
+  const val RIGHT_CHANNEL_A = 4
+  const val RIGHT_CHANNEL_B = 5
+  const val CPR = 2048
+  const val UPR = 1.0
+  const val GEARING = 1.0 / 1.0
+  const val LEFT_ENCODER_INVERTED = false
+  const val RIGHT_ENCODER_INVERTED = false
 
   init {
     /**

@@ -8,10 +8,15 @@ object PivotConstants {
   const val MOTOR_ID = 46
   const val INVERTED = false
   const val CURRENT_LIM = 40
-  const val GEARING = 1.0 / 75.0
-  const val UPR = 2 * PI
   const val FOLLOWER_ID = 47
   const val FOLLOWER_INVERTED = true
+
+  /** Encoder stuff */
+  const val ENC_CHANNEL = 6
+  const val OFFSET = 0.0
+  const val GEARING = 1.0 / 75.0
+  const val UPR = 2 * PI
+  const val ENC_INVERTED = false
 
   const val NUM_MOTORS = 2
   const val MOMENT_OF_INERTIA = 2.0

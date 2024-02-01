@@ -19,7 +19,7 @@ import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
-import frc.team449.system.encoder.NEOEncoder
+import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier

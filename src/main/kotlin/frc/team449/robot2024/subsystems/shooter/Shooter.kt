@@ -10,6 +10,7 @@ import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.Encoder
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.robot2024.Robot
@@ -17,10 +18,11 @@ import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
-import frc.team449.system.encoder.NEOEncoder
+import frc.team449.system.encoder.QuadEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
+
 open class Shooter(
   private val rightMotor: WrappedMotor,
   private val leftMotor: WrappedMotor,
