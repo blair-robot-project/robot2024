@@ -11,6 +11,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Encoder
+import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.robot2024.Robot
@@ -189,7 +190,7 @@ open class Shooter(
         RobotConstants.LOOP_TIME
       )
 
-      return Shooter(rightMotor, leftMotor, rightLoop, leftLoop, robot)
+      return if (RobotBase.isReal()) Shooter(rightMotor, leftMotor, rightLoop, leftLoop, robot) else ShooterSim(rightMotor, leftMotor, rightLoop, leftLoop, robot)
     }
   }
 }

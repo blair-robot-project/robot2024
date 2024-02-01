@@ -172,7 +172,7 @@ open class Pivot(
       return if (RobotBase.isReal()) {
         Pivot(motor, loop, profile, robot)
       } else {
-        pivotSim(motor, loop, plant, profile, robot)
+        PivotSim(motor, loop, plant, profile, robot)
       }
     }
   }

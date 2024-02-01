@@ -17,7 +17,7 @@ import frc.team449.robot2024.constants.subsystem.PivotConstants
 import frc.team449.system.motor.WrappedMotor
 import java.util.function.Supplier
 
-class pivotSim(
+class PivotSim(
   private val motor: WrappedMotor,
   private val loop: LinearSystemLoop<N2, N1, N1>,
   private val system: LinearSystem<N2, N1, N1>,
