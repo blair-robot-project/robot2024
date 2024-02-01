@@ -104,9 +104,11 @@ open class Pivot(
       val motor = createSparkMax(
         "Shooter Right Motor",
         PivotConstants.MOTOR_ID,
-        NEOEncoder.creator(
-          PivotConstants.GEARING,
-          PivotConstants.UPR
+        encCreator = AbsoluteEncoder.creator(
+          PivotConstants.ENC_CHANNEL,
+          PivotConstants.OFFSET,
+          PivotConstants.UPR,
+          PivotConstants.ENC_INVERTED
         ),
         inverted = PivotConstants.INVERTED,
         currentLimit = PivotConstants.CURRENT_LIM,

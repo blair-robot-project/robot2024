@@ -32,10 +32,10 @@ open class Shooter(
 ) : SubsystemBase() {
 
   open val rightVelocity: Supplier<Double> =
-    Supplier { rightMotor.velocity * ShooterConstants.UPR * ShooterConstants.GEARING }
+    Supplier { rightMotor.velocity }
 
   open val leftVelocity: Supplier<Double> =
-    Supplier { leftMotor.velocity * ShooterConstants.UPR * ShooterConstants.GEARING }
+    Supplier { leftMotor.velocity }
 
   init {
     this.defaultCommand = updateOnly()
@@ -119,9 +119,12 @@ open class Shooter(
       val rightMotor = createSparkMax(
         "Shooter Right Motor",
         ShooterConstants.RIGHT_MOTOR_ID,
-        NEOEncoder.creator(
+        encCreator = QuadEncoder.creator(
+          Encoder(ShooterConstants.RIGHT_CHANNEL_A, ShooterConstants.RIGHT_CHANNEL_B),
+          ShooterConstants.CPR,
+          ShooterConstants.UPR,
           ShooterConstants.GEARING,
-          ShooterConstants.UPR
+          ShooterConstants.RIGHT_ENCODER_INVERTED
         ),
         inverted = ShooterConstants.RIGHT_MOTOR_INVERTED,
         currentLimit = ShooterConstants.CURRENT_LIMIT,
@@ -130,9 +133,12 @@ open class Shooter(
       val leftMotor = createSparkMax(
         "Shooter Right Motor",
         ShooterConstants.LEFT_MOTOR_ID,
-        NEOEncoder.creator(
+        encCreator = QuadEncoder.creator(
+          Encoder(ShooterConstants.LEFT_CHANNEL_A, ShooterConstants.LEFT_CHANNEL_B),
+          ShooterConstants.CPR,
+          ShooterConstants.UPR,
           ShooterConstants.GEARING,
-          ShooterConstants.UPR
+          ShooterConstants.LEFT_ENCODER_INVERTED
         ),
         inverted = ShooterConstants.LEFT_MOTOR_INVERTED,
         currentLimit = ShooterConstants.CURRENT_LIMIT,
