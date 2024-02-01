@@ -47,6 +47,7 @@ class ControllerBindings(
       robot.feeder.stop()
     )
 
+    //yes
     JoystickButton(driveController, XboxController.Button.kB.value).onTrue(
       robot.shooter.shootSubwoofer()
     )
