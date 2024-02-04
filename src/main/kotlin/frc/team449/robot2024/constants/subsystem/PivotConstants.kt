@@ -5,10 +5,10 @@ import kotlin.math.PI
 
 object PivotConstants {
 
-  const val MOTOR_ID = 46
+  const val MOTOR_ID = 11
   const val INVERTED = false
   const val CURRENT_LIM = 40
-  const val FOLLOWER_ID = 47
+  const val FOLLOWER_ID = 12
   const val FOLLOWER_INVERTED = true
 
   /** Encoder stuff */
