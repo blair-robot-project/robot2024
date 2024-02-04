@@ -7,6 +7,6 @@ object UndertakerConstants {
   const val INVERTED = true
   const val CURRENT_LIM = 15
 
-  const val INTAKE_VOLTAGE = 8.0
-  const val REVERSE_VOLTAGE = -5.0
+  const val INTAKE_VOLTAGE = 12.0
+  const val REVERSE_VOLTAGE = -12.0
 }
