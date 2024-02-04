@@ -22,7 +22,7 @@ object SwerveConstants {
   const val TURN_ENC_CHAN_BR = 8
 
   /** Offsets for the absolute encoders in rotations. */
-  const val TURN_ENC_OFFSET_FL = 0.0 + (-0.3600) - 0.25
+  const val TURN_ENC_OFFSET_FL = 0.0 + (-0.3600)
   const val TURN_ENC_OFFSET_FR = 0.0 + (-0.2055) + 0.5
   const val TURN_ENC_OFFSET_BL = 0.0 + (-0.0208)
   const val TURN_ENC_OFFSET_BR = 0.0 + (0.3895)
