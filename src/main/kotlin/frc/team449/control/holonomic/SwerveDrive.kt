@@ -199,10 +199,34 @@ open class SwerveDrive(
 
   protected fun setRobotPose() {
     this.field.robotPose = this.pose
-    this.field.getObject("FL").pose = this.pose.plus(Transform2d(Translation2d(SwerveConstants.WHEELBASE / 2, SwerveConstants.TRACKWIDTH / 2), this.getPositions()[0].angle))
-    this.field.getObject("FR").pose = this.pose.plus(Transform2d(Translation2d(SwerveConstants.WHEELBASE / 2, -SwerveConstants.TRACKWIDTH / 2), this.getPositions()[1].angle))
-    this.field.getObject("BL").pose = this.pose.plus(Transform2d(Translation2d(-SwerveConstants.WHEELBASE / 2, SwerveConstants.TRACKWIDTH / 2), this.getPositions()[2].angle))
-    this.field.getObject("BR").pose = this.pose.plus(Transform2d(Translation2d(-SwerveConstants.WHEELBASE / 2, -SwerveConstants.TRACKWIDTH / 2), this.getPositions()[0].angle))
+
+    this.field.getObject("FL").pose = this.pose.plus(
+      Transform2d(
+        Translation2d(SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT, SwerveConstants.TRACKWIDTH / 2),
+        this.getPositions()[0].angle
+      )
+    )
+
+    this.field.getObject("FR").pose = this.pose.plus(
+      Transform2d(
+        Translation2d(SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT, -SwerveConstants.TRACKWIDTH / 2),
+        this.getPositions()[1].angle
+      )
+    )
+
+    this.field.getObject("BL").pose = this.pose.plus(
+      Transform2d(
+        Translation2d(-SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT, SwerveConstants.TRACKWIDTH / 2),
+        this.getPositions()[2].angle
+      )
+    )
+
+    this.field.getObject("BR").pose = this.pose.plus(
+      Transform2d(
+        Translation2d(-SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT, -SwerveConstants.TRACKWIDTH / 2),
+        this.getPositions()[0].angle
+      )
+    )
   }
 
   protected open fun localize() = try {
@@ -407,7 +431,7 @@ open class SwerveDrive(
           driveMotorController(),
           turnMotorController(),
           driveFeedforward,
-          Translation2d(SwerveConstants.WHEELBASE / 2, SwerveConstants.TRACKWIDTH / 2)
+          Translation2d(SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT, SwerveConstants.TRACKWIDTH / 2)
         ),
         SwerveModule.create(
           "FRModule",
@@ -427,7 +451,7 @@ open class SwerveDrive(
           driveMotorController(),
           turnMotorController(),
           driveFeedforward,
-          Translation2d(SwerveConstants.WHEELBASE / 2, -SwerveConstants.TRACKWIDTH / 2)
+          Translation2d(SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT, -SwerveConstants.TRACKWIDTH / 2)
         ),
         SwerveModule.create(
           "BLModule",
@@ -447,7 +471,7 @@ open class SwerveDrive(
           driveMotorController(),
           turnMotorController(),
           driveFeedforward,
-          Translation2d(-SwerveConstants.WHEELBASE / 2, SwerveConstants.TRACKWIDTH / 2)
+          Translation2d(-SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT, SwerveConstants.TRACKWIDTH / 2)
         ),
         SwerveModule.create(
           "BRModule",
@@ -467,7 +491,7 @@ open class SwerveDrive(
           driveMotorController(),
           turnMotorController(),
           driveFeedforward,
-          Translation2d(-SwerveConstants.WHEELBASE / 2, -SwerveConstants.TRACKWIDTH / 2)
+          Translation2d(-SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT, -SwerveConstants.TRACKWIDTH / 2)
         )
       )
       return if (isReal()) {

@@ -1,6 +1,8 @@
 package frc.team449.robot2024.constants.subsystem
 
+import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.util.Units
+import frc.team449.robot2024.constants.MotorConstants
 import kotlin.math.PI
 
 object PivotConstants {
@@ -25,7 +27,7 @@ object PivotConstants {
 
   const val ARM_LENGTH = 1.0
 
-  const val KS = 0.35
+  const val KS = 0.0
 
   /** Deviations for Kalman filter in units of radians or radians / seconds */
   val MODEL_POS_DEVIATION = Units.degreesToRadians(10.0)
@@ -40,11 +42,19 @@ object PivotConstants {
   val MAX_VOLTAGE = 12.0
 
   /** Profile Constraints */
-  val MAX_VELOCITY = Units.degreesToRadians(100.0)
-  val MAX_ACCEL = Units.degreesToRadians(75.0)
+  val MAX_VELOCITY = UPR * MotorConstants.FREE_SPEED * GEARING / 60
+  val MAX_ACCEL = UPR * NUM_MOTORS * DCMotor(
+    MotorConstants.NOMINAL_VOLTAGE,
+    MotorConstants.STALL_TORQUE * EFFICIENCY,
+    MotorConstants.STALL_CURRENT,
+    MotorConstants.FREE_CURRENT,
+    MotorConstants.FREE_SPEED,
+    1
+  ).getTorque(CURRENT_LIM.toDouble()) / MOMENT_OF_INERTIA
 
   val MIN_ANGLE = Units.degreesToRadians(0.0)
   val MAX_ANGLE = Units.degreesToRadians(90.0)
   val AMP_ANGLE = Units.degreesToRadians(75.0)
+  val STOW_ANGLE = Units.degreesToRadians(-2.0)
   val SUBWOOFER_ANGLE = Units.degreesToRadians(30.0)
 }

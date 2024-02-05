@@ -68,6 +68,16 @@ open class Pivot(
     }
   }
 
+  fun moveStow(): Command {
+    return this.run {
+      moveToAngle(PivotConstants.STOW_ANGLE)
+    }
+  }
+
+  fun atSetpoint(): Boolean {
+    return lastProfileReference.position - positionSupplier.get() < PivotConstants.POS_TOLERANCE
+  }
+
   fun pivotShootAnywhere(): Command {
     return this.run {
       val distance = FieldConstants.SUBWOOFER_POSE.getDistance(robot.drive.pose.translation)
@@ -91,6 +101,8 @@ open class Pivot(
     loop.predict(RobotConstants.LOOP_TIME)
 
     motor.setVoltage(loop.getU(0) + sign(lastProfileReference.velocity) * PivotConstants.KS)
+//    println(loop.getU(0) + sign(lastProfileReference.velocity) * PivotConstants.KS)
+    println(goal)
   }
 
   fun stop(): Command {
@@ -104,7 +116,7 @@ open class Pivot(
     builder.addDoubleProperty("1.1 Last Voltage", { motor.lastVoltage }, null)
     builder.publishConstString("2.0", "Position and Velocity")
     builder.addDoubleProperty("2.1 Current Position", { positionSupplier.get() }, null)
-    builder.addDoubleProperty("2.2 Current Position", { velocitySupplier.get() }, null)
+    builder.addDoubleProperty("2.2 Current Velocity", { velocitySupplier.get() }, null)
     builder.addDoubleProperty("2.3 Desired Position", { lastProfileReference.position }, null)
     builder.addDoubleProperty("2.4 Desired Velocity", { lastProfileReference.velocity }, null)
   }

@@ -32,13 +32,13 @@ object RobotConstants {
     MotorConstants.FREE_CURRENT,
     MotorConstants.FREE_SPEED,
     1
-  ).getTorque(55.0) /
+  ).getTorque(75.0) /
     ((SwerveConstants.DRIVE_UPR / (2 * PI)) * ROBOT_WEIGHT * SwerveConstants.DRIVE_GEARING) // m/s/s
 
   val INITIAL_POSE = Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0))
 
   init {
-    println("Max Accel $MAX_ACCEL")
+    println("Drive Max Accel: $MAX_ACCEL")
   }
 
   const val LOOP_TIME = 0.020
@@ -56,5 +56,5 @@ object RobotConstants {
 
   // Robot dimensions (INCLUDING BUMPERS)
   val ROBOT_WIDTH = Units.inchesToMeters(27.0 + 3.25 * 2)
-  val ROBOT_LENGTH = Units.inchesToMeters(30.0 + 3.25 * 2)
+  val ROBOT_LENGTH = Units.inchesToMeters(27.5 + 3.25 * 2)
 }

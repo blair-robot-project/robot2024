@@ -29,13 +29,14 @@ class OrbitAlign(
     AutoConstants.ORBIT_KP,
     0.0,
     0.0
-  )
+  ),
+  tolerance: Double = 0.015
 ) : Command() {
 
   init {
     addRequirements(drive)
     headingPID.enableContinuousInput(-Math.PI, Math.PI)
-    headingPID.setTolerance(0.015)
+    headingPID.setTolerance(tolerance)
   }
 
   private var fieldToRobot = Translation2d()
@@ -131,6 +132,10 @@ class OrbitAlign(
     drive.set(
       desVel
     )
+  }
+
+  fun atSetpoint(): Boolean {
+    return headingPID.atSetpoint()
   }
 
   override fun end(interrupted: Boolean) {

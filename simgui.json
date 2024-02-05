@@ -68,14 +68,29 @@
     },
     "windows": {
       "/Monologuing/field": {
+        "BL": {
+          "arrowSize": 3,
+          "style": "Track"
+        },
+        "BR": {
+          "arrowSize": 3,
+          "style": "Track"
+        },
+        "FL": {
+          "arrowSize": 3,
+          "style": "Track"
+        },
+        "FR": {
+          "arrowSize": 3,
+          "style": "Track"
+        },
         "Robot": {
-          "length": 0.7111999988555908,
-          "width": 0.7111999988555908
+          "length": 0.6984999775886536
         },
         "bottom": 1476,
         "bumpers": {
-          "length": 0.8762999773025513,
-          "width": 0.8762999773025513
+          "length": 0.8636000156402588,
+          "width": 0.8508999943733215
         },
         "height": 8.210550308227539,
         "image": "C:\\Users\\jpoth\\Downloads\\image(1).png",
@@ -91,7 +106,7 @@
         },
         "right": 2961,
         "top": 79,
-        "units": "meters",
+        "units": "inches",
         "width": 16.541748046875,
         "window": {
           "visible": true
@@ -108,10 +123,7 @@
         "left": 150,
         "right": 2961,
         "top": 79,
-        "width": 16.541748046875,
-        "window": {
-          "visible": true
-        }
+        "width": 16.541748046875
       },
       "/SmartDashboard/Routine Chooser": {
         "window": {
@@ -315,8 +327,7 @@
     },
     "Server": {
       "open": true
-    },
-    "visible": true
+    }
   },
   "Plot": {
     "Plot <0>": {
@@ -328,7 +339,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 0,
+          "height": 599,
           "series": [
             {
               "color": [
@@ -350,15 +361,6 @@
             },
             {
               "color": [
-                0.7686275243759155,
-                0.30588236451148987,
-                0.32156863808631897,
-                1.0
-              ],
-              "id": "NT:/Monologuing/robot/pivot/2.2 Desired Position"
-            },
-            {
-              "color": [
                 0.5058823823928833,
                 0.44705885648727417,
                 0.7019608020782471,
@@ -374,6 +376,24 @@
                 1.0
               ],
               "id": "NT:/Monologuing/robot/pivot/2.1 Current Position"
+            },
+            {
+              "color": [
+                0.5764706134796143,
+                0.4705882668495178,
+                0.3764706254005432,
+                1.0
+              ],
+              "id": "NT:/Monologuing/robot/pivot/2.2 Current Velocity"
+            },
+            {
+              "color": [
+                1.0,
+                0.47058820724487305,
+                0.0,
+                1.0
+              ],
+              "id": "NT:/Monologuing/robot/pivot/2.4 Desired Velocity"
             }
           ]
         }

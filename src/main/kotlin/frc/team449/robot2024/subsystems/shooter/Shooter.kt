@@ -32,6 +32,9 @@ open class Shooter(
   private val robot: Robot
 ) : SubsystemBase() {
 
+  /** Left, Right Desired velocity */
+  private var desiredVels = Pair(0.0, 0.0)
+
   open val rightVelocity: Supplier<Double> =
     Supplier { rightMotor.velocity }
 
@@ -65,8 +68,15 @@ open class Shooter(
       val rightSpeed = ShooterConstants.SHOOTING_MAP.get(distance).get(0, 0)
       val leftSpeed = ShooterConstants.SHOOTING_MAP.get(distance).get(1, 0)
 
+      desiredVels = Pair(leftSpeed, rightSpeed)
+
       shootPiece(rightSpeed, leftSpeed)
     }
+  }
+
+  fun atSetpoint(): Boolean {
+    return leftVelocity.get() - desiredVels.first < ShooterConstants.LQR_VEL_TOL &&
+      rightVelocity.get() - desiredVels.second < ShooterConstants.LQR_VEL_TOL
   }
 
   fun scoreAmp(): Command {
@@ -90,6 +100,8 @@ open class Shooter(
     } else {
       rightLoop.setNextR(rightSpeed)
       leftLoop.setNextR(leftSpeed)
+
+      desiredVels = Pair(leftSpeed, rightSpeed)
 
       rightLoop.correct(VecBuilder.fill(rightVelocity.get()))
       leftLoop.correct(VecBuilder.fill(leftVelocity.get()))

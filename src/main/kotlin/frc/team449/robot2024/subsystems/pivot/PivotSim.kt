@@ -19,10 +19,10 @@ import java.util.function.Supplier
 
 class PivotSim(
   private val motor: WrappedMotor,
-  private val loop: LinearSystemLoop<N2, N1, N1>,
-  private val system: LinearSystem<N2, N1, N1>,
-  private val profile: TrapezoidProfile,
-  private val robot: Robot
+  loop: LinearSystemLoop<N2, N1, N1>,
+  system: LinearSystem<N2, N1, N1>,
+  profile: TrapezoidProfile,
+  robot: Robot
 ) : Pivot(motor, loop, profile, robot) {
 
   private var currentState = Pair(0.0, 0.0)
@@ -73,11 +73,11 @@ class PivotSim(
     builder.addDoubleArrayProperty(
       "5.1 3D Position",
       {
-        val angle = Rotation3d(0.0, currentState.first, 0.0)
+        val angle = Rotation3d(0.0, -currentState.first, 0.0)
         doubleArrayOf(
-          0.0,
-          0.0,
-          0.0,
+          -0.225,
+          0.095,
+          0.51,
           angle.quaternion.w,
           angle.quaternion.x,
           angle.quaternion.y,
