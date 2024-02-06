@@ -25,19 +25,26 @@ class ControllerBindings(
   )
 
   private fun robotBindings() {
-    mechanismController.rightBumper().onTrue(
-      robot.undertaker.intake()
-    ).onFalse(
-      robot.undertaker.stop()
+
+    driveController.rightBumper().onTrue(
+      robot.undertaker.intake().andThen(
+        robot.feeder.intake()
+      )).onFalse(
+      robot.undertaker.stop().andThen(
+        robot.feeder.stop()
+      )
     )
 
-    mechanismController.leftBumper().onTrue(
-      robot.undertaker.outtake()
-    ).onFalse(
-      robot.undertaker.stop()
+    driveController.leftBumper().onTrue(
+      robot.undertaker.outtake().andThen(
+        robot.feeder.outtake()
+      )).onFalse(
+      robot.undertaker.stop().andThen(
+        robot.feeder.stop()
+      )
     )
 
-//    /** Shooting from anywhere */
+    /** Shooting from anywhere */
 //    mechanismController.a().onTrue(
 //      ParallelCommandGroup(
 //        orbitCmd,
@@ -57,21 +64,21 @@ class ControllerBindings(
 //    )
 
 //    mechanismController.b().onTrue(
-//      robot.pivot.moveAmp()
+//      robot.pivot()
 //    )
-//
-//    mechanismController.x().onTrue(
-//      robot.pivot.moveSubwoofer()
-//    )
-//
-//    mechanismController.a().onTrue(
-//      robot.pivot.moveStow()
-//    )
+
+    mechanismController.x().onTrue(
+      robot.pivot.moveAmp()
+    )
+
+    mechanismController.a().onTrue(
+      robot.pivot.moveStow()
+    )
   }
 
-  private fun evergreenBindings() {
+  private fun nonRobotBindings() {
     // slow drive
-    driveController.rightTrigger(0.75).onTrue(
+    driveController.rightTrigger(0.5).onTrue(
       InstantCommand({ robot.drive.maxLinearSpeed = 1.0 })
         .andThen(InstantCommand({ robot.drive.maxRotSpeed = PI / 4 }))
     ).onFalse(
@@ -99,7 +106,7 @@ class ControllerBindings(
   }
 
   fun bindButtons() {
-    evergreenBindings()
+    nonRobotBindings()
     robotBindings()
   }
 }

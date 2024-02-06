@@ -8,9 +8,9 @@ import edu.wpi.first.math.numbers.N3
 
 object ShooterConstants {
   const val EFFICIENCY = 1.0
-  const val RIGHT_MOTOR_ID = 60
+  const val RIGHT_MOTOR_ID = 45
   const val RIGHT_MOTOR_INVERTED = false
-  const val LEFT_MOTOR_ID = 61
+  const val LEFT_MOTOR_ID = 46
   const val LEFT_MOTOR_INVERTED = false
   const val CURRENT_LIMIT = 40
 
