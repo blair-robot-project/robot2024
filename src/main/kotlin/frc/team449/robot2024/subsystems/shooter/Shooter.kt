@@ -98,8 +98,9 @@ open class Shooter(
       rightLoop.correct(VecBuilder.fill(rightVelocity.get()))
       leftLoop.correct(VecBuilder.fill(leftVelocity.get()))
     } else {
-      rightLoop.setNextR(rightSpeed)
-      leftLoop.setNextR(leftSpeed)
+      println(rightSpeed)
+      rightLoop.nextR = VecBuilder.fill(rightSpeed)
+      leftLoop.nextR = VecBuilder.fill(leftSpeed)
 
       desiredVels = Pair(leftSpeed, rightSpeed)
 
@@ -116,8 +117,8 @@ open class Shooter(
 
   fun stop(): Command {
     return this.runOnce {
-      leftMotor.stopMotor()
-      rightMotor.stopMotor()
+      leftMotor.setVoltage(0.0)
+      rightMotor.setVoltage(0.0)
     }
   }
 
@@ -125,6 +126,14 @@ open class Shooter(
     builder.publishConstString("1.0", "Motor Voltages")
     builder.addDoubleProperty("1.1 Last Right Voltage", { rightMotor.lastVoltage }, null)
     builder.addDoubleProperty("1.2 Last Left Voltage", { leftMotor.lastVoltage }, null)
+    builder.publishConstString("2.0", "Current and Desired Velocities")
+    builder.addDoubleProperty("2.1 Left Current Speed", { leftVelocity.get() }, null)
+    builder.addDoubleProperty("2.2 Right Current Speed", { rightVelocity.get() }, null)
+    builder.addDoubleProperty("2.3 Left Desired Speed", { desiredVels.first }, null)
+    builder.addDoubleProperty("2.4 Right Desired Speed", { desiredVels.second }, null)
+    builder.publishConstString("3.0", "Velocity Errors")
+    builder.addDoubleProperty("3.1 Left Vel Error", { leftLoop.error.get(0, 0) }, null)
+    builder.addDoubleProperty("3.2 Right Vel Error", { rightLoop.error.get(0, 0) }, null)
   }
 
   companion object {
@@ -157,7 +166,7 @@ open class Shooter(
         currentLimit = ShooterConstants.CURRENT_LIMIT,
       )
 
-      val plant = LinearSystemId.createFlywheelSystem(
+      val leftPlant = LinearSystemId.createFlywheelSystem(
         DCMotor(
           MotorConstants.NOMINAL_VOLTAGE,
           MotorConstants.STALL_TORQUE,
@@ -170,39 +179,68 @@ open class Shooter(
         1 / ShooterConstants.GEARING
       )
 
-      val observer = KalmanFilter(
+      val rightPlant = LinearSystemId.createFlywheelSystem(
+        DCMotor(
+          MotorConstants.NOMINAL_VOLTAGE,
+          MotorConstants.STALL_TORQUE,
+          MotorConstants.STALL_CURRENT,
+          MotorConstants.FREE_CURRENT,
+          MotorConstants.FREE_SPEED,
+          ShooterConstants.NUM_MOTORS
+        ),
+        ShooterConstants.MOMENT_OF_INERTIA,
+        1 / ShooterConstants.GEARING
+      )
+
+      val leftObserver = KalmanFilter(
         Nat.N1(),
         Nat.N1(),
-        plant,
+        leftPlant,
         VecBuilder.fill(ShooterConstants.MODEL_VEL_STDDEV),
         VecBuilder.fill(ShooterConstants.ENCODER_VEL_STDDEV),
         RobotConstants.LOOP_TIME
       )
 
-      val controller = LinearQuadraticRegulator(
-        plant,
+      val rightObserver = KalmanFilter(
+        Nat.N1(),
+        Nat.N1(),
+        rightPlant,
+        VecBuilder.fill(ShooterConstants.MODEL_VEL_STDDEV),
+        VecBuilder.fill(ShooterConstants.ENCODER_VEL_STDDEV),
+        RobotConstants.LOOP_TIME
+      )
+
+      val leftController = LinearQuadraticRegulator(
+        leftPlant,
+        VecBuilder.fill(ShooterConstants.LQR_VEL_TOL),
+        VecBuilder.fill(ShooterConstants.LQR_MAX_VOLTS),
+        RobotConstants.LOOP_TIME
+      )
+
+      val rightController = LinearQuadraticRegulator(
+        rightPlant,
         VecBuilder.fill(ShooterConstants.LQR_VEL_TOL),
         VecBuilder.fill(ShooterConstants.LQR_MAX_VOLTS),
         RobotConstants.LOOP_TIME
       )
 
       val rightLoop = LinearSystemLoop(
-        plant,
-        controller,
-        observer,
+        rightPlant,
+        rightController,
+        rightObserver,
         ShooterConstants.MAX_VOLTAGE,
         RobotConstants.LOOP_TIME
       )
 
       val leftLoop = LinearSystemLoop(
-        plant,
-        controller,
-        observer,
+        leftPlant,
+        leftController,
+        leftObserver,
         ShooterConstants.MAX_VOLTAGE,
         RobotConstants.LOOP_TIME
       )
 
-      return if (RobotBase.isReal()) Shooter(rightMotor, leftMotor, rightLoop, leftLoop, robot) else ShooterSim(rightMotor, leftMotor, rightLoop, leftLoop, robot)
+      return if (RobotBase.isReal()) Shooter(rightMotor, leftMotor, rightLoop, leftLoop, robot) else ShooterSim(rightMotor, leftMotor, rightLoop, leftLoop, robot, rightPlant, leftPlant)
     }
   }
 }

@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.team449.control.holonomic.SwerveSim
 import frc.team449.robot2024.Robot
@@ -25,27 +26,36 @@ class ControllerBindings(
   )
 
   private fun robotBindings() {
-
     driveController.rightBumper().onTrue(
-      robot.undertaker.intake().andThen(
-        robot.feeder.intake()
-      )).onFalse(
-      robot.undertaker.stop().andThen(
-        robot.feeder.stop()
+      ParallelCommandGroup(
+        robot.undertaker.intake(),
+        robot.feeder.intake(),
+        robot.shooter.duringIntake()
+      )
+    ).onFalse(
+      ParallelCommandGroup(
+        robot.undertaker.stop(),
+        robot.feeder.stop(),
+        robot.shooter.stop()
       )
     )
 
     driveController.leftBumper().onTrue(
-      robot.undertaker.outtake().andThen(
-        robot.feeder.outtake()
-      )).onFalse(
-      robot.undertaker.stop().andThen(
-        robot.feeder.stop()
+      ParallelCommandGroup(
+        robot.undertaker.outtake(),
+        robot.feeder.outtake(),
+        robot.shooter.duringIntake()
+      )
+    ).onFalse(
+      ParallelCommandGroup(
+        robot.undertaker.stop(),
+        robot.feeder.stop(),
+        robot.shooter.stop()
       )
     )
 
     /** Shooting from anywhere */
-//    mechanismController.a().onTrue(
+//    mechanismController.b().onTrue(
 //      ParallelCommandGroup(
 //        orbitCmd,
 //        robot.shooter.shootAnywhere(),

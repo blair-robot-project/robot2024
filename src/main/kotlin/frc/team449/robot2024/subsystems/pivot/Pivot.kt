@@ -101,8 +101,6 @@ open class Pivot(
     loop.predict(RobotConstants.LOOP_TIME)
 
     motor.setVoltage(loop.getU(0) + sign(lastProfileReference.velocity) * PivotConstants.KS)
-//    println(loop.getU(0) + sign(lastProfileReference.velocity) * PivotConstants.KS)
-    println(goal)
   }
 
   fun stop(): Command {

@@ -103,8 +103,8 @@ open class SwerveDrive(
 
   // TODO: Do you notice a difference with this normalize function?
   private fun normalizeDrive(desiredStates: Array<SwerveModuleState>, speeds: ChassisSpeeds) {
-    val translationalK: Double = hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) / RobotConstants.MAX_LINEAR_SPEED
-    val rotationalK: Double = abs(speeds.omegaRadiansPerSecond) / RobotConstants.MAX_ROT_SPEED
+    val translationalK: Double = hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) / maxLinearSpeed
+    val rotationalK: Double = abs(speeds.omegaRadiansPerSecond) / maxRotSpeed
     val k = max(translationalK, rotationalK)
 
     // Find how fast the fastest spinning drive motor is spinning

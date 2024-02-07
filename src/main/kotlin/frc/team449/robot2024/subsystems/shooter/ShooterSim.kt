@@ -2,6 +2,7 @@ package frc.team449.robot2024.subsystems.shooter
 
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.numbers.N1
+import edu.wpi.first.math.system.LinearSystem
 import edu.wpi.first.math.system.LinearSystemLoop
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.util.sendable.SendableBuilder
@@ -18,16 +19,13 @@ class ShooterSim(
   private val leftMotor: WrappedMotor,
   rightLoop: LinearSystemLoop<N1, N1, N1>,
   leftLoop: LinearSystemLoop<N1, N1, N1>,
-  robot: Robot
+  robot: Robot,
+  rightPlant: LinearSystem<N1, N1, N1>,
+  leftPlant: LinearSystem<N1, N1, N1>
 ) : Shooter(rightMotor, leftMotor, rightLoop, leftLoop, robot) {
 
-  // State is (left velocity, right velocity)
-  private var currentState = Pair(
-    leftMotor.velocity * ShooterConstants.UPR * ShooterConstants.GEARING,
-    rightMotor.velocity * ShooterConstants.UPR * ShooterConstants.GEARING
-  )
-
   private val leftFlywheelSim = FlywheelSim(
+    leftPlant,
     DCMotor(
       MotorConstants.NOMINAL_VOLTAGE,
       MotorConstants.STALL_TORQUE * ShooterConstants.EFFICIENCY,
@@ -37,10 +35,10 @@ class ShooterSim(
       ShooterConstants.NUM_MOTORS
     ),
     ShooterConstants.GEARING,
-    ShooterConstants.MOMENT_OF_INERTIA
   )
 
   private val rightFlywheelSim = FlywheelSim(
+    rightPlant,
     DCMotor(
       MotorConstants.NOMINAL_VOLTAGE,
       MotorConstants.STALL_TORQUE * ShooterConstants.EFFICIENCY,
@@ -49,13 +47,13 @@ class ShooterSim(
       MotorConstants.FREE_SPEED,
       ShooterConstants.NUM_MOTORS
     ),
-    ShooterConstants.GEARING,
-    ShooterConstants.MOMENT_OF_INERTIA
+    1 / ShooterConstants.GEARING,
   )
 
-  val leftVelocitySupplier =
+  override val leftVelocity: Supplier<Double> =
     Supplier { leftFlywheelSim.angularVelocityRadPerSec }
-  val rightVelocitySupplier =
+
+  override val rightVelocity: Supplier<Double> =
     Supplier { rightFlywheelSim.angularVelocityRadPerSec }
 
   private var currentDraw = 0.0
@@ -67,19 +65,12 @@ class ShooterSim(
     leftFlywheelSim.update(RobotConstants.LOOP_TIME)
     rightFlywheelSim.update(RobotConstants.LOOP_TIME)
 
-    currentState = Pair(leftFlywheelSim.angularVelocityRPM, rightFlywheelSim.angularVelocityRPM)
-
     currentDraw = leftFlywheelSim.currentDrawAmps + rightFlywheelSim.currentDrawAmps
   }
 
   override fun initSendable(builder: SendableBuilder) {
     super.initSendable(builder)
-
     builder.publishConstString("4.0", "Current")
     builder.addDoubleProperty("4.1 Simulated current Draw", { currentDraw }, {})
-
-    builder.publishConstString("5.0", "Velocity")
-    builder.addDoubleProperty("5.1 Left Motor Vel", { currentState.first }, {})
-    builder.addDoubleProperty("5.2 Right Motor Vel", { currentState.second }, {})
   }
 }

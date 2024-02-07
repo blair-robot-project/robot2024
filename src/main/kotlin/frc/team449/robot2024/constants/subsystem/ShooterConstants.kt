@@ -5,6 +5,8 @@ import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.Nat
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
+import edu.wpi.first.math.util.Units
+import kotlin.math.PI
 
 object ShooterConstants {
   const val EFFICIENCY = 1.0
@@ -14,8 +16,8 @@ object ShooterConstants {
   const val LEFT_MOTOR_INVERTED = false
   const val CURRENT_LIMIT = 40
 
-  const val SUBWOOFER_LEFT_SPEED = 100.0
-  const val SUBWOOFER_RIGHT_SPEED = 125.0
+  val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5000.0)
+  val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5500.0)
 
   val SHOOTING_MAP = InterpolatingMatrixTreeMap<Double, N3, N1>()
 
@@ -29,12 +31,12 @@ object ShooterConstants {
   const val SHOOTER_HEIGHT = 0.25
 
   /** These constants are PER SIDE of the shooter */
-  const val MOMENT_OF_INERTIA = 2.50
+  const val MOMENT_OF_INERTIA = 0.0003104907 * 4 + 0.0003
   const val NUM_MOTORS = 1
 
   const val MODEL_VEL_STDDEV = 3.0
-  const val ENCODER_VEL_STDDEV = 0.01
-  const val LQR_VEL_TOL = 10.0 / 60.0
+  const val ENCODER_VEL_STDDEV = 0.075
+  const val LQR_VEL_TOL = 5.0
   const val LQR_MAX_VOLTS = 12.0
   const val MAX_VOLTAGE = 12.0
 
@@ -44,7 +46,7 @@ object ShooterConstants {
   const val RIGHT_CHANNEL_A = 3
   const val RIGHT_CHANNEL_B = 4
   const val CPR = 2048
-  const val UPR = 1.0
+  const val UPR = 2 * PI
   const val GEARING = 1.0 / 1.0
   const val LEFT_ENCODER_INVERTED = false
   const val RIGHT_ENCODER_INVERTED = false
