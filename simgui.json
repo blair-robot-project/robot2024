@@ -289,7 +289,6 @@
               "open": true
             }
           },
-          "open": true,
           "shooter": {
             "open": true
           }
@@ -346,7 +345,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 647,
+          "height": 599,
           "series": [
             {
               "color": [

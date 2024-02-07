@@ -67,9 +67,7 @@ class RobotLoop : TimedRobot(), Logged {
 
     Monologue.setupMonologue(this, "/Monologuing", false, false)
 
-    if (RobotBase.isReal()) {
-      URCL.start()
-    }
+    URCL.start()
   }
 
   override fun robotPeriodic() {
