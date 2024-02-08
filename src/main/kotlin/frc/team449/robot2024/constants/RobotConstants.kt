@@ -55,6 +55,6 @@ object RobotConstants {
   val IR_CHANNEL = 15
 
   // Robot dimensions (INCLUDING BUMPERS)
-  val ROBOT_WIDTH = Units.inchesToMeters(27.0 + 3.25 * 2)
+  val ROBOT_WIDTH = Units.inchesToMeters(27.25 + 3.25 * 2)
   val ROBOT_LENGTH = Units.inchesToMeters(27.5 + 3.25 * 2)
 }

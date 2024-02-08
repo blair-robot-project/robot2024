@@ -1,5 +1,6 @@
 package frc.team449.robot2024
 
+import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.SPI
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
@@ -52,5 +53,5 @@ class Robot : RobotBase(), Logged {
   @Log.NT
   val feeder = createFeeder()
 //
-//  val infrared = DigitalInput(RobotConstants.IR_CHANNEL)
+  val infrared = DigitalInput(RobotConstants.IR_CHANNEL)
 }

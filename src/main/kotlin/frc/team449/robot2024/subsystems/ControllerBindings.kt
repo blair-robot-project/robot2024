@@ -28,17 +28,25 @@ class ControllerBindings(
 
   private fun robotBindings() {
     driveController.rightBumper().onTrue(
-      ParallelCommandGroup(
-        robot.undertaker.intake(),
-        robot.feeder.intake(),
-        robot.shooter.duringIntake()
+        if (!robot.infrared.get())
+          ParallelCommandGroup(
+            robot.undertaker.intake(),
+            robot.feeder.intake(),
+            robot.shooter.duringIntake()
+          )
+         else ParallelCommandGroup(
+            robot.undertaker.stop(),
+            robot.feeder.stop(),
+            robot.shooter.stop()
+          )
+      ).onFalse(
+        ParallelCommandGroup(
+          robot.undertaker.stop(),
+          robot.feeder.stop(),
+          robot.shooter.stop()
+        )
       )
-    ).onFalse(
-      ParallelCommandGroup(
-        robot.undertaker.stop(),
-        robot.feeder.stop(),
-        robot.shooter.stop()
-      ))
+
 
     driveController.leftBumper().onTrue(
       ParallelCommandGroup(
