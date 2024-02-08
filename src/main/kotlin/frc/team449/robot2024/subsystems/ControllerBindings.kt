@@ -28,26 +28,26 @@ class ControllerBindings(
 
   private fun robotBindings() {
     driveController.rightBumper().onTrue(
-        if (!robot.infrared.get())
-          ParallelCommandGroup(
-            robot.undertaker.intake(),
-            robot.feeder.intake(),
-            robot.shooter.duringIntake()
-          )
-         else ParallelCommandGroup(
-            robot.undertaker.stop(),
-            robot.feeder.stop(),
-            robot.shooter.stop()
-          )
-      ).onFalse(
+      if (!robot.infrared.get()) {
+        ParallelCommandGroup(
+          robot.undertaker.intake(),
+          robot.feeder.intake(),
+          robot.shooter.duringIntake()
+        )
+      } else {
         ParallelCommandGroup(
           robot.undertaker.stop(),
           robot.feeder.stop(),
           robot.shooter.stop()
         )
+      }
+    ).onFalse(
+      ParallelCommandGroup(
+        robot.undertaker.stop(),
+        robot.feeder.stop(),
+        robot.shooter.stop()
       )
-
-
+    )
     driveController.leftBumper().onTrue(
       ParallelCommandGroup(
         robot.undertaker.outtake(),
@@ -59,7 +59,8 @@ class ControllerBindings(
         robot.undertaker.stop(),
         robot.feeder.stop(),
         robot.shooter.stop()
-      ))
+      )
+    )
 
     driveController.leftBumper().onTrue(
       robot.shooter.shootSubwoofer()
@@ -91,18 +92,15 @@ class ControllerBindings(
 //    )
 
     mechanismController.x().onTrue(
-      PrintCommand("whats good chat").andThen(
-      robot.feeder.intake())
+      PrintCommand("whats good chat").andThen(robot.feeder.intake())
     ).onFalse(
       robot.feeder.stop()
     )
 
     mechanismController.a().onTrue(
-      robot.feeder.intake().andThen(
-      robot.shooter.scoreAmp())
+      robot.feeder.intake().andThen(robot.shooter.scoreAmp())
     ).onFalse(
-      robot.feeder.stop().andThen(
-      robot.shooter.stop())
+      robot.feeder.stop().andThen(robot.shooter.stop())
     )
   }
 

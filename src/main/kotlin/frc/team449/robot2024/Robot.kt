@@ -52,6 +52,5 @@ class Robot : RobotBase(), Logged {
 
   @Log.NT
   val feeder = createFeeder()
-//
   val infrared = DigitalInput(RobotConstants.IR_CHANNEL)
 }
