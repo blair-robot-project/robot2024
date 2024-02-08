@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup
+import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.team449.control.holonomic.SwerveSim
 import frc.team449.robot2024.Robot
@@ -37,8 +38,7 @@ class ControllerBindings(
         robot.undertaker.stop(),
         robot.feeder.stop(),
         robot.shooter.stop()
-      )
-    )
+      ))
 
     driveController.leftBumper().onTrue(
       ParallelCommandGroup(
@@ -51,7 +51,12 @@ class ControllerBindings(
         robot.undertaker.stop(),
         robot.feeder.stop(),
         robot.shooter.stop()
-      )
+      ))
+
+    driveController.leftBumper().onTrue(
+      robot.shooter.shootSubwoofer()
+    ).onFalse(
+      robot.shooter.stop()
     )
 
     /** Shooting from anywhere */
@@ -78,11 +83,18 @@ class ControllerBindings(
 //    )
 
     mechanismController.x().onTrue(
-      robot.pivot.moveAmp()
+      PrintCommand("whats good chat").andThen(
+      robot.feeder.intake())
+    ).onFalse(
+      robot.feeder.stop()
     )
 
     mechanismController.a().onTrue(
-      robot.pivot.moveStow()
+      robot.feeder.intake().andThen(
+      robot.shooter.scoreAmp())
+    ).onFalse(
+      robot.feeder.stop().andThen(
+      robot.shooter.stop())
     )
   }
 

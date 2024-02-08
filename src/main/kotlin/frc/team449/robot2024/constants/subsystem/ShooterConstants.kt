@@ -11,13 +11,13 @@ import kotlin.math.PI
 object ShooterConstants {
   const val EFFICIENCY = 1.0
   const val RIGHT_MOTOR_ID = 45
-  const val RIGHT_MOTOR_INVERTED = false
+  const val RIGHT_MOTOR_INVERTED = true
   const val LEFT_MOTOR_ID = 46
   const val LEFT_MOTOR_INVERTED = false
   const val CURRENT_LIMIT = 40
 
-  val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5000.0)
-  val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5500.0)
+  val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(1000.0)
+  val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(1000.0)
 
   val SHOOTING_MAP = InterpolatingMatrixTreeMap<Double, N3, N1>()
 
