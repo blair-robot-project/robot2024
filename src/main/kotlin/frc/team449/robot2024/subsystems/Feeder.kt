@@ -42,7 +42,7 @@ class Feeder(
         FeederConstants.MOTOR_ID,
         NEOEncoder.creator(
           1.0,
-          1.0
+          FeederConstants.GEARING
         ),
         inverted = FeederConstants.INVERTED,
         currentLimit = FeederConstants.CURRENT_LIM,

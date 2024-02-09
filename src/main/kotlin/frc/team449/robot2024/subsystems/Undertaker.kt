@@ -42,7 +42,7 @@ class Undertaker(
         UndertakerConstants.MOTOR_ID,
         NEOEncoder.creator(
           1.0,
-          1.0
+          UndertakerConstants.GEARING
         ),
         inverted = UndertakerConstants.INVERTED,
         currentLimit = UndertakerConstants.CURRENT_LIM,

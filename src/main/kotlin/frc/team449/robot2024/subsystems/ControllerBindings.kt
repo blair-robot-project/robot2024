@@ -26,21 +26,26 @@ class ControllerBindings(
     FieldConstants.SUBWOOFER_POSE
   )
 
+  val intakeCommand = ConditionalCommand(
+    ParallelCommandGroup(
+      robot.undertaker.intake(),
+      robot.feeder.intake(),
+      robot.shooter.duringIntake()
+    ),
+    ParallelCommandGroup(
+      robot.undertaker.stop(),
+      robot.feeder.stop(),
+      robot.shooter.stop()
+    )
+  ) { robot.infrared.get() }
+
   private fun robotBindings() {
-    driveController.rightBumper().onTrue(
-      if (!robot.infrared.get()) {
-        ParallelCommandGroup(
-          robot.undertaker.intake(),
-          robot.feeder.intake(),
-          robot.shooter.duringIntake()
-        )
-      } else {
-        ParallelCommandGroup(
-          robot.undertaker.stop(),
-          robot.feeder.stop(),
-          robot.shooter.stop()
-        )
-      }
+    driveController.rightBumper().whileTrue(
+      ParallelCommandGroup(
+        robot.undertaker.intake(),
+        robot.feeder.intake(),
+        robot.shooter.shootSubwoofer()
+      )
     ).onFalse(
       ParallelCommandGroup(
         robot.undertaker.stop(),

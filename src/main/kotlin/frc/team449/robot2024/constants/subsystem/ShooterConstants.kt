@@ -25,7 +25,7 @@ object ShooterConstants {
   const val RIGHT_KS = 0.0
 
   const val AMP_SCORE_VOLTAGE = 4.0
-  const val DURING_INTAKE_VOLTAGE = -3.0
+  const val DURING_INTAKE_VOLTAGE = -1.0
 
   /** In meters from the ground */
   const val SHOOTER_HEIGHT = 0.25
