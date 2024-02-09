@@ -11,4 +11,6 @@ object UndertakerConstants {
 
   const val INTAKE_VOLTAGE = 12.0
   const val REVERSE_VOLTAGE = -12.0
+
+  const val BRAKE_MODE = false
 }

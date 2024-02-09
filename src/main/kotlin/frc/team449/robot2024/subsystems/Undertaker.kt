@@ -46,7 +46,8 @@ class Undertaker(
         ),
         inverted = UndertakerConstants.INVERTED,
         currentLimit = UndertakerConstants.CURRENT_LIM,
-        slaveSparks = mapOf(Pair(UndertakerConstants.FOLLOLWER_ID, UndertakerConstants.FOLLOWER_INV))
+        slaveSparks = mapOf(Pair(UndertakerConstants.FOLLOLWER_ID, UndertakerConstants.FOLLOWER_INV)),
+        enableBrakeMode = UndertakerConstants.BRAKE_MODE
       )
 
       return Undertaker(motor)

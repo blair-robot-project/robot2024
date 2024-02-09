@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.team449.control.holonomic.SwerveSim
 import frc.team449.robot2024.Robot
+import frc.team449.robot2024.auto.AutoUtil
 import frc.team449.robot2024.commands.driveAlign.OrbitAlign
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
@@ -23,33 +24,31 @@ class ControllerBindings(
     FieldConstants.SUBWOOFER_POSE
   )
 
+  private fun stopAll(): Command {
+    return ParallelCommandGroup(
+      robot.undertaker.stop(),
+      robot.shooter.stop(),
+      robot.feeder.stop()
+    )
+  }
+
   private fun robotBindings() {
-    driveController.rightBumper().whileTrue(
-      ParallelCommandGroup(
-        robot.undertaker.intake(),
-        robot.feeder.intake(),
-        robot.shooter.duringIntake(),
-        /** IR Stuff */
-//        SequentialCommandGroup(
-//          WaitUntilCommand { !robot.infrared.get() },
-//          robot.undertaker.stop(),
-//          robot.feeder.outtake(),
-//          robot.shooter.duringIntake(),
-//          WaitCommand(0.50),
-//          robot.feeder.stop(),
-//          robot.shooter.stop()
-//        )
+    driveController.povUp().onTrue(
+      robot.pivot.moveAmp()
+    )
+
+    driveController.povRight().onTrue(
+      robot.shooter.scoreAmp().alongWith(
+        robot.feeder.stop()
       )
     ).onFalse(
-      SequentialCommandGroup(
-        robot.undertaker.stop(),
-        robot.shooter.stop(),
-        robot.feeder.outtake(),
-        robot.shooter.duringIntake(),
-        WaitCommand(0.50),
-        robot.feeder.stop(),
-        robot.shooter.stop()
-      )
+      stopAll()
+    )
+
+    driveController.rightBumper().onTrue(
+      AutoUtil.autoIntake(robot)
+    ).onFalse(
+      stopAll()
     )
 
 //    driveController.leftBumper().onTrue(
@@ -76,11 +75,7 @@ class ControllerBindings(
         )
       )
     ).onFalse(
-      robot.feeder.stop().alongWith(
-        robot.shooter.stop()
-      ).alongWith(
-        robot.undertaker.stop()
-      )
+      stopAll()
     )
 
     /** Shooting from anywhere */
@@ -123,9 +118,7 @@ class ControllerBindings(
       )
     ).onFalse(
       ParallelCommandGroup(
-        robot.feeder.stop(),
-        robot.shooter.stop(),
-        robot.undertaker.stop()
+        stopAll()
       )
     )
   }

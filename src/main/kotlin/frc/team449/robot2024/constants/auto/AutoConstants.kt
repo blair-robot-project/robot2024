@@ -9,4 +9,7 @@ object AutoConstants {
   const val DEFAULT_ROTATION_KP = 2.0
 
   const val ORBIT_KP = 2 * PI
+
+  const val SHOOT_INTAKE_TIME = 0.5
+  const val FEEDER_REVERSE_TIME = 0.5
 }
