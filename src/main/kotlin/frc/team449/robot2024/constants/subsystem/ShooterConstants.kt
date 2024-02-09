@@ -9,15 +9,16 @@ import edu.wpi.first.math.util.Units
 import kotlin.math.PI
 
 object ShooterConstants {
-  const val EFFICIENCY = 1.0
+  const val EFFICIENCY = 0.8
   const val RIGHT_MOTOR_ID = 45
   const val RIGHT_MOTOR_INVERTED = true
   const val LEFT_MOTOR_ID = 46
   const val LEFT_MOTOR_INVERTED = false
   const val CURRENT_LIMIT = 40
+  const val BRAKE_MODE = false
 
-  val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(1000.0)
-  val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(1000.0)
+  val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3500.0)
+  val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5000.0)
 
   val SHOOTING_MAP = InterpolatingMatrixTreeMap<Double, N3, N1>()
 
@@ -35,7 +36,7 @@ object ShooterConstants {
   const val NUM_MOTORS = 1
 
   const val MODEL_VEL_STDDEV = 3.0
-  const val ENCODER_VEL_STDDEV = 0.075
+  const val ENCODER_VEL_STDDEV = 0.5
   const val LQR_VEL_TOL = 5.0
   const val LQR_MAX_VOLTS = 12.0
   const val MAX_VOLTAGE = 12.0

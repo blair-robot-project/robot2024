@@ -2,10 +2,7 @@ package frc.team449.robot2024.subsystems
 
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj2.command.ConditionalCommand
-import edu.wpi.first.wpilibj2.command.InstantCommand
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup
-import edu.wpi.first.wpilibj2.command.PrintCommand
+import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.team449.control.holonomic.SwerveSim
 import frc.team449.robot2024.Robot
@@ -26,51 +23,64 @@ class ControllerBindings(
     FieldConstants.SUBWOOFER_POSE
   )
 
-  val intakeCommand = ConditionalCommand(
-    ParallelCommandGroup(
-      robot.undertaker.intake(),
-      robot.feeder.intake(),
-      robot.shooter.duringIntake()
-    ),
-    ParallelCommandGroup(
-      robot.undertaker.stop(),
-      robot.feeder.stop(),
-      robot.shooter.stop()
-    )
-  ) { robot.infrared.get() }
-
   private fun robotBindings() {
     driveController.rightBumper().whileTrue(
       ParallelCommandGroup(
         robot.undertaker.intake(),
         robot.feeder.intake(),
-        robot.shooter.shootSubwoofer()
+        robot.shooter.duringIntake(),
+        /** IR Stuff */
+//        SequentialCommandGroup(
+//          WaitUntilCommand { !robot.infrared.get() },
+//          robot.undertaker.stop(),
+//          robot.feeder.outtake(),
+//          robot.shooter.duringIntake(),
+//          WaitCommand(0.50),
+//          robot.feeder.stop(),
+//          robot.shooter.stop()
+//        )
       )
     ).onFalse(
-      ParallelCommandGroup(
+      SequentialCommandGroup(
         robot.undertaker.stop(),
-        robot.feeder.stop(),
-        robot.shooter.stop()
-      )
-    )
-    driveController.leftBumper().onTrue(
-      ParallelCommandGroup(
-        robot.undertaker.outtake(),
+        robot.shooter.stop(),
         robot.feeder.outtake(),
-        robot.shooter.duringIntake()
-      )
-    ).onFalse(
-      ParallelCommandGroup(
-        robot.undertaker.stop(),
+        robot.shooter.duringIntake(),
+        WaitCommand(0.50),
         robot.feeder.stop(),
         robot.shooter.stop()
       )
     )
 
+//    driveController.leftBumper().onTrue(
+//      ParallelCommandGroup(
+//        robot.undertaker.outtake(),
+//        robot.feeder.outtake(),
+//        robot.shooter.duringIntake()
+//      )
+//    ).onFalse(
+//      ParallelCommandGroup(
+//        robot.undertaker.stop(),
+//        robot.feeder.stop(),
+//        robot.shooter.stop()
+//      )
+//    )
+
     driveController.leftBumper().onTrue(
-      robot.shooter.shootSubwoofer()
+      ParallelCommandGroup(
+        robot.shooter.shootSubwoofer(),
+        SequentialCommandGroup(
+          WaitUntilCommand { robot.shooter.atSetpoint() },
+          robot.feeder.intake(),
+          robot.undertaker.intake()
+        )
+      )
     ).onFalse(
-      robot.shooter.stop()
+      robot.feeder.stop().alongWith(
+        robot.shooter.stop()
+      ).alongWith(
+        robot.undertaker.stop()
+      )
     )
 
     /** Shooting from anywhere */
@@ -97,15 +107,26 @@ class ControllerBindings(
 //    )
 
     mechanismController.x().onTrue(
-      PrintCommand("whats good chat").andThen(robot.feeder.intake())
+      robot.feeder.intake()
     ).onFalse(
       robot.feeder.stop()
     )
 
     mechanismController.a().onTrue(
-      robot.feeder.intake().andThen(robot.shooter.scoreAmp())
+      ParallelCommandGroup(
+        robot.shooter.shootSubwoofer(),
+        SequentialCommandGroup(
+          WaitUntilCommand { robot.shooter.atSetpoint() },
+          robot.feeder.intake(),
+          robot.undertaker.intake()
+        )
+      )
     ).onFalse(
-      robot.feeder.stop().andThen(robot.shooter.stop())
+      ParallelCommandGroup(
+        robot.feeder.stop(),
+        robot.shooter.stop(),
+        robot.undertaker.stop()
+      )
     )
   }
 

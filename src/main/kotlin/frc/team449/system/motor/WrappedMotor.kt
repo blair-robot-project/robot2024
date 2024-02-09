@@ -33,6 +33,11 @@ class WrappedMotor(
     this.lastVoltage = volts
   }
 
+  override fun stopMotor() {
+    motor.stopMotor()
+    this.lastVoltage = 0.0
+  }
+
   override fun set(output: Double) {
     motor.set(output)
     this.lastVoltage = output * RobotController.getBatteryVoltage()

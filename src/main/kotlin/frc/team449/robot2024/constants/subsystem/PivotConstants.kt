@@ -21,7 +21,7 @@ object PivotConstants {
   const val ENC_INVERTED = false
 
   const val NUM_MOTORS = 2
-  const val MOMENT_OF_INERTIA = 2.0
+  const val MOMENT_OF_INERTIA = 0.631845006 + 0.010
 
   const val EFFICIENCY = 1.0
 

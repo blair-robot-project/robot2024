@@ -9,4 +9,6 @@ object FeederConstants {
 
   const val INTAKE_VOLTAGE = 12.0
   const val REVERSE_VOLTAGE = -5.0
+
+  const val BRAKE_MODE = false
 }

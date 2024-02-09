@@ -10,7 +10,6 @@ import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.Encoder
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
@@ -19,10 +18,12 @@ import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
-import frc.team449.system.encoder.QuadEncoder
+import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
+import kotlin.math.PI
+import kotlin.math.abs
 
 open class Shooter(
   private val rightMotor: WrappedMotor,
@@ -47,6 +48,7 @@ open class Shooter(
 
   fun updateOnly(): Command {
     return this.run {
+      desiredVels = Pair(0.0, 0.0)
       rightLoop.correct(VecBuilder.fill(rightVelocity.get()))
       leftLoop.correct(VecBuilder.fill(leftVelocity.get()))
     }
@@ -75,8 +77,10 @@ open class Shooter(
   }
 
   fun atSetpoint(): Boolean {
-    return leftVelocity.get() - desiredVels.first < ShooterConstants.LQR_VEL_TOL &&
-      rightVelocity.get() - desiredVels.second < ShooterConstants.LQR_VEL_TOL
+    return abs(leftVelocity.get() - desiredVels.first) < ShooterConstants.LQR_VEL_TOL &&
+      abs(rightVelocity.get() - desiredVels.second) < ShooterConstants.LQR_VEL_TOL &&
+      desiredVels.first != 0.0 &&
+      desiredVels.second != 0.0
   }
 
   fun scoreAmp(): Command {
@@ -98,7 +102,6 @@ open class Shooter(
       rightLoop.correct(VecBuilder.fill(rightVelocity.get()))
       leftLoop.correct(VecBuilder.fill(leftVelocity.get()))
     } else {
-      println(rightSpeed)
       rightLoop.nextR = VecBuilder.fill(rightSpeed)
       leftLoop.nextR = VecBuilder.fill(leftSpeed)
 
@@ -117,6 +120,7 @@ open class Shooter(
 
   fun stop(): Command {
     return this.runOnce {
+      desiredVels = Pair(0.0, 0.0)
       leftMotor.setVoltage(0.0)
       rightMotor.setVoltage(0.0)
     }
@@ -127,8 +131,8 @@ open class Shooter(
     builder.addDoubleProperty("1.1 Last Right Voltage", { rightMotor.lastVoltage }, null)
     builder.addDoubleProperty("1.2 Last Left Voltage", { leftMotor.lastVoltage }, null)
     builder.publishConstString("2.0", "Current and Desired Velocities")
-    builder.addDoubleProperty("2.1 Left Current Speed", { leftVelocity.get() }, null)
-    builder.addDoubleProperty("2.2 Right Current Speed", { rightVelocity.get() }, null)
+    builder.addDoubleProperty("2.1 Left Current Speed", { leftVelocity.get() * 60 / (2 * PI) }, null)
+    builder.addDoubleProperty("2.2 Right Current Speed", { rightVelocity.get() * 60 / (2 * PI) }, null)
     builder.addDoubleProperty("2.3 Left Desired Speed", { desiredVels.first }, null)
     builder.addDoubleProperty("2.4 Right Desired Speed", { desiredVels.second }, null)
     builder.publishConstString("3.0", "Velocity Errors")
@@ -141,29 +145,25 @@ open class Shooter(
       val rightMotor = createSparkMax(
         "Shooter Right Motor",
         ShooterConstants.RIGHT_MOTOR_ID,
-        encCreator = QuadEncoder.creator(
-          Encoder(ShooterConstants.RIGHT_CHANNEL_A, ShooterConstants.RIGHT_CHANNEL_B),
-          ShooterConstants.CPR,
+        encCreator = NEOEncoder.creator(
           ShooterConstants.UPR,
-          ShooterConstants.GEARING,
-          ShooterConstants.RIGHT_ENCODER_INVERTED
+          ShooterConstants.GEARING
         ),
         inverted = ShooterConstants.RIGHT_MOTOR_INVERTED,
         currentLimit = ShooterConstants.CURRENT_LIMIT,
+        enableBrakeMode = ShooterConstants.BRAKE_MODE
       )
 
       val leftMotor = createSparkMax(
         "Shooter Right Motor",
         ShooterConstants.LEFT_MOTOR_ID,
-        encCreator = QuadEncoder.creator(
-          Encoder(ShooterConstants.LEFT_CHANNEL_A, ShooterConstants.LEFT_CHANNEL_B),
-          ShooterConstants.CPR,
+        encCreator = NEOEncoder.creator(
           ShooterConstants.UPR,
-          ShooterConstants.GEARING,
-          ShooterConstants.LEFT_ENCODER_INVERTED
+          ShooterConstants.GEARING
         ),
         inverted = ShooterConstants.LEFT_MOTOR_INVERTED,
         currentLimit = ShooterConstants.CURRENT_LIMIT,
+        enableBrakeMode = ShooterConstants.BRAKE_MODE
       )
 
       val leftPlant = LinearSystemId.createFlywheelSystem(

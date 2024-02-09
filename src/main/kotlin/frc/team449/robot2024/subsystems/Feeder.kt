@@ -46,6 +46,7 @@ class Feeder(
         ),
         inverted = FeederConstants.INVERTED,
         currentLimit = FeederConstants.CURRENT_LIM,
+        enableBrakeMode = FeederConstants.BRAKE_MODE
       )
 
       return Feeder(motor)

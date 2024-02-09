@@ -105,19 +105,19 @@ class SwerveOrthogonalCommand(
     prevY = yClamped
 
     if (controller.xButtonPressed) {
-      val desAngleX = MathUtil.angleModulus(5 * PI / 6 + allianceCompensation.invoke())
+      val desAngleX = MathUtil.angleModulus(5 * PI / 3 + allianceCompensation.invoke())
       if (abs(desAngleX - drive.heading.radians) > 0.075 && abs(desAngleX - drive.heading.radians) < 2 * PI - 0.075) {
         atGoal = false
         rotCtrl.setpoint = desAngleX
       }
     } else if (controller.bButtonPressed) {
-      val desAngleB = MathUtil.angleModulus(7 * PI / 6 + allianceCompensation.invoke())
+      val desAngleB = MathUtil.angleModulus(PI / 3 + allianceCompensation.invoke())
       if (abs(desAngleB - drive.heading.radians) > 0.075 && abs(desAngleB - drive.heading.radians) < 2 * PI - 0.075) {
         atGoal = false
         rotCtrl.setpoint = desAngleB
       }
     } else if (controller.aButtonPressed) {
-      val desAngleA = MathUtil.angleModulus(PI + allianceCompensation.invoke())
+      val desAngleA = MathUtil.angleModulus(allianceCompensation.invoke())
       if (abs(desAngleA - drive.heading.radians) > 0.075 && abs(desAngleA - drive.heading.radians) < 2 * PI - 0.075) {
         atGoal = false
         rotCtrl.setpoint = desAngleA

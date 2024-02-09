@@ -7,9 +7,9 @@
         "motorMaxVelocity": 4704,
         "gearing": 6.12,
         "wheelbase": 0.5651496948191648,
-        "trackWidth": 0.5651496948191648,
+        "trackWidth": 0.5524497016771611,
         "bumperLength": 0.8635995336562519,
-        "bumperWidth": 0.8635995336562519,
+        "bumperWidth": 0.8508995405142481,
         "wheelRadius": 0.050799972568014815
     },
     "paths": {
@@ -1014,14 +1014,14 @@
                         "first"
                     ],
                     "type": "StopPoint",
-                    "uuid": "661fc913-f019-4518-a7bb-f93fb87577f0"
+                    "uuid": "14874edd-4639-4dee-b990-04515cd6ca3b"
                 },
                 {
                     "scope": [
                         "last"
                     ],
                     "type": "StopPoint",
-                    "uuid": "49976fe4-119a-41d3-97b0-130d70e8d6de"
+                    "uuid": "be6219f6-b9cc-4698-bf1b-7677218c5958"
                 },
                 {
                     "scope": [
@@ -1029,7 +1029,7 @@
                         2
                     ],
                     "type": "MaxVelocity",
-                    "uuid": "3b7089aa-654a-46e2-b00d-912e35dc91a8",
+                    "uuid": "98ed7eca-ac18-4c6a-bc23-94ca31f8c3f2",
                     "velocity": 0.825
                 }
             ],
@@ -3767,14 +3767,14 @@
                         "first"
                     ],
                     "type": "StopPoint",
-                    "uuid": "ae09fc15-c483-4436-9cde-fd140fc31423"
+                    "uuid": "c9f987ee-0abe-4f9a-bd60-6910f9be6f8b"
                 },
                 {
                     "scope": [
                         "last"
                     ],
                     "type": "StopPoint",
-                    "uuid": "487f8587-689c-4156-b4a3-8d7ab58d98db"
+                    "uuid": "7ad02bbb-b22e-4a09-957b-823c4e45f156"
                 },
                 {
                     "scope": [
@@ -3782,7 +3782,7 @@
                         2
                     ],
                     "type": "StraightLine",
-                    "uuid": "142580a1-d6d2-4436-9156-4ba945180e63"
+                    "uuid": "a1832629-1de8-4c81-99b2-b428eb542cc9"
                 },
                 {
                     "scope": [
@@ -3790,7 +3790,7 @@
                         2
                     ],
                     "type": "MaxVelocity",
-                    "uuid": "b676a6bb-308c-438e-a34b-aa136f2846f5",
+                    "uuid": "9a4e3eb3-744b-4dac-b52d-928fcb7db49a",
                     "velocity": 0.825
                 }
             ],
@@ -6528,14 +6528,14 @@
                         "first"
                     ],
                     "type": "StopPoint",
-                    "uuid": "d46eeb31-447c-4e32-b225-b58ab02c581c"
+                    "uuid": "10a366c3-05be-4efe-af57-c5e4e3147728"
                 },
                 {
                     "scope": [
                         "last"
                     ],
                     "type": "StopPoint",
-                    "uuid": "87bdf042-1d03-4db4-90f4-b270abf056bf"
+                    "uuid": "3ad46306-7f65-4f24-b1d9-c425ddbcd9b5"
                 },
                 {
                     "scope": [
@@ -6543,7 +6543,7 @@
                         2
                     ],
                     "type": "StraightLine",
-                    "uuid": "b72297e7-9cde-469c-baae-f75bb46d4345"
+                    "uuid": "026d4d16-0ee8-47c2-b27a-ee14a413cab7"
                 },
                 {
                     "scope": [
@@ -6551,7 +6551,7 @@
                         2
                     ],
                     "type": "MaxVelocity",
-                    "uuid": "99f91258-040f-4192-a940-5a38b4570caa",
+                    "uuid": "41c0550c-6d40-445a-ac34-f33c4de05d81",
                     "velocity": 0.55
                 }
             ],
