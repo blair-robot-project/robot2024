@@ -52,7 +52,7 @@ object RobotConstants {
 
   const val ALIGN_ROT_SPEED = 3 * PI / 2
 
-  val IR_CHANNEL = 15
+  val IR_CHANNEL = 9
 
   // Robot dimensions (INCLUDING BUMPERS)
   val ROBOT_WIDTH = Units.inchesToMeters(27.25 + 3.25 * 2)
