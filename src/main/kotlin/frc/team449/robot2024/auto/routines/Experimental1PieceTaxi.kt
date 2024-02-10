@@ -1,6 +1,5 @@
 package frc.team449.robot2024.auto.routines
 
-import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.team449.control.auto.ChoreoRoutine
 import frc.team449.control.auto.ChoreoRoutineStructure
 import frc.team449.control.auto.ChoreoTrajectory
@@ -17,9 +16,7 @@ class Experimental1PieceTaxi(
       drive = robot.drive,
       parallelEventMap = hashMapOf(),
       stopEventMap = hashMapOf(
-        0 to WaitCommand(1.5),
-        1 to WaitCommand(1.5),
-        2 to WaitCommand(1.5)
+        0 to AutoUtil.autoShoot(robot)
       ),
       debug = true
     )
