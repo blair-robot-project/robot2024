@@ -1,9 +1,14 @@
 package frc.team449.robot2024.subsystems
 
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.units.Measure
+import edu.wpi.first.units.Units.Volts
+import edu.wpi.first.units.Voltage
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
 import frc.team449.control.holonomic.SwerveSim
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.auto.AutoUtil
@@ -17,6 +22,15 @@ class ControllerBindings(
   private val mechanismController: CommandXboxController,
   private val robot: Robot
 ) {
+
+  val sysIdRoutine = SysIdRoutine(
+    SysIdRoutine.Config(),
+    Mechanism(
+      { voltage: Measure<Voltage> -> robot.drive.setVoltage(voltage.`in`(Volts)) },
+      null,
+      robot.drive
+    )
+  )
 
   val orbitCmd = OrbitAlign(
     robot.drive,
@@ -76,6 +90,27 @@ class ControllerBindings(
       )
     ).onFalse(
       stopAll()
+    )
+
+    /** Characterization */
+    // Quasistatic Forwards
+    driveController.povUp().onTrue(
+      sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward)
+    )
+
+    // Quasistatic Reverse
+    driveController.povDown().onTrue(
+      sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse)
+    )
+
+    // Dynamic Forwards
+    driveController.povRight().onTrue(
+      sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward)
+    )
+
+    // Dynamic Reverse
+    driveController.povLeft().onTrue(
+      sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse)
     )
 
     /** Shooting from anywhere */
