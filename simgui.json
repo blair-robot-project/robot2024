@@ -295,6 +295,9 @@
           "open": true,
           "shooter": {
             "open": true
+          },
+          "undertaker": {
+            "open": true
           }
         }
       },

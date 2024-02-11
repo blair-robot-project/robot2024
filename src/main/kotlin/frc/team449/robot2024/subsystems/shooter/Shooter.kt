@@ -50,7 +50,14 @@ open class Shooter(
 
   init {
     // TODO: Uncomment this when finished with characterization
-//    this.defaultCommand = stop()
+//    this.defaultCommand = updateOnly()
+  }
+
+  fun updateOnly(): Command {
+    return this.run {
+      leftLoop.correct(VecBuilder.fill(leftVelocity.get()))
+      rightLoop.correct(VecBuilder.fill(rightVelocity.get()))
+    }
   }
 
   fun setLeftVoltage(volts: Double) {
@@ -143,7 +150,16 @@ open class Shooter(
     return cmd
   }
 
-  fun stop(): Command {
+  fun forceStop(): Command {
+    val cmd = this.run {
+      desiredVels = Pair(0.0, 0.0)
+      shootPiece(0.0, 0.0)
+    }
+    cmd.name = "force stop"
+    return cmd
+  }
+
+  fun rampStop(): Command {
     val cmd = SequentialCommandGroup(
       this.runOnce {
         leftRateLimiter.reset(leftVelocity.get())

@@ -42,7 +42,7 @@ class ControllerBindings(
   private fun stopAll(): Command {
     return ParallelCommandGroup(
       robot.undertaker.stop(),
-      robot.shooter.coast(),
+      robot.shooter.rampStop(),
       robot.feeder.stop()
     )
   }
@@ -75,7 +75,7 @@ class ControllerBindings(
     )
 
     mechanismController.b().onTrue(
-      robot.shooter.stop()
+      robot.shooter.forceStop()
     ).onFalse(
       stopAll()
     )
@@ -115,7 +115,7 @@ class ControllerBindings(
     ).onFalse(
       SequentialCommandGroup(
         stopAll(),
-        robot.shooter.stop()
+        robot.shooter.rampStop()
       )
     )
 
@@ -177,7 +177,7 @@ class ControllerBindings(
         robot.shooter.duringIntake(),
         WaitUntilCommand { robot.infrared.get() },
         robot.feeder.stop(),
-        robot.shooter.coast()
+        robot.shooter.rampStop()
       ),
       InstantCommand()
     ) { !robot.infrared.get() }
