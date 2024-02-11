@@ -17,15 +17,17 @@ object ShooterConstants {
   const val CURRENT_LIMIT = 40
   const val BRAKE_MODE = false
 
-  val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3500.0)
-  val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5000.0)
+  val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5460.0)
+  val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5460.0)
+
+  val BRAKE_RATE_LIMIT = Units.rotationsPerMinuteToRadiansPerSecond(3500.0)
 
   val SHOOTING_MAP = InterpolatingMatrixTreeMap<Double, N3, N1>()
 
   const val LEFT_KS = 0.0
   const val RIGHT_KS = 0.0
 
-  const val AMP_SCORE_VOLTAGE = 4.0
+  const val AMP_SCORE_VOLTAGE = 5.460
   const val DURING_INTAKE_VOLTAGE = -1.0
 
   /** In meters from the ground */
@@ -37,7 +39,7 @@ object ShooterConstants {
 
   const val MODEL_VEL_STDDEV = 3.0
   const val ENCODER_VEL_STDDEV = 0.5
-  const val LQR_VEL_TOL = 5.0
+  const val LQR_VEL_TOL = 30.0
   const val LQR_MAX_VOLTS = 12.0
   const val MAX_VOLTAGE = 12.0
 

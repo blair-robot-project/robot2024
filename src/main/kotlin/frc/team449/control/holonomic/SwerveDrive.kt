@@ -87,11 +87,12 @@ open class SwerveDrive(
       this.kinematics.toSwerveModuleStates(this.desiredSpeeds)
 
     // Scale down module speed if a module is going faster than the max speed, and prevent early desaturation.
-    normalizeDrive(desiredModuleStates, desiredSpeeds)
-//    SwerveDriveKinematics.desaturateWheelSpeeds(
-//      desiredModuleStates,
-//      SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED
-//    )
+//    normalizeDrive(desiredModuleStates, desiredSpeeds)
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+      desiredModuleStates,
+      SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED,
+
+    )
 
     for (i in this.modules.indices) {
       this.modules[i].state = desiredModuleStates[i]

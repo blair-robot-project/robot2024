@@ -4,6 +4,7 @@ import edu.wpi.first.math.Nat
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
 import edu.wpi.first.math.estimator.KalmanFilter
+import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.system.LinearSystemLoop
 import edu.wpi.first.math.system.plant.DCMotor
@@ -12,6 +13,7 @@ import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.MotorConstants
@@ -33,6 +35,9 @@ open class Shooter(
   private val robot: Robot
 ) : SubsystemBase() {
 
+  /** TODO: Yo u needa make sure its only velocity control, no
+   *    voltage control. */
+
   /** Left, Right Desired velocity */
   private var desiredVels = Pair(0.0, 0.0)
 
@@ -41,6 +46,9 @@ open class Shooter(
 
   open val leftVelocity: Supplier<Double> =
     Supplier { leftMotor.velocity }
+
+  private val leftRateLimiter = SlewRateLimiter(ShooterConstants.BRAKE_RATE_LIMIT)
+  private val rightRateLimiter = SlewRateLimiter(ShooterConstants.BRAKE_RATE_LIMIT)
 
   init {
     this.defaultCommand = updateOnly()
@@ -118,12 +126,25 @@ open class Shooter(
     }
   }
 
-  fun stop(): Command {
+  fun coast(): Command {
     return this.runOnce {
       desiredVels = Pair(0.0, 0.0)
       leftMotor.setVoltage(0.0)
       rightMotor.setVoltage(0.0)
     }
+  }
+
+  fun stop(): Command {
+    return SequentialCommandGroup(
+      this.runOnce {
+        leftRateLimiter.reset(leftVelocity.get())
+        rightRateLimiter.reset(rightVelocity.get())
+      },
+      this.run {
+        desiredVels = Pair(leftRateLimiter.calculate(0.0), rightRateLimiter.calculate(0.0))
+        shootPiece(desiredVels.first, desiredVels.second)
+      }
+    )
   }
 
   override fun initSendable(builder: SendableBuilder) {
@@ -136,8 +157,10 @@ open class Shooter(
     builder.addDoubleProperty("2.3 Left Desired Speed", { desiredVels.first }, null)
     builder.addDoubleProperty("2.4 Right Desired Speed", { desiredVels.second }, null)
     builder.publishConstString("3.0", "Velocity Errors")
-    builder.addDoubleProperty("3.1 Left Vel Error", { leftLoop.error.get(0, 0) }, null)
-    builder.addDoubleProperty("3.2 Right Vel Error", { rightLoop.error.get(0, 0) }, null)
+    builder.addDoubleProperty("3.1 Left Vel Error Pred", { leftLoop.error.get(0, 0) }, null)
+    builder.addDoubleProperty("3.2 Right Vel Error Pred", { rightLoop.error.get(0, 0) }, null)
+    builder.addDoubleProperty("3.3 Left Vel Error", { leftVelocity.get() - desiredVels.first }, null)
+    builder.addDoubleProperty("3.4 Right Vel Error", { rightVelocity.get() - desiredVels.second }, null)
   }
 
   companion object {

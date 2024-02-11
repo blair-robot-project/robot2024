@@ -23,7 +23,7 @@ object RobotConstants {
   const val ROBOT_WEIGHT = 55.0
 
   /** Drive configuration */
-  const val MAX_LINEAR_SPEED = SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED // m/s
+  val MAX_LINEAR_SPEED = SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED // m/s
   const val MAX_ROT_SPEED = PI // rad/s
   val MAX_ACCEL = 4 * DCMotor(
     MotorConstants.NOMINAL_VOLTAGE,
@@ -35,7 +35,7 @@ object RobotConstants {
   ).getTorque(75.0) /
     ((SwerveConstants.DRIVE_UPR / (2 * PI)) * ROBOT_WEIGHT * SwerveConstants.DRIVE_GEARING) // m/s/s
 
-  val INITIAL_POSE = Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0))
+  val INITIAL_POSE = Pose2d(0.0, 0.0, Rotation2d())
 
   init {
     println("Drive Max Accel: $MAX_ACCEL")
@@ -45,7 +45,7 @@ object RobotConstants {
 
   /** PID controller for Orthogonal turning */
   val ORTHOGONAL_CONTROLLER = PIDController(
-    3.0,
+    2.0,
     0.0,
     0.0
   )

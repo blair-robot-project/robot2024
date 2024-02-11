@@ -16,7 +16,10 @@ class Experimental4Piece(
     ChoreoRoutine(
       drive = robot.drive,
       parallelEventMap = hashMapOf(
-        0 to AutoUtil.autoIntake(robot)
+        0 to AutoUtil.autoIntake(robot),
+        1 to AutoUtil.autoIntake(robot),
+        2 to AutoUtil.autoIntake(robot),
+        3 to AutoUtil.autoIntake(robot),
       ),
       stopEventMap = hashMapOf(
         0 to AutoUtil.autoShoot(robot),

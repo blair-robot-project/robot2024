@@ -22,10 +22,10 @@ object SwerveConstants {
   const val TURN_ENC_CHAN_BR = 8
 
   /** Offsets for the absolute encoders in rotations. */
-  const val TURN_ENC_OFFSET_FL = 0.0 + (-0.3600)
-  const val TURN_ENC_OFFSET_FR = 0.0 + (-0.2055) + 0.5
-  const val TURN_ENC_OFFSET_BL = 0.0 + (-0.0208)
-  const val TURN_ENC_OFFSET_BR = 0.0 + (0.3895)
+  const val TURN_ENC_OFFSET_FL = 0.5 + (-0.3600)
+  const val TURN_ENC_OFFSET_FR = (-0.2055)
+  const val TURN_ENC_OFFSET_BL = 0.5 + (-0.0208)
+  const val TURN_ENC_OFFSET_BR = 0.5 + (0.3895)
 
   /** PID gains for turning each module */
   const val TURN_KP = 0.85
@@ -33,12 +33,12 @@ object SwerveConstants {
   const val TURN_KD = 0.0
 
   /** Feed forward values for driving each module */
-  const val DRIVE_KS = 0.2491250419322037
-  const val DRIVE_KV = 2.352910954352485
-  const val DRIVE_KA = 0.42824
+  const val DRIVE_KS = 0.071652
+  const val DRIVE_KV = 2.5171
+  const val DRIVE_KA = 0.43299
 
   // TODO: Figure out this value
-  const val STEER_KS = 0.1
+  const val STEER_KS = 0.05
 
   /** PID gains for driving each module*/
   const val DRIVE_KP = 0.4
@@ -49,7 +49,7 @@ object SwerveConstants {
   const val DRIVE_GEARING = (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 45.0)
   const val DRIVE_UPR = 0.31818905832
   const val TURN_UPR = 2 * Math.PI
-  const val MAX_ATTAINABLE_MK4I_SPEED = (12 - DRIVE_KS) / DRIVE_KV
+  val MAX_ATTAINABLE_MK4I_SPEED = Units.feetToMeters(16.1870732587) // (12 - DRIVE_KS) / DRIVE_KV
   const val DRIVE_CURRENT_LIM = 55
   const val STEERING_CURRENT_LIM = 40
   const val JOYSTICK_FILTER_ORDER = 2

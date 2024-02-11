@@ -13,18 +13,16 @@ import kotlin.math.PI
 object AutoUtil {
 
   fun autoIntake(robot: Robot): Command {
-    return ParallelCommandGroup(
+    return SequentialCommandGroup(
       robot.undertaker.intake(),
       robot.feeder.intake(),
-      SequentialCommandGroup(
-        WaitUntilCommand { !robot.infrared.get() },
-        robot.undertaker.stop(),
-        robot.feeder.outtake(),
-        robot.shooter.duringIntake(),
-        WaitCommand(AutoConstants.FEEDER_REVERSE_TIME),
-        robot.feeder.stop(),
-        robot.shooter.stop()
-      )
+      WaitUntilCommand { !robot.infrared.get() },
+      robot.undertaker.stop(),
+      robot.feeder.outtake(),
+      robot.shooter.duringIntake(),
+      WaitUntilCommand { robot.infrared.get() },
+      robot.feeder.stop(),
+      robot.shooter.coast()
     )
   }
 
@@ -35,9 +33,7 @@ object AutoUtil {
         WaitUntilCommand { robot.shooter.atSetpoint() },
         robot.feeder.intake(),
         robot.undertaker.intake(),
-        WaitCommand(AutoConstants.SHOOT_INTAKE_TIME),
-        robot.feeder.stop(),
-        robot.undertaker.stop()
+        WaitCommand(AutoConstants.SHOOT_INTAKE_TIME)
       )
     )
   }

@@ -39,7 +39,7 @@ open class Pivot(
   open val velocitySupplier: Supplier<Double> =
     Supplier { motor.velocity }
 
-  private var lastProfileReference = TrapezoidProfile.State(motor.position, motor.velocity)
+  private var lastProfileReference = TrapezoidProfile.State(0.0, 0.0)
 
   init {
     loop.reset(VecBuilder.fill(motor.position, motor.velocity))
