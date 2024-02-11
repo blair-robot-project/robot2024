@@ -27,7 +27,7 @@ class ControllerBindings(
   val sysIdRoutine = SysIdRoutine(
     SysIdRoutine.Config(),
     Mechanism(
-      { voltage: Measure<Voltage> -> robot.drive.setVoltage(voltage.`in`(Volts)) },
+      { voltage: Measure<Voltage> -> robot.shooter.setLeftVoltage(voltage.`in`(Volts)) },
       null,
       robot.drive
     )
@@ -81,7 +81,9 @@ class ControllerBindings(
     )
 
     driveController.rightTrigger().onTrue(
-      intakePiece()
+      intakePiece().andThen(
+        outtakeToNotePosition()
+      )
     ).onFalse(
       outtakeToNotePosition()
     )
@@ -163,7 +165,7 @@ class ControllerBindings(
       robot.undertaker.intake(),
       robot.feeder.intake(),
       WaitUntilCommand { !robot.infrared.get() },
-      stopAll(),
+      stopAll()
     )
   }
 

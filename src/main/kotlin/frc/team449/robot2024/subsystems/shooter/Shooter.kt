@@ -49,7 +49,16 @@ open class Shooter(
   private val rightRateLimiter = SlewRateLimiter(ShooterConstants.BRAKE_RATE_LIMIT)
 
   init {
-    this.defaultCommand = stop()
+    // TODO: Uncomment this when finished with characterization
+//    this.defaultCommand = stop()
+  }
+
+  fun setLeftVoltage(volts: Double) {
+    leftMotor.setVoltage(volts)
+  }
+
+  fun setRightVoltage(volts: Double) {
+    rightMotor.setVoltage(volts)
   }
 
   fun shootSubwoofer(): Command {
