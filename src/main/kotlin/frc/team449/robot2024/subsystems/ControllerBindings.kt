@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
+import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
 import frc.team449.control.holonomic.SwerveSim
@@ -17,6 +18,8 @@ import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.pow
 
 class ControllerBindings(
   private val driveController: CommandXboxController,
@@ -27,7 +30,7 @@ class ControllerBindings(
   val sysIdRoutine = SysIdRoutine(
     SysIdRoutine.Config(),
     Mechanism(
-      { voltage: Measure<Voltage> -> robot.shooter.setLeftVoltage(voltage.`in`(Volts)) },
+      { voltage: Measure<Voltage> -> robot.drive.setVoltage(voltage.`in`(Volts)) },
       null,
       robot.drive
     )
@@ -50,6 +53,12 @@ class ControllerBindings(
   private fun robotBindings() {
     mechanismController.y().onTrue(
       robot.pivot.moveAmp()
+    )
+
+    Trigger { abs(mechanismController.hid.leftY) > 0.25 }.onTrue(
+      robot.pivot.manualMovement { -mechanismController.leftY.pow(3) }
+    ).onFalse(
+      robot.pivot.hold()
     )
 
     mechanismController.a().onTrue(

@@ -1,5 +1,6 @@
 package frc.team449.robot2024.subsystems.pivot
 
+import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.Nat
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
@@ -23,6 +24,7 @@ import frc.team449.robot2024.constants.subsystem.ShooterConstants
 import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
+import java.util.function.DoubleSupplier
 import java.util.function.Supplier
 import kotlin.math.sign
 
@@ -48,7 +50,9 @@ open class Pivot(
 
   fun hold(): Command {
     return this.run {
-      loop.setNextR(lastProfileReference.position, lastProfileReference.velocity)
+      lastProfileReference = TrapezoidProfile.State(lastProfileReference.position, 0.0)
+
+      loop.setNextR(lastProfileReference.position, 0.0)
       loop.correct(VecBuilder.fill(positionSupplier.get()))
       loop.predict(RobotConstants.LOOP_TIME)
 
@@ -60,6 +64,20 @@ open class Pivot(
     return this.run {
       moveToAngle(PivotConstants.AMP_ANGLE)
     }
+  }
+
+  fun manualMovement(axisSupplier: DoubleSupplier): Command {
+    val cmd = this.run {
+      moveToAngle(
+        MathUtil.clamp(
+          lastProfileReference.position + axisSupplier.asDouble * PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 4,
+          PivotConstants.MIN_ANGLE,
+          PivotConstants.MAX_ANGLE
+        )
+      )
+    }
+    cmd.name = "manual movement"
+    return cmd
   }
 
   fun moveSubwoofer(): Command {

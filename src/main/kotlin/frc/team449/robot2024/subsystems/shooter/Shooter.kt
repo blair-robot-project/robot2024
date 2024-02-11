@@ -33,9 +33,6 @@ open class Shooter(
   private val robot: Robot
 ) : SubsystemBase() {
 
-  /** TODO: Yo u needa make sure its only velocity control, no
-   *    voltage control. */
-
   /** Left, Right Desired velocity */
   private var desiredVels = Pair(0.0, 0.0)
 
@@ -49,8 +46,7 @@ open class Shooter(
   private val rightRateLimiter = SlewRateLimiter(ShooterConstants.BRAKE_RATE_LIMIT)
 
   init {
-    // TODO: Uncomment this when finished with characterization
-//    this.defaultCommand = updateOnly()
+    this.defaultCommand = updateOnly()
   }
 
   fun updateOnly(): Command {
