@@ -96,7 +96,8 @@ class ControllerBindings(
     )
 
     mechanismController.rightBumper().onTrue(
-      outtakeToNotePosition().andThen(
+      SequentialCommandGroup(
+        outtakeToNotePosition(),
         robot.shooter.shootSubwoofer()
       )
     )
@@ -106,6 +107,8 @@ class ControllerBindings(
         WaitUntilCommand { robot.shooter.atSetpoint() },
         robot.feeder.intake(),
         robot.undertaker.intake()
+      ).alongWith(
+        robot.shooter.shootSubwoofer()
       )
     ).onFalse(
       SequentialCommandGroup(

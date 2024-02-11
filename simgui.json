@@ -293,9 +293,6 @@
             }
           },
           "open": true,
-          "pivot": {
-            "open": true
-          },
           "shooter": {
             "open": true
           }

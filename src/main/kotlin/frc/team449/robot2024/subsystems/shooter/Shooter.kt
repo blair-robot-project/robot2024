@@ -7,7 +7,6 @@ import edu.wpi.first.math.estimator.KalmanFilter
 import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.system.LinearSystemLoop
-import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
@@ -16,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.robot2024.Robot
-import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
@@ -51,28 +49,22 @@ open class Shooter(
   private val rightRateLimiter = SlewRateLimiter(ShooterConstants.BRAKE_RATE_LIMIT)
 
   init {
-    this.defaultCommand = updateOnly()
-  }
-
-  fun updateOnly(): Command {
-    return this.run {
-      desiredVels = Pair(0.0, 0.0)
-      rightLoop.correct(VecBuilder.fill(rightVelocity.get()))
-      leftLoop.correct(VecBuilder.fill(leftVelocity.get()))
-    }
+    this.defaultCommand = stop()
   }
 
   fun shootSubwoofer(): Command {
-    return this.run {
+    val cmd = this.run {
       shootPiece(
         ShooterConstants.SUBWOOFER_RIGHT_SPEED,
         ShooterConstants.SUBWOOFER_LEFT_SPEED
       )
     }
+    cmd.name = "shooting subwoofer"
+    return cmd
   }
 
   fun shootAnywhere(): Command {
-    return this.run {
+    val cmd = this.run {
       val distance = FieldConstants.SUBWOOFER_POSE.getDistance(robot.drive.pose.translation)
 
       val rightSpeed = ShooterConstants.SHOOTING_MAP.get(distance).get(0, 0)
@@ -82,6 +74,8 @@ open class Shooter(
 
       shootPiece(rightSpeed, leftSpeed)
     }
+    cmd.name = "shooting anywhere"
+    return cmd
   }
 
   fun atSetpoint(): Boolean {
@@ -92,17 +86,21 @@ open class Shooter(
   }
 
   fun scoreAmp(): Command {
-    return this.runOnce {
+    val cmd = this.runOnce {
       leftMotor.setVoltage(ShooterConstants.AMP_SCORE_VOLTAGE)
       rightMotor.setVoltage(ShooterConstants.AMP_SCORE_VOLTAGE)
     }
+    cmd.name = "scoring amp"
+    return cmd
   }
 
   fun duringIntake(): Command {
-    return this.runOnce {
+    val cmd = this.runOnce {
       rightMotor.setVoltage(ShooterConstants.DURING_INTAKE_VOLTAGE)
       leftMotor.setVoltage(ShooterConstants.DURING_INTAKE_VOLTAGE)
     }
+    cmd.name = "during intake"
+    return cmd
   }
 
   private fun shootPiece(rightSpeed: Double, leftSpeed: Double) {
@@ -127,15 +125,17 @@ open class Shooter(
   }
 
   fun coast(): Command {
-    return this.runOnce {
+    val cmd = this.run {
       desiredVels = Pair(0.0, 0.0)
       leftMotor.setVoltage(0.0)
       rightMotor.setVoltage(0.0)
     }
+    cmd.name = "coasting shooter"
+    return cmd
   }
 
   fun stop(): Command {
-    return SequentialCommandGroup(
+    val cmd = SequentialCommandGroup(
       this.runOnce {
         leftRateLimiter.reset(leftVelocity.get())
         rightRateLimiter.reset(rightVelocity.get())
@@ -145,6 +145,8 @@ open class Shooter(
         shootPiece(desiredVels.first, desiredVels.second)
       }
     )
+    cmd.name = "active stop"
+    return cmd
   }
 
   override fun initSendable(builder: SendableBuilder) {
@@ -189,30 +191,14 @@ open class Shooter(
         enableBrakeMode = ShooterConstants.BRAKE_MODE
       )
 
-      val leftPlant = LinearSystemId.createFlywheelSystem(
-        DCMotor(
-          MotorConstants.NOMINAL_VOLTAGE,
-          MotorConstants.STALL_TORQUE,
-          MotorConstants.STALL_CURRENT,
-          MotorConstants.FREE_CURRENT,
-          MotorConstants.FREE_SPEED,
-          ShooterConstants.NUM_MOTORS
-        ),
-        ShooterConstants.MOMENT_OF_INERTIA,
-        1 / ShooterConstants.GEARING
+      val leftPlant = LinearSystemId.identifyVelocitySystem(
+        ShooterConstants.LEFT_KV,
+        ShooterConstants.LEFT_KA
       )
 
-      val rightPlant = LinearSystemId.createFlywheelSystem(
-        DCMotor(
-          MotorConstants.NOMINAL_VOLTAGE,
-          MotorConstants.STALL_TORQUE,
-          MotorConstants.STALL_CURRENT,
-          MotorConstants.FREE_CURRENT,
-          MotorConstants.FREE_SPEED,
-          ShooterConstants.NUM_MOTORS
-        ),
-        ShooterConstants.MOMENT_OF_INERTIA,
-        1 / ShooterConstants.GEARING
+      val rightPlant = LinearSystemId.identifyVelocitySystem(
+        ShooterConstants.RIGHT_KV,
+        ShooterConstants.RIGHT_KA
       )
 
       val leftObserver = KalmanFilter(

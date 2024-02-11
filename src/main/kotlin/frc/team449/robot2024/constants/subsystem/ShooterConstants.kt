@@ -26,6 +26,10 @@ object ShooterConstants {
 
   const val LEFT_KS = 0.0
   const val RIGHT_KS = 0.0
+  const val LEFT_KV = 0.02018878773
+  const val RIGHT_KV = 0.02018878773
+  const val LEFT_KA = 0.032004
+  const val RIGHT_KA = 0.032004
 
   const val AMP_SCORE_VOLTAGE = 5.460
   const val DURING_INTAKE_VOLTAGE = -1.0
@@ -34,7 +38,6 @@ object ShooterConstants {
   const val SHOOTER_HEIGHT = 0.25
 
   /** These constants are PER SIDE of the shooter */
-  const val MOMENT_OF_INERTIA = 0.0003104907 * 4 + 0.0003
   const val NUM_MOTORS = 1
 
   const val MODEL_VEL_STDDEV = 3.0
