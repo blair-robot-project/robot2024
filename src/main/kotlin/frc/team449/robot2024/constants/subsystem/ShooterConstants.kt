@@ -54,8 +54,10 @@ object ShooterConstants {
   /** Encoder stuff */
   const val LEFT_CHANNEL_A = 1
   const val LEFT_CHANNEL_B = 2
-  const val RIGHT_CHANNEL_A = 4
-  const val RIGHT_CHANNEL_B = 3
+
+  // check
+  const val RIGHT_CHANNEL_A = 3
+  const val RIGHT_CHANNEL_B = 4
   const val CPR = 2048
   const val UPR = 2 * PI
   const val GEARING = 1.0 / 1.0

@@ -24,8 +24,8 @@ import java.util.function.Supplier
 import kotlin.math.abs
 
 open class Shooter(
-  private val rightMotor: WrappedMotor,
-  private val leftMotor: WrappedMotor,
+  val rightMotor: WrappedMotor,
+  val leftMotor: WrappedMotor,
   private val rightLoop: LinearSystemLoop<N1, N1, N1>,
   private val leftLoop: LinearSystemLoop<N1, N1, N1>,
   private val robot: Robot
@@ -52,6 +52,11 @@ open class Shooter(
       leftLoop.correct(VecBuilder.fill(leftVelocity.get()))
       rightLoop.correct(VecBuilder.fill(rightVelocity.get()))
     }
+  }
+
+  fun setVoltage(volts: Double) {
+    setLeftVoltage(volts)
+    setRightVoltage(volts)
   }
 
   fun setLeftVoltage(volts: Double) {

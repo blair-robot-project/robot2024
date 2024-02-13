@@ -2,10 +2,12 @@ package frc.team449.robot2024.subsystems
 
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.units.Measure
-import edu.wpi.first.units.Units.Volts
+import edu.wpi.first.units.MutableMeasure.mutable
+import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.Voltage
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
@@ -21,6 +23,7 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.pow
 
+
 class ControllerBindings(
   private val driveController: CommandXboxController,
   private val mechanismController: CommandXboxController,
@@ -33,6 +36,56 @@ class ControllerBindings(
       { voltage: Measure<Voltage> -> robot.drive.setVoltage(voltage.`in`(Volts)) },
       null,
       robot.drive
+    )
+  )
+
+  private val m_appliedVoltage = mutable(Volts.of(0.0))
+  private val m_angle = mutable(Rotations.of(0.0))
+  private val m_velocity = mutable(RotationsPerSecond.of(0.0))
+
+  val shooterRoutine = SysIdRoutine(
+    SysIdRoutine.Config(),
+    Mechanism(
+      { voltage: Measure<Voltage> ->
+        run {
+          robot.shooter.setLeftVoltage(voltage.`in`(Volts))
+          robot.shooter.setRightVoltage(voltage.`in`(Volts))
+        }
+      },
+      { log: SysIdRoutineLog ->
+        run {
+          log.motor("shooter-left")
+            .voltage(
+              m_appliedVoltage.mut_replace(
+                robot.shooter.leftMotor.get() * robot.powerDistribution.voltage, Volts
+              )
+            )
+            .angularPosition(
+              m_angle.mut_replace(
+                robot.shooter.leftMotor.position, Rotations
+              )
+            )
+            .angularVelocity(
+              m_velocity.mut_replace(robot.shooter.leftVelocity.get(), RotationsPerSecond)
+            )
+          log.motor("shooter-right")
+            .voltage(
+              m_appliedVoltage.mut_replace(
+                robot.shooter.rightMotor.get() * robot.powerDistribution.voltage, Volts
+              )
+            )
+            .angularPosition(
+              m_angle.mut_replace(
+                robot.shooter.rightMotor.position, Rotations
+              )
+            )
+            .angularVelocity(
+              m_velocity.mut_replace(robot.shooter.rightVelocity.get(), RotationsPerSecond)
+            )
+        }
+      },
+      robot.shooter,
+      "shooter"
     )
   )
 
@@ -129,28 +182,28 @@ class ControllerBindings(
       )
     )
 
-//    /** Characterization */
-//    // Quasistatic Forwards
-//    driveController.povUp().onTrue(
-//      sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward)
-//    )
-//
-//    // Quasistatic Reverse
-//    driveController.povDown().onTrue(
-//      sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse)
-//    )
-//
-//    // Dynamic Forwards
-//    driveController.povRight().onTrue(
-//      sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward)
-//    )
-//
-//    // Dynamic Reverse
-//    driveController.povLeft().onTrue(
-//      sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse)
-//    )
+    /** Characterization */
+    // Quasistatic Forwards
+    driveController.povUp().onTrue(
+      shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward)
+    )
 
-    /** Shooting from anywhere */
+    // Quasistatic Reverse
+    driveController.povDown().onTrue(
+      shooterRoutine.quasistatic(SysIdRoutine.Direction.kReverse)
+    )
+
+    // Dynamic Forwards
+    driveController.povRight().onTrue(
+      shooterRoutine.dynamic(SysIdRoutine.Direction.kForward)
+    )
+
+    // Dynamic Reverse
+    driveController.povLeft().onTrue(
+      shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
+    )
+
+/** Shooting from anywhere */
 //    mechanismController.b().onTrue(
 //      ParallelCommandGroup(
 //        orbitCmd,

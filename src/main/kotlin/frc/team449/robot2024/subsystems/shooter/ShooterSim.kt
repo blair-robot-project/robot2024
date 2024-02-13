@@ -15,8 +15,8 @@ import frc.team449.system.motor.WrappedMotor
 import java.util.function.Supplier
 
 class ShooterSim(
-  private val rightMotor: WrappedMotor,
-  private val leftMotor: WrappedMotor,
+  rightMotor: WrappedMotor,
+  leftMotor: WrappedMotor,
   rightLoop: LinearSystemLoop<N1, N1, N1>,
   leftLoop: LinearSystemLoop<N1, N1, N1>,
   robot: Robot,
