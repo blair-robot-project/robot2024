@@ -73,6 +73,17 @@ open class Shooter(
     return cmd
   }
 
+  fun shootAuto(): Command {
+    val cmd = this.run {
+      shootPiece(
+        ShooterConstants.AUTO_SPEED,
+        ShooterConstants.AUTO_SPEED
+      )
+    }
+    cmd.name = "shooting subwoofer auto side"
+    return cmd
+  }
+
   fun shootAnywhere(): Command {
     val cmd = this.run {
       val distance = FieldConstants.SUBWOOFER_POSE.getDistance(robot.drive.pose.translation)
@@ -91,6 +102,13 @@ open class Shooter(
   fun atSetpoint(): Boolean {
     return abs(leftVelocity.get() - desiredVels.first) < ShooterConstants.LQR_VEL_TOL &&
       abs(rightVelocity.get() - desiredVels.second) < ShooterConstants.LQR_VEL_TOL &&
+      desiredVels.first != 0.0 &&
+      desiredVels.second != 0.0
+  }
+
+  fun atAutoSetpoint(): Boolean {
+    return abs(leftVelocity.get() - desiredVels.first) < ShooterConstants.AUTO_SHOOT_TOL &&
+      abs(rightVelocity.get() - desiredVels.second) < ShooterConstants.AUTO_SHOOT_TOL &&
       desiredVels.first != 0.0 &&
       desiredVels.second != 0.0
   }

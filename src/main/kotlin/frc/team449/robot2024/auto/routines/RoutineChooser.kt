@@ -9,14 +9,16 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
   fun routineMap(): HashMap<String, Command> {
     return hashMapOf(
       "DoNothing" to DoNothing(robot).createCommand(),
-      "Red4Piece" to Experimental4Piece(robot, true).createCommand(),
-      "Blue4Piece" to Experimental4Piece(robot, false).createCommand(),
+      "Red4Piece" to FourPieceSubwoofer(robot, true).createCommand(),
+      "Blue4Piece" to FourPieceSubwoofer(robot, false).createCommand(),
       "Red3PieceMid" to Experimental3PieceMid(robot, true).createCommand(),
       "Blue3PieceMid" to Experimental3PieceMid(robot, false).createCommand(),
       "Red1PieceTaxi" to Experimental1PieceTaxi(robot, true).createCommand(),
       "Blue1PieceTaxi" to Experimental1PieceTaxi(robot, false).createCommand(),
       "RedTaxi" to ExperimentalTaxi(robot, true).createCommand(),
       "BlueTaxi" to ExperimentalTaxi(robot, false).createCommand(),
+      "RedFar4Piece" to FourPieceAway(robot, true).createCommand(),
+      "BlueFar4Piece" to FourPieceAway(robot, false).createCommand()
     )
   }
 
@@ -29,8 +31,13 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
     this.setDefaultOption("Do Nothing", "DoNothing")
 
     this.addOption(
-      "Experimental 4 Piece",
+      "4 Piece Subwoofer",
       if (isRed) "Red4Piece" else "Blue4Piece"
+    )
+
+    this.addOption(
+      "4 Piece Away",
+      if (isRed) "RedFar4Piece" else "BlueFar4Piece"
     )
 
     this.addOption(

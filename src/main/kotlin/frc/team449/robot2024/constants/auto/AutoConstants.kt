@@ -10,4 +10,6 @@ object AutoConstants {
 
   const val SHOOT_INTAKE_TIME = 0.075
   const val FEEDER_REVERSE_TIME = 0.35
+
+  const val SHOOT_AWAY_WAIT = 0.25
 }

@@ -38,6 +38,8 @@ object PivotConstants {
   val VEL_TOLERANCE = Units.degreesToRadians(10.0)
   const val CONTROL_EFFORT_VOLTS = 12.0
 
+  val MAX_VEL_TOL = Units.degreesToRadians(5.0)
+
   const val MAX_VOLTAGE = 12.0
 
   /** Profile Constraints */
@@ -50,5 +52,5 @@ object PivotConstants {
   val MAX_ANGLE = Units.degreesToRadians(100.0)
   val AMP_ANGLE = Units.degreesToRadians(90.0)
   val STOW_ANGLE = Units.degreesToRadians(-2.0)
-  val SUBWOOFER_ANGLE = Units.degreesToRadians(30.0)
+  val AUTO_ANGLE = Units.degreesToRadians(17.5)
 }

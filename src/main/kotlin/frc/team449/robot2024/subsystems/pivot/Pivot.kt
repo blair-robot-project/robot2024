@@ -26,6 +26,7 @@ import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.DoubleSupplier
 import java.util.function.Supplier
+import kotlin.math.abs
 import kotlin.math.sign
 
 open class Pivot(
@@ -66,6 +67,23 @@ open class Pivot(
     }
   }
 
+  fun autoAngle(): Command {
+    return this.run {
+      moveToAngle(PivotConstants.AUTO_ANGLE)
+    }.until(::inTolerance)
+  }
+
+  fun autoStow(): Command {
+    return this.run {
+      moveToAngle(PivotConstants.STOW_ANGLE)
+    }.until(::inTolerance)
+  }
+
+  fun inTolerance(): Boolean {
+    return abs(positionSupplier.get() - lastProfileReference.position) < PivotConstants.POS_TOLERANCE &&
+      abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_TOL
+  }
+
   fun manualMovement(axisSupplier: DoubleSupplier): Command {
     val cmd = this.run {
       moveToAngle(
@@ -78,12 +96,6 @@ open class Pivot(
     }
     cmd.name = "manual movement"
     return cmd
-  }
-
-  fun moveSubwoofer(): Command {
-    return this.run {
-      moveToAngle(PivotConstants.SUBWOOFER_ANGLE)
-    }
   }
 
   fun moveStow(): Command {

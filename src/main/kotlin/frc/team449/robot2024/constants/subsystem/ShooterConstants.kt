@@ -20,6 +20,9 @@ object ShooterConstants {
   val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5460.0)
   val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5460.0)
 
+  val AUTO_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5500.0)
+  const val AUTO_SHOOT_TOL = 25.0
+
   val BRAKE_RATE_LIMIT = Units.rotationsPerMinuteToRadiansPerSecond(2850.0)
 
   val SHOOTING_MAP = InterpolatingMatrixTreeMap<Double, N3, N1>()
@@ -42,7 +45,7 @@ object ShooterConstants {
 
   const val MODEL_VEL_STDDEV = 3.0
   const val ENCODER_VEL_STDDEV = 0.5
-  const val LQR_VEL_TOL = 45.0
+  const val LQR_VEL_TOL = 10.0
   const val LQR_MAX_VOLTS = 12.0
   const val MAX_VOLTAGE = 12.0
 

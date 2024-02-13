@@ -13,8 +13,7 @@ import kotlin.math.PI
 object AutoUtil {
 
   fun autoIntake(robot: Robot): Command {
-    return ParallelDeadlineGroup(
-      robot.shooter.shootSubwoofer(),
+    return ParallelCommandGroup(
       SequentialCommandGroup(
         robot.undertaker.intake(),
         robot.feeder.autoIntake(),
@@ -23,14 +22,46 @@ object AutoUtil {
         robot.feeder.outtake(),
         WaitUntilCommand { robot.infrared.get() },
         robot.feeder.stop(),
-      )
+      ),
+      robot.shooter.shootSubwoofer(),
+    )
+  }
+
+  fun autoIntakeAway(robot: Robot): Command {
+    return ParallelCommandGroup(
+      SequentialCommandGroup(
+        robot.pivot.moveStow(),
+        robot.undertaker.intake(),
+        robot.feeder.autoIntake(),
+        WaitUntilCommand { !robot.infrared.get() },
+        robot.undertaker.stop(),
+        robot.feeder.outtake(),
+        robot.pivot.autoAngle(),
+        WaitUntilCommand { robot.infrared.get() },
+        robot.feeder.stop(),
+      ),
+      robot.shooter.shootAuto(),
+    )
+  }
+
+  fun autoShootAway(robot: Robot): Command {
+    return ParallelDeadlineGroup(
+      SequentialCommandGroup(
+        robot.pivot.autoAngle(),
+        WaitUntilCommand { robot.shooter.atAutoSetpoint() && robot.pivot.inTolerance() },
+        WaitCommand(AutoConstants.SHOOT_AWAY_WAIT),
+        robot.feeder.intake(),
+        robot.undertaker.intake(),
+        WaitCommand(AutoConstants.SHOOT_INTAKE_TIME)
+      ),
+      robot.shooter.shootAuto()
     )
   }
 
   fun autoShoot(robot: Robot): Command {
     return ParallelDeadlineGroup(
       SequentialCommandGroup(
-        WaitUntilCommand { robot.shooter.atSetpoint() },
+        WaitUntilCommand { robot.shooter.atAutoSetpoint() },
         robot.feeder.intake(),
         robot.undertaker.intake(),
         WaitCommand(AutoConstants.SHOOT_INTAKE_TIME)
@@ -71,10 +102,10 @@ object AutoUtil {
           Nat.N3(),
           FieldConstants.fieldLength - currentMatrix[0, 0],
           currentMatrix[0, 1],
-          MathUtil.angleModulus(PI + currentMatrix[0, 2]),
+          MathUtil.angleModulus(PI - currentMatrix[0, 2]),
           -currentMatrix[1, 0],
           currentMatrix[1, 1],
-          currentMatrix[1, 2]
+          -currentMatrix[1, 2]
         )
 
         pathGroup[index].stateMap.put(time, newMatrix)
