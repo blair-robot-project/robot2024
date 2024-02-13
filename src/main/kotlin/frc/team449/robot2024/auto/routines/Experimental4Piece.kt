@@ -10,8 +10,6 @@ class Experimental4Piece(
   robot: Robot,
   isRed: Boolean
 ) : ChoreoRoutineStructure {
-
-  /** TODO STILL AUTO SUBSYSTEM CMD PARALLEL */
   override val routine =
     ChoreoRoutine(
       drive = robot.drive,
@@ -27,7 +25,7 @@ class Experimental4Piece(
         2 to AutoUtil.autoShoot(robot),
         3 to AutoUtil.autoShoot(robot)
       ),
-      debug = true
+      debug = false
     )
 
   override val trajectory: MutableList<ChoreoTrajectory> =

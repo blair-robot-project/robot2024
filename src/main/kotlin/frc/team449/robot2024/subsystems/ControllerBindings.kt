@@ -45,7 +45,7 @@ class ControllerBindings(
   private fun stopAll(): Command {
     return ParallelCommandGroup(
       robot.undertaker.stop(),
-      robot.shooter.rampStop(),
+      robot.shooter.coast(),
       robot.feeder.stop()
     )
   }
@@ -123,7 +123,8 @@ class ControllerBindings(
       )
     ).onFalse(
       SequentialCommandGroup(
-        stopAll(),
+        robot.feeder.stop(),
+        robot.undertaker.stop(),
         robot.shooter.rampStop()
       )
     )
@@ -179,17 +180,18 @@ class ControllerBindings(
   }
 
   private fun outtakeToNotePosition(): Command {
-    return ConditionalCommand(
+    val cmd = ConditionalCommand(
       SequentialCommandGroup(
         robot.undertaker.stop(),
         robot.feeder.outtake(),
-        robot.shooter.duringIntake(),
         WaitUntilCommand { robot.infrared.get() },
-        robot.feeder.stop(),
-        robot.shooter.rampStop()
+        robot.feeder.stop()
       ),
-      InstantCommand()
+      stopAll()
     ) { !robot.infrared.get() }
+
+    cmd.name = "outtake to note pos"
+    return cmd
   }
 
   private fun nonRobotBindings() {

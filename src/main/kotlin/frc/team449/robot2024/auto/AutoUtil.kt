@@ -13,28 +13,29 @@ import kotlin.math.PI
 object AutoUtil {
 
   fun autoIntake(robot: Robot): Command {
-    return SequentialCommandGroup(
-      robot.undertaker.intake(),
-      robot.feeder.intake(),
-      WaitUntilCommand { !robot.infrared.get() },
-      robot.undertaker.stop(),
-      robot.feeder.outtake(),
-      robot.shooter.duringIntake(),
-      WaitUntilCommand { robot.infrared.get() },
-      robot.feeder.stop(),
-      robot.shooter.coast()
+    return ParallelDeadlineGroup(
+      robot.shooter.shootSubwoofer(),
+      SequentialCommandGroup(
+        robot.undertaker.intake(),
+        robot.feeder.autoIntake(),
+        WaitUntilCommand { !robot.infrared.get() },
+        robot.undertaker.stop(),
+        robot.feeder.outtake(),
+        WaitUntilCommand { robot.infrared.get() },
+        robot.feeder.stop(),
+      )
     )
   }
 
   fun autoShoot(robot: Robot): Command {
-    return ParallelCommandGroup(
-      robot.shooter.shootSubwoofer(),
+    return ParallelDeadlineGroup(
       SequentialCommandGroup(
         WaitUntilCommand { robot.shooter.atSetpoint() },
         robot.feeder.intake(),
         robot.undertaker.intake(),
         WaitCommand(AutoConstants.SHOOT_INTAKE_TIME)
-      )
+      ),
+      robot.shooter.shootSubwoofer()
     )
   }
   fun transformForPos2(pathGroup: MutableList<ChoreoTrajectory>): MutableList<ChoreoTrajectory> {

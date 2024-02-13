@@ -20,16 +20,16 @@ object ShooterConstants {
   val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5460.0)
   val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5460.0)
 
-  val BRAKE_RATE_LIMIT = Units.rotationsPerMinuteToRadiansPerSecond(3500.0)
+  val BRAKE_RATE_LIMIT = Units.rotationsPerMinuteToRadiansPerSecond(2850.0)
 
   val SHOOTING_MAP = InterpolatingMatrixTreeMap<Double, N3, N1>()
 
   const val LEFT_KS = 0.0
   const val RIGHT_KS = 0.0
-  const val LEFT_KV = 0.02018878773
-  const val RIGHT_KV = 0.02018878773
-  const val LEFT_KA = 0.032004
-  const val RIGHT_KA = 0.032004
+  const val LEFT_KV = 0.00965199999
+  const val RIGHT_KV = 0.00965199999
+  const val LEFT_KA = 0.05638799999
+  const val RIGHT_KA = 0.05638799999
 
   const val AMP_SCORE_VOLTAGE = 5.460
   const val DURING_INTAKE_VOLTAGE = -1.0
@@ -42,20 +42,23 @@ object ShooterConstants {
 
   const val MODEL_VEL_STDDEV = 3.0
   const val ENCODER_VEL_STDDEV = 0.5
-  const val LQR_VEL_TOL = 30.0
+  const val LQR_VEL_TOL = 45.0
   const val LQR_MAX_VOLTS = 12.0
   const val MAX_VOLTAGE = 12.0
+
+  const val MIN_RAMP_VEL = 50.0
 
   /** Encoder stuff */
   const val LEFT_CHANNEL_A = 1
   const val LEFT_CHANNEL_B = 2
-  const val RIGHT_CHANNEL_A = 3
-  const val RIGHT_CHANNEL_B = 4
+  const val RIGHT_CHANNEL_A = 4
+  const val RIGHT_CHANNEL_B = 3
   const val CPR = 2048
   const val UPR = 2 * PI
   const val GEARING = 1.0 / 1.0
   const val LEFT_ENCODER_INVERTED = false
   const val RIGHT_ENCODER_INVERTED = false
+  const val SAMPLES_TO_AVERAGE = 127
 
   init {
     /**

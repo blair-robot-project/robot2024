@@ -18,6 +18,12 @@ class Feeder(
     }
   }
 
+  fun autoIntake(): Command {
+    return this.runOnce {
+      motor.setVoltage(FeederConstants.AUTO_INTAKE_VOLTAGE)
+    }
+  }
+
   fun outtake(): Command {
     return this.runOnce {
       motor.setVoltage(FeederConstants.REVERSE_VOLTAGE)

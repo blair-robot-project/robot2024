@@ -10,19 +10,17 @@ import edu.wpi.first.math.system.LinearSystemLoop
 import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.Encoder
 import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj2.command.Command
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
-import edu.wpi.first.wpilibj2.command.SubsystemBase
+import edu.wpi.first.wpilibj2.command.*
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
-import frc.team449.system.encoder.NEOEncoder
+import frc.team449.system.encoder.QuadEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
-import kotlin.math.PI
 import kotlin.math.abs
 
 open class Shooter(
@@ -137,7 +135,7 @@ open class Shooter(
   }
 
   fun coast(): Command {
-    val cmd = this.run {
+    val cmd = this.runOnce {
       desiredVels = Pair(0.0, 0.0)
       leftMotor.setVoltage(0.0)
       rightMotor.setVoltage(0.0)
@@ -152,19 +150,33 @@ open class Shooter(
       shootPiece(0.0, 0.0)
     }
     cmd.name = "force stop"
-    return cmd
+    return ParallelDeadlineGroup(
+      WaitUntilCommand {
+        abs(leftVelocity.get()) < ShooterConstants.LQR_VEL_TOL &&
+          abs(rightVelocity.get()) < ShooterConstants.LQR_VEL_TOL
+      },
+      cmd
+    ).andThen(
+      coast()
+    )
   }
 
   fun rampStop(): Command {
     val cmd = SequentialCommandGroup(
       this.runOnce {
+        println("hola im here")
         leftRateLimiter.reset(leftVelocity.get())
         rightRateLimiter.reset(rightVelocity.get())
       },
       this.run {
         desiredVels = Pair(leftRateLimiter.calculate(0.0), rightRateLimiter.calculate(0.0))
         shootPiece(desiredVels.first, desiredVels.second)
-      }
+      }.until {
+        abs(leftVelocity.get()) < ShooterConstants.MIN_RAMP_VEL &&
+          abs(rightVelocity.get()) < ShooterConstants.MIN_RAMP_VEL
+      }.andThen(
+        forceStop()
+      )
     )
     cmd.name = "active stop"
     return cmd
@@ -175,8 +187,8 @@ open class Shooter(
     builder.addDoubleProperty("1.1 Last Right Voltage", { rightMotor.lastVoltage }, null)
     builder.addDoubleProperty("1.2 Last Left Voltage", { leftMotor.lastVoltage }, null)
     builder.publishConstString("2.0", "Current and Desired Velocities")
-    builder.addDoubleProperty("2.1 Left Current Speed", { leftVelocity.get() * 60 / (2 * PI) }, null)
-    builder.addDoubleProperty("2.2 Right Current Speed", { rightVelocity.get() * 60 / (2 * PI) }, null)
+    builder.addDoubleProperty("2.1 Left Current Speed", { leftVelocity.get() }, null)
+    builder.addDoubleProperty("2.2 Right Current Speed", { rightVelocity.get() }, null)
     builder.addDoubleProperty("2.3 Left Desired Speed", { desiredVels.first }, null)
     builder.addDoubleProperty("2.4 Right Desired Speed", { desiredVels.second }, null)
     builder.publishConstString("3.0", "Velocity Errors")
@@ -184,6 +196,9 @@ open class Shooter(
     builder.addDoubleProperty("3.2 Right Vel Error Pred", { rightLoop.error.get(0, 0) }, null)
     builder.addDoubleProperty("3.3 Left Vel Error", { leftVelocity.get() - desiredVels.first }, null)
     builder.addDoubleProperty("3.4 Right Vel Error", { rightVelocity.get() - desiredVels.second }, null)
+    builder.publishConstString("4.0", "Encoder Positions")
+    builder.addDoubleProperty("4.1 Left Enc Pos", { leftMotor.position }, null)
+    builder.addDoubleProperty("4.2 Left Enc Pos", { rightMotor.position }, null)
   }
 
   companion object {
@@ -191,9 +206,16 @@ open class Shooter(
       val rightMotor = createSparkMax(
         "Shooter Right Motor",
         ShooterConstants.RIGHT_MOTOR_ID,
-        encCreator = NEOEncoder.creator(
+        encCreator = QuadEncoder.creator(
+          Encoder(
+            ShooterConstants.RIGHT_CHANNEL_A,
+            ShooterConstants.RIGHT_CHANNEL_B
+          ),
+          ShooterConstants.CPR,
           ShooterConstants.UPR,
-          ShooterConstants.GEARING
+          ShooterConstants.GEARING,
+          ShooterConstants.RIGHT_ENCODER_INVERTED,
+          ShooterConstants.SAMPLES_TO_AVERAGE
         ),
         inverted = ShooterConstants.RIGHT_MOTOR_INVERTED,
         currentLimit = ShooterConstants.CURRENT_LIMIT,
@@ -203,9 +225,16 @@ open class Shooter(
       val leftMotor = createSparkMax(
         "Shooter Right Motor",
         ShooterConstants.LEFT_MOTOR_ID,
-        encCreator = NEOEncoder.creator(
+        encCreator = QuadEncoder.creator(
+          Encoder(
+            ShooterConstants.LEFT_CHANNEL_A,
+            ShooterConstants.LEFT_CHANNEL_B
+          ),
+          ShooterConstants.CPR,
           ShooterConstants.UPR,
-          ShooterConstants.GEARING
+          ShooterConstants.GEARING,
+          ShooterConstants.LEFT_ENCODER_INVERTED,
+          ShooterConstants.SAMPLES_TO_AVERAGE
         ),
         inverted = ShooterConstants.LEFT_MOTOR_INVERTED,
         currentLimit = ShooterConstants.CURRENT_LIMIT,
