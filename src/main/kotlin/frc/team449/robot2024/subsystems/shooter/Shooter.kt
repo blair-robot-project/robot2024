@@ -232,8 +232,8 @@ open class Shooter(
         ShooterConstants.RIGHT_MOTOR_ID,
         encCreator = QuadEncoder.creator(
           Encoder(
-            ShooterConstants.LEFT_CHANNEL_A,
-            ShooterConstants.LEFT_CHANNEL_B,
+            ShooterConstants.RIGHT_CHANNEL_A,
+            ShooterConstants.RIGHT_CHANNEL_B,
             false,
             CounterBase.EncodingType.k1X
           ),
@@ -241,7 +241,7 @@ open class Shooter(
           ShooterConstants.CPR,
           ShooterConstants.UPR,
           ShooterConstants.GEARING,
-          ShooterConstants.LEFT_ENCODER_INVERTED,
+          ShooterConstants.RIGHT_ENCODER_INVERTED,
           ShooterConstants.SAMPLES_TO_AVERAGE
         ),
 //        encCreator = NEOEncoder.creator(

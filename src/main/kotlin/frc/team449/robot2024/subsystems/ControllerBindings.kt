@@ -191,26 +191,26 @@ class ControllerBindings(
       )
     )
 
-    /** Characterization */
-    // Quasistatic Forwards
-    driveController.povUp().onTrue(
-      shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward)
-    )
-
-    // Quasistatic Reverse
-    driveController.povDown().onTrue(
-      shooterRoutine.quasistatic(SysIdRoutine.Direction.kReverse)
-    )
-
-    // Dynamic Forwards
-    driveController.povRight().onTrue(
-      shooterRoutine.dynamic(SysIdRoutine.Direction.kForward)
-    )
-
-    // Dynamic Reverse
-    driveController.povLeft().onTrue(
-      shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
-    )
+//    /** Characterization */
+//    // Quasistatic Forwards
+//    driveController.povUp().onTrue(
+//      shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward)
+//    )
+//
+//    // Quasistatic Reverse
+//    driveController.povDown().onTrue(
+//      shooterRoutine.quasistatic(SysIdRoutine.Direction.kReverse)
+//    )
+//
+//    // Dynamic Forwards
+//    driveController.povRight().onTrue(
+//      shooterRoutine.dynamic(SysIdRoutine.Direction.kForward)
+//    )
+//
+//    // Dynamic Reverse
+//    driveController.povLeft().onTrue(
+//      shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
+//    )
 
 /** Shooting from anywhere */
 //    mechanismController.b().onTrue(
