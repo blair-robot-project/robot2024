@@ -40,8 +40,8 @@ class ControllerBindings(
   )
 
   private val m_appliedVoltage = mutable(Volts.of(0.0))
-  private val m_angle = mutable(Rotations.of(0.0))
-  private val m_velocity = mutable(RotationsPerSecond.of(0.0))
+  private val m_angle = mutable(Radians.of(0.0))
+  private val m_velocity = mutable(RadiansPerSecond.of(0.0))
 
   val shooterRoutine = SysIdRoutine(
     SysIdRoutine.Config(),
@@ -62,11 +62,11 @@ class ControllerBindings(
             )
             .angularPosition(
               m_angle.mut_replace(
-                robot.shooter.leftMotor.position, Rotations
+                robot.shooter.leftMotor.position, Radians
               )
             )
             .angularVelocity(
-              m_velocity.mut_replace(robot.shooter.leftVelocity.get(), RotationsPerSecond)
+              m_velocity.mut_replace(robot.shooter.leftVelocity.get(), RadiansPerSecond)
             )
           log.motor("shooter-right")
             .voltage(
@@ -76,11 +76,11 @@ class ControllerBindings(
             )
             .angularPosition(
               m_angle.mut_replace(
-                robot.shooter.rightMotor.position, Rotations
+                robot.shooter.rightMotor.position, Radians
               )
             )
             .angularVelocity(
-              m_velocity.mut_replace(robot.shooter.rightVelocity.get(), RotationsPerSecond)
+              m_velocity.mut_replace(robot.shooter.rightVelocity.get(), RadiansPerSecond)
             )
         }
       },
