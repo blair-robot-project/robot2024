@@ -23,7 +23,6 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.pow
 
-
 class ControllerBindings(
   private val driveController: CommandXboxController,
   private val mechanismController: CommandXboxController,
@@ -57,30 +56,40 @@ class ControllerBindings(
           log.motor("shooter-left")
             .voltage(
               m_appliedVoltage.mut_replace(
-                robot.shooter.leftMotor.get() * robot.powerDistribution.voltage, Volts
+                robot.shooter.leftMotor.get() * robot.powerDistribution.voltage,
+                Volts
               )
             )
             .angularPosition(
               m_angle.mut_replace(
-                robot.shooter.leftMotor.position, Radians
+                robot.shooter.leftMotor.position,
+                Radians
               )
             )
             .angularVelocity(
-              m_velocity.mut_replace(robot.shooter.leftVelocity.get(), RadiansPerSecond)
+              m_velocity.mut_replace(
+                robot.shooter.leftVelocity.get(),
+                RadiansPerSecond
+              )
             )
           log.motor("shooter-right")
             .voltage(
               m_appliedVoltage.mut_replace(
-                robot.shooter.rightMotor.get() * robot.powerDistribution.voltage, Volts
+                robot.shooter.rightMotor.get() * robot.powerDistribution.voltage,
+                Volts
               )
             )
             .angularPosition(
               m_angle.mut_replace(
-                robot.shooter.rightMotor.position, Radians
+                robot.shooter.rightMotor.position,
+                Radians
               )
             )
             .angularVelocity(
-              m_velocity.mut_replace(robot.shooter.rightVelocity.get(), RadiansPerSecond)
+              m_velocity.mut_replace(
+                robot.shooter.rightVelocity.get(),
+                RadiansPerSecond
+              )
             )
         }
       },
