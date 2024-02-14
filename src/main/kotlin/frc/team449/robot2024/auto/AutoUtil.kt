@@ -23,7 +23,7 @@ object AutoUtil {
         WaitUntilCommand { robot.infrared.get() },
         robot.feeder.stop(),
       ),
-      robot.shooter.shootSubwoofer(),
+      robot.shooter.shootSubwoofer()
     )
   }
 
@@ -67,8 +67,9 @@ object AutoUtil {
         WaitCommand(AutoConstants.SHOOT_INTAKE_TIME)
       ),
       robot.shooter.shootSubwoofer()
-    )
+    ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!"))
   }
+
   fun transformForPos2(pathGroup: MutableList<ChoreoTrajectory>): MutableList<ChoreoTrajectory> {
     for (index in 0 until pathGroup.size) {
       for (time in pathGroup[index].objectiveTimestamps) {

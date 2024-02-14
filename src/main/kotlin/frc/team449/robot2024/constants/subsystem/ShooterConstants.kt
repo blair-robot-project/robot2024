@@ -21,7 +21,7 @@ object ShooterConstants {
   val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5460.0)
 
   val AUTO_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5500.0)
-  const val AUTO_SHOOT_TOL = 25.0
+  const val AUTO_SHOOT_TOL = 35.0
 
   val BRAKE_RATE_LIMIT = Units.rotationsPerMinuteToRadiansPerSecond(2850.0)
 

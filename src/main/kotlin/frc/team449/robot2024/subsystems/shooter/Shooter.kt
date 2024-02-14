@@ -188,7 +188,6 @@ open class Shooter(
   fun rampStop(): Command {
     val cmd = SequentialCommandGroup(
       this.runOnce {
-        println("hola im here")
         leftRateLimiter.reset(leftVelocity.get())
         rightRateLimiter.reset(rightVelocity.get())
       },
