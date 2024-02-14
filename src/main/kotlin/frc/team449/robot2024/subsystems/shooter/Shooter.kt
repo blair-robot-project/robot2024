@@ -9,6 +9,7 @@ import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.system.LinearSystemLoop
 import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.util.sendable.SendableBuilder
+import edu.wpi.first.wpilibj.CounterBase
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Encoder
 import edu.wpi.first.wpilibj.RobotBase
@@ -231,15 +232,24 @@ open class Shooter(
         ShooterConstants.RIGHT_MOTOR_ID,
         encCreator = QuadEncoder.creator(
           Encoder(
-            ShooterConstants.RIGHT_CHANNEL_A,
-            ShooterConstants.RIGHT_CHANNEL_B
+            ShooterConstants.LEFT_CHANNEL_A,
+            ShooterConstants.LEFT_CHANNEL_B,
+            false,
+            CounterBase.EncodingType.k1X
           ),
+
           ShooterConstants.CPR,
           ShooterConstants.UPR,
           ShooterConstants.GEARING,
-          ShooterConstants.RIGHT_ENCODER_INVERTED,
+          ShooterConstants.LEFT_ENCODER_INVERTED,
           ShooterConstants.SAMPLES_TO_AVERAGE
         ),
+//        encCreator = NEOEncoder.creator(
+//          ShooterConstants.UPR,
+//          ShooterConstants.GEARING,
+//          measurementPeriod = ShooterConstants.INTERNAL_MEASUREMENT_PD,
+//          depth = ShooterConstants.INTERNAL_ENC_DEPTH
+//        ),
         inverted = ShooterConstants.RIGHT_MOTOR_INVERTED,
         currentLimit = ShooterConstants.CURRENT_LIMIT,
         enableBrakeMode = ShooterConstants.BRAKE_MODE
@@ -251,14 +261,23 @@ open class Shooter(
         encCreator = QuadEncoder.creator(
           Encoder(
             ShooterConstants.LEFT_CHANNEL_A,
-            ShooterConstants.LEFT_CHANNEL_B
+            ShooterConstants.LEFT_CHANNEL_B,
+            false,
+            CounterBase.EncodingType.k1X
           ),
+
           ShooterConstants.CPR,
           ShooterConstants.UPR,
           ShooterConstants.GEARING,
           ShooterConstants.LEFT_ENCODER_INVERTED,
           ShooterConstants.SAMPLES_TO_AVERAGE
         ),
+//        encCreator = NEOEncoder.creator(
+//          ShooterConstants.UPR,
+//          ShooterConstants.GEARING,
+//          measurementPeriod = ShooterConstants.INTERNAL_MEASUREMENT_PD,
+//          depth = ShooterConstants.INTERNAL_ENC_DEPTH
+//        ),
         inverted = ShooterConstants.LEFT_MOTOR_INVERTED,
         currentLimit = ShooterConstants.CURRENT_LIMIT,
         enableBrakeMode = ShooterConstants.BRAKE_MODE
