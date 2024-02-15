@@ -62,7 +62,7 @@ object AutoUtil {
     return ParallelDeadlineGroup(
       SequentialCommandGroup(
         WaitUntilCommand { robot.shooter.atAutoSetpoint() },
-        robot.feeder.intake(),
+        robot.feeder.autoShootIntake(),
         robot.undertaker.intake(),
         WaitCommand(AutoConstants.SHOOT_INTAKE_TIME)
       ),

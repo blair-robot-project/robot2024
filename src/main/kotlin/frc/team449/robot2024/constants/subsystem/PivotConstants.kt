@@ -50,7 +50,9 @@ object PivotConstants {
 
   val MIN_ANGLE = Units.degreesToRadians(-2.0)
   val MAX_ANGLE = Units.degreesToRadians(100.0)
-  val AMP_ANGLE = Units.degreesToRadians(90.0)
+  val AMP_ANGLE = Units.degreesToRadians(90.0) // v2 100.53
   val STOW_ANGLE = Units.degreesToRadians(-2.0)
-  val AUTO_ANGLE = Units.degreesToRadians(17.5)
+
+  // IS THIS CORRECT???
+  val AUTO_ANGLE = 0.350
 }
