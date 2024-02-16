@@ -34,8 +34,20 @@ object VisionConstants {
   )
 
   /** Robot to Camera distance */
-  val robotToCamera = Transform3d(
-    Translation3d(Units.inchesToMeters(-11.48657), Units.inchesToMeters(0.0), Units.inchesToMeters(8.3416)),
+  val robotToCamera1 = Transform3d(
+    Translation3d(Units.inchesToMeters(12.696906), Units.inchesToMeters(11.957), Units.inchesToMeters(11.635)),
+    Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(180.0))
+  )
+  val robotToCamera2 = Transform3d(
+    Translation3d(Units.inchesToMeters(10.579978), Units.inchesToMeters(-7.928648), Units.inchesToMeters(5.336082)),
+    Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(180.0))
+  )
+  val robotToCamera3 = Transform3d(
+    Translation3d(Units.inchesToMeters(-10.580250), Units.inchesToMeters(-7.928502), Units.inchesToMeters(5.336028)),
+    Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(180.0))
+  )
+  val robotToCamera4 = Transform3d(
+    Translation3d(Units.inchesToMeters(-12.696906), Units.inchesToMeters(11.957), Units.inchesToMeters(11.635)),
     Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(180.0))
   )
 
@@ -73,6 +85,30 @@ object VisionConstants {
 
   /** List of cameras that we want to use */
   val ESTIMATORS: ArrayList<VisionSubsystem> = arrayListOf(
+    VisionSubsystem(
+      "spinel 1",
+      TAG_LAYOUT,
+      robotToCamera1,
+      VISION_SIM
+    ),
+    VisionSubsystem(
+      "spinel 2",
+      TAG_LAYOUT,
+      robotToCamera2,
+      VISION_SIM
+    ),
+    VisionSubsystem(
+      "spinel 3",
+      TAG_LAYOUT,
+      robotToCamera3,
+      VISION_SIM
+    ),
+    VisionSubsystem(
+      "spinel 4",
+      TAG_LAYOUT,
+      robotToCamera4,
+      VISION_SIM
+    ),
 //    VisionSubsystem(
 //      "arducam",
 //      TAG_LAYOUT,
