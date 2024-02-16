@@ -284,18 +284,12 @@
               "open": true
             }
           },
-          "feeder": {
-            "open": true
-          },
           "intake": {
             "double[]##v_/Monologuing/robot/intake/3.1 Intake 3D Position": {
               "open": true
             }
           },
           "open": true,
-          "pivot": {
-            "open": true
-          },
           "shooter": {
             "open": true
           },

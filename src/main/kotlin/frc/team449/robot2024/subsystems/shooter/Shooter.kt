@@ -21,6 +21,7 @@ import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
 import kotlin.math.abs
+import kotlin.math.sign
 
 open class Shooter(
   val rightMotor: WrappedMotor,
@@ -104,8 +105,8 @@ open class Shooter(
   }
 
   fun atSetpoint(): Boolean {
-    return abs(leftVelocity.get() - desiredVels.first) < ShooterConstants.LQR_VEL_TOL &&
-      abs(rightVelocity.get() - desiredVels.second) < ShooterConstants.LQR_VEL_TOL &&
+    return abs(leftLoop.error.get(0, 0)) < ShooterConstants.IN_TOLERANCE &&
+      abs(rightLoop.error.get(0, 0)) < ShooterConstants.IN_TOLERANCE &&
       desiredVels.first != 0.0 &&
       desiredVels.second != 0.0
   }
@@ -151,8 +152,8 @@ open class Shooter(
       rightLoop.predict(RobotConstants.LOOP_TIME)
       leftLoop.predict(RobotConstants.LOOP_TIME)
 
-      rightMotor.setVoltage(rightLoop.getU(0) + ShooterConstants.RIGHT_KS)
-      leftMotor.setVoltage(leftLoop.getU(0) + ShooterConstants.LEFT_KS)
+      rightMotor.setVoltage(rightLoop.getU(0) + sign(rightSpeed) * ShooterConstants.RIGHT_KS)
+      leftMotor.setVoltage(leftLoop.getU(0) + sign(leftSpeed) * ShooterConstants.LEFT_KS)
     }
   }
 
@@ -174,8 +175,8 @@ open class Shooter(
     cmd.name = "force stop"
     return ParallelDeadlineGroup(
       WaitUntilCommand {
-        abs(leftVelocity.get()) < ShooterConstants.LQR_VEL_TOL &&
-          abs(rightVelocity.get()) < ShooterConstants.LQR_VEL_TOL
+        abs(leftLoop.error.get(0, 0)) < ShooterConstants.IN_TOLERANCE &&
+          abs(rightLoop.error.get(0, 0)) < ShooterConstants.IN_TOLERANCE
       },
       cmd
     ).andThen(

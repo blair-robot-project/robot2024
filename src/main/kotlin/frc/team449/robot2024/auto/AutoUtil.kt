@@ -52,7 +52,8 @@ object AutoUtil {
         WaitCommand(AutoConstants.SHOOT_AWAY_WAIT),
         robot.feeder.intake(),
         robot.undertaker.intake(),
-        WaitCommand(AutoConstants.SHOOT_INTAKE_TIME)
+        WaitUntilCommand { !robot.infrared.get() },
+        WaitUntilCommand { robot.infrared.get() }
       ),
       robot.shooter.shootAuto()
     )
