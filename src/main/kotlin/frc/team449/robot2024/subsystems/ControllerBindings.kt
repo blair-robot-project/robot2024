@@ -107,7 +107,7 @@ class ControllerBindings(
   private fun stopAll(): Command {
     return ParallelCommandGroup(
       robot.undertaker.stop(),
-      robot.shooter.coast(),
+      robot.shooter.rampStop(),
       robot.feeder.stop()
     )
   }
@@ -184,11 +184,7 @@ class ControllerBindings(
         robot.shooter.shootSubwoofer()
       )
     ).onFalse(
-      SequentialCommandGroup(
-        robot.feeder.stop(),
-        robot.undertaker.stop(),
-        robot.shooter.rampStop()
-      )
+      stopAll()
     )
 
 //    /** Characterization */

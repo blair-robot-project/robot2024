@@ -105,8 +105,8 @@ open class Shooter(
   }
 
   fun atSetpoint(): Boolean {
-    return abs(leftLoop.error.get(0, 0)) < ShooterConstants.IN_TOLERANCE &&
-      abs(rightLoop.error.get(0, 0)) < ShooterConstants.IN_TOLERANCE &&
+    return abs(leftVelocity.get() - desiredVels.first) < ShooterConstants.IN_TOLERANCE &&
+      abs(rightVelocity.get() - desiredVels.second) < ShooterConstants.IN_TOLERANCE &&
       desiredVels.first != 0.0 &&
       desiredVels.second != 0.0
   }
@@ -119,18 +119,16 @@ open class Shooter(
   }
 
   fun scoreAmp(): Command {
-    val cmd = this.runOnce {
-      leftMotor.setVoltage(ShooterConstants.AMP_SCORE_VOLTAGE)
-      rightMotor.setVoltage(ShooterConstants.AMP_SCORE_VOLTAGE)
+    val cmd = this.run {
+      shootPiece(ShooterConstants.AMP_SPEED, ShooterConstants.AMP_SPEED)
     }
     cmd.name = "scoring amp"
     return cmd
   }
 
   fun duringIntake(): Command {
-    val cmd = this.runOnce {
-      rightMotor.setVoltage(ShooterConstants.DURING_INTAKE_VOLTAGE)
-      leftMotor.setVoltage(ShooterConstants.DURING_INTAKE_VOLTAGE)
+    val cmd = this.run {
+      shootPiece(ShooterConstants.OUTTAKE_SPEED, ShooterConstants.OUTTAKE_SPEED)
     }
     cmd.name = "during intake"
     return cmd
@@ -160,6 +158,10 @@ open class Shooter(
   fun coast(): Command {
     val cmd = this.runOnce {
       desiredVels = Pair(0.0, 0.0)
+
+      rightLoop.nextR = VecBuilder.fill(0.0)
+      leftLoop.nextR = VecBuilder.fill(0.0)
+
       leftMotor.setVoltage(0.0)
       rightMotor.setVoltage(0.0)
     }
@@ -169,14 +171,13 @@ open class Shooter(
 
   fun forceStop(): Command {
     val cmd = this.run {
-      desiredVels = Pair(0.0, 0.0)
       shootPiece(0.0, 0.0)
     }
     cmd.name = "force stop"
     return ParallelDeadlineGroup(
       WaitUntilCommand {
-        abs(leftLoop.error.get(0, 0)) < ShooterConstants.IN_TOLERANCE &&
-          abs(rightLoop.error.get(0, 0)) < ShooterConstants.IN_TOLERANCE
+        abs(leftVelocity.get() - desiredVels.first) < ShooterConstants.IN_TOLERANCE &&
+          abs(rightVelocity.get() - desiredVels.second) < ShooterConstants.IN_TOLERANCE
       },
       cmd
     ).andThen(
@@ -191,8 +192,10 @@ open class Shooter(
         rightRateLimiter.reset(rightVelocity.get())
       },
       this.run {
-        desiredVels = Pair(leftRateLimiter.calculate(0.0), rightRateLimiter.calculate(0.0))
-        shootPiece(desiredVels.first, desiredVels.second)
+        shootPiece(
+          rightRateLimiter.calculate(0.0),
+          leftRateLimiter.calculate(0.0)
+        )
       }.until {
         abs(leftVelocity.get()) < ShooterConstants.MIN_RAMP_VEL &&
           abs(rightVelocity.get()) < ShooterConstants.MIN_RAMP_VEL
