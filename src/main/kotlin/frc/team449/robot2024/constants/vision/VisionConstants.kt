@@ -86,29 +86,29 @@ object VisionConstants {
   /** List of cameras that we want to use */
   val ESTIMATORS: ArrayList<VisionSubsystem> = arrayListOf(
     VisionSubsystem(
-      "spinel 1",
+      "USB_GS_Camera",
       TAG_LAYOUT,
       robotToCamera1,
       VISION_SIM
     ),
-    VisionSubsystem(
-      "spinel 2",
-      TAG_LAYOUT,
-      robotToCamera2,
-      VISION_SIM
-    ),
-    VisionSubsystem(
-      "spinel 3",
-      TAG_LAYOUT,
-      robotToCamera3,
-      VISION_SIM
-    ),
-    VisionSubsystem(
-      "spinel 4",
-      TAG_LAYOUT,
-      robotToCamera4,
-      VISION_SIM
-    ),
+//    VisionSubsystem(
+//      "spinel 2",
+//      TAG_LAYOUT,
+//      robotToCamera2,
+//      VISION_SIM
+//    ),
+//    VisionSubsystem(
+//      "spinel 3",
+//      TAG_LAYOUT,
+//      robotToCamera3,
+//      VISION_SIM
+//    ),
+//    VisionSubsystem(
+//      "spinel 4",
+//      TAG_LAYOUT,
+//      robotToCamera4,
+//      VISION_SIM
+//    ),
 //    VisionSubsystem(
 //      "arducam",
 //      TAG_LAYOUT,
