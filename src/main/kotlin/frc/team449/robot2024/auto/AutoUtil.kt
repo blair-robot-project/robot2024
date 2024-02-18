@@ -63,15 +63,15 @@ object AutoUtil {
   fun autoShoot(robot: Robot): Command {
     return ConditionalCommand(
       ParallelDeadlineGroup(
-      SequentialCommandGroup(
-        WaitUntilCommand { robot.shooter.atAutoSetpoint() },
-        robot.feeder.autoShootIntake(),
-        robot.undertaker.intake(),
-        WaitUntilCommand { !robot.infrared.get() },
-        WaitUntilCommand { robot.infrared.get() }
-      ),
-      robot.shooter.shootSubwoofer()
-    ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!")),
+        SequentialCommandGroup(
+          WaitUntilCommand { robot.shooter.atAutoSetpoint() },
+          robot.feeder.autoShootIntake(),
+          robot.undertaker.intake(),
+          WaitUntilCommand { !robot.infrared.get() },
+          WaitUntilCommand { robot.infrared.get() }
+        ),
+        robot.shooter.shootSubwoofer()
+      ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!")),
       ParallelDeadlineGroup(
         SequentialCommandGroup(
           WaitUntilCommand { robot.shooter.atAutoSetpoint() },

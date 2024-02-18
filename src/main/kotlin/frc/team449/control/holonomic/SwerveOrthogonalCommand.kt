@@ -77,8 +77,9 @@ class SwerveOrthogonalCommand(
 
   private fun snapToAngle(angle: Double) {
     val desAngle = MathUtil.angleModulus(angle + allianceCompensation.invoke())
-    if (abs(desAngle - drive.heading.radians) > RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD
-      && abs(desAngle - drive.heading.radians) < 2 * PI - RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD) {
+    if (abs(desAngle - drive.heading.radians) > RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+      abs(desAngle - drive.heading.radians) < 2 * PI - RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD
+    ) {
       atGoal = false
       rotCtrl.setpoint = desAngle
     }
@@ -94,7 +95,7 @@ class SwerveOrthogonalCommand(
     val ctrlX = -controller.leftY
     val ctrlY = -controller.leftX
 
-    //val ctrlRadius = sqrt(ctrlX.pow(2) + ctrlY.pow(2)).pow(SwerveConstants.JOYSTICK_FILTER_ORDER)
+    // val ctrlRadius = sqrt(ctrlX.pow(2) + ctrlY.pow(2)).pow(SwerveConstants.JOYSTICK_FILTER_ORDER)
     val ctrlRadius = MathUtil.applyDeadband(
       sqrt(ctrlX.pow(2) + ctrlY.pow(2)),
       RobotConstants.DRIVE_RADIUS_DEADBAND,
