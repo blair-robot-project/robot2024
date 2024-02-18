@@ -29,7 +29,7 @@ class VisionEstimator(
   private val tagLayout: AprilTagFieldLayout,
   val camera: PhotonCamera,
   private val robotToCam: Transform3d
-) : PhotonPoseEstimator(tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_RIO, camera, robotToCam) {
+) : PhotonPoseEstimator(tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, robotToCam) {
   private val reportedErrors: HashSet<Int> = HashSet()
   private var driveHeading: Rotation2d? = null
   private var lastPose: Pose3d? = null
@@ -61,7 +61,7 @@ class VisionEstimator(
     return if (!cameraResult.hasTargets()) {
       Optional.empty()
     } else {
-      multiTagPNPStrategy(cameraResult)
+      multiTagOnCoprocStrategy(cameraResult)
     }
   }
 
@@ -77,6 +77,34 @@ class VisionEstimator(
     }
   }
 
+  private fun multiTagOnCoprocStrategy(result: PhotonPipelineResult): Optional<EstimatedRobotPose> {
+    return if (result.multiTagResult.estimatedPose.isPresent) {
+      val best_tf = result.multiTagResult.estimatedPose.best
+      val best = Pose3d()
+        .plus(best_tf) // field-to-camera
+        .relativeTo(tagLayout.origin)
+        .plus(robotToCam.inverse()) // field-to-robot
+
+      val alternate_tf = result.multiTagResult.estimatedPose.alt
+      val alternate = Pose3d()
+        .plus(alternate_tf) // field-to-camera
+        .relativeTo(tagLayout.origin)
+        .plus(robotToCam.inverse()) // field-to-robot
+
+      Optional.of(
+        EstimatedRobotPose(
+          checkBest(lastPose, best, alternate) ?: best,
+          result.timestampSeconds,
+          result.getTargets(),
+          PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
+        )
+      )
+    } else {
+      lowestAmbiguityStrategy(result)
+    }
+  }
+
+  /** Use if on coprocessor strategy doesn't work */
   private fun multiTagPNPStrategy(result: PhotonPipelineResult): Optional<EstimatedRobotPose> {
     // Arrays we need declared up front
     val visCorners = ArrayList<TargetCorner>()
