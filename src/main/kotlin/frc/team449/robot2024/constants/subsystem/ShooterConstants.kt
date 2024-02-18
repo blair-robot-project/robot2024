@@ -17,8 +17,9 @@ object ShooterConstants {
   const val CURRENT_LIMIT = 40
   const val BRAKE_MODE = false
 
-  val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4414.0)
-  val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(2056.0)
+  // Test these speeds, no spin
+  val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3538.0)
+  val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3538.0)
   val AUTO_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4750.0)
   val AUTO_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3650.0)
   val AMP_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(1500.0)
@@ -50,7 +51,7 @@ object ShooterConstants {
 
   const val MODEL_VEL_STDDEV = 3.0
   const val ENCODER_VEL_STDDEV = 0.01
-  const val LQR_VEL_TOL = 10.0
+  const val LQR_VEL_TOL = 7.5
   const val LQR_MAX_VOLTS = 12.0
   const val MAX_VOLTAGE = 12.0
 
