@@ -6,7 +6,7 @@ import frc.team449.control.auto.ChoreoTrajectory
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.auto.AutoUtil
 
-class FourPieceAway(
+class FivePieceSubwoofer(
   robot: Robot,
   isRed: Boolean
 ) : ChoreoRoutineStructure {
@@ -14,26 +14,33 @@ class FourPieceAway(
     ChoreoRoutine(
       drive = robot.drive,
       parallelEventMap = hashMapOf(
-        0 to AutoUtil.autoIntakeAway(robot),
-        1 to AutoUtil.autoIntakeAway(robot),
-        2 to AutoUtil.autoIntakeAway(robot),
-        3 to AutoUtil.autoIntakeAway(robot),
+        0 to AutoUtil.autoIntake(robot),
+        1 to AutoUtil.autoIntake(robot),
+        2 to AutoUtil.autoIntake(robot),
+        3 to AutoUtil.autoIntake(robot),
+        4 to AutoUtil.autoIntake(robot)
       ),
       stopEventMap = hashMapOf(
         0 to AutoUtil.autoShoot(robot),
-        1 to AutoUtil.autoShootAway(robot),
-        2 to AutoUtil.autoShootAway(robot),
-        3 to AutoUtil.autoShootAway(robot)
+        1 to AutoUtil.autoShoot(robot),
+        2 to AutoUtil.autoShoot(robot),
+        3 to AutoUtil.autoShoot(robot),
+        4 to AutoUtil.autoShoot(robot).andThen(
+          robot.undertaker.stop(),
+          robot.feeder.stop(),
+          robot.shooter.forceStop()
+        )
       ),
-      debug = false
+      debug = false,
+      timeout = 0.15
     )
 
   override val trajectory: MutableList<ChoreoTrajectory> =
     if (isRed) {
       AutoUtil.transformForRed(
-        ChoreoTrajectory.createTrajectory("4_Piece_Shoot_Anywhere")
+        ChoreoTrajectory.createTrajectory("5_Piece_Sub")
       )
     } else {
-      ChoreoTrajectory.createTrajectory("4_Piece_Shoot_Anywhere")
+      ChoreoTrajectory.createTrajectory("5_Piece_Sub")
     }
 }

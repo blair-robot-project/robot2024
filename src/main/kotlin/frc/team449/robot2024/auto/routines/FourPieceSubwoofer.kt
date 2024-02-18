@@ -35,9 +35,9 @@ class FourPieceSubwoofer(
   override val trajectory: MutableList<ChoreoTrajectory> =
     if (isRed) {
       AutoUtil.transformForRed(
-        ChoreoTrajectory.createTrajectory("Experimental-4_Piece")
+        ChoreoTrajectory.createTrajectory("4_Piece_Subwoofer_AmpSide")
       )
     } else {
-      ChoreoTrajectory.createTrajectory("Experimental-4_Piece")
+      ChoreoTrajectory.createTrajectory("4_Piece_Subwoofer_AmpSide")
     }
 }
