@@ -3,6 +3,7 @@ package frc.team449.robot2024.auto
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.Nat
+import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
 import frc.team449.control.auto.ChoreoTrajectory
 import frc.team449.robot2024.Robot
@@ -60,15 +61,27 @@ object AutoUtil {
   }
 
   fun autoShoot(robot: Robot): Command {
-    return ParallelDeadlineGroup(
+    return ConditionalCommand(
+      ParallelDeadlineGroup(
       SequentialCommandGroup(
         WaitUntilCommand { robot.shooter.atAutoSetpoint() },
         robot.feeder.autoShootIntake(),
         robot.undertaker.intake(),
-        WaitCommand(AutoConstants.SHOOT_INTAKE_TIME)
+        WaitUntilCommand { !robot.infrared.get() },
+        WaitUntilCommand { robot.infrared.get() }
       ),
       robot.shooter.shootSubwoofer()
-    ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!"))
+    ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!")),
+      ParallelDeadlineGroup(
+        SequentialCommandGroup(
+          WaitUntilCommand { robot.shooter.atAutoSetpoint() },
+          robot.feeder.autoShootIntake(),
+          robot.undertaker.intake(),
+          WaitCommand(AutoConstants.SHOOT_INTAKE_TIME)
+        ),
+        robot.shooter.shootSubwoofer()
+      ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!"))
+    ) { RobotBase.isReal() }
   }
 
   fun transformForPos2(pathGroup: MutableList<ChoreoTrajectory>): MutableList<ChoreoTrajectory> {
