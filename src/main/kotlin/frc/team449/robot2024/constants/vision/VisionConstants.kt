@@ -58,22 +58,22 @@ object VisionConstants {
 
   /** Filtering Constants */
   const val MAX_AMBIGUITY = 0.325
-  const val MAX_DISTANCE_SINGLE_TAG = 3.45
-  const val MAX_DISTANCE_MULTI_TAG = 4.5
+  const val MAX_DISTANCE_SINGLE_TAG = 3.0
+  const val MAX_DISTANCE_MULTI_TAG = 5.0
   const val SINGLE_TAG_HEADING_MAX_DEV_DEG = 5.0
   const val MAX_HEIGHT_ERR_METERS = 0.10
   const val NUM_TAG_FACTOR = 2.0
 
   /** Std Dev Calculation Constants */
   const val ORDER = 2
-  const val PROPORTION = 1 / 9
+  const val PROPORTION = 1.0 / 20.0
 
   val VISION_SIM = VisionSystemSim(
     "main"
   )
 
   /** Vision Sim Setup Constants */
-  const val SIM_FPS = 25.0
+  const val SIM_FPS = 13.0
   const val SIM_CAMERA_HEIGHT_PX = 720
   const val SIM_CAMERA_WIDTH_PX = 1280
   const val SIM_FOV_DEG = 75.0
@@ -112,6 +112,6 @@ object VisionConstants {
   )
 
   val ENCODER_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .20, .20, .015)
-  val SINGLE_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .225, .225, Double.MAX_VALUE)
+  val SINGLE_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .225, .225, 1e+9)
   val MULTI_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .175, .175, .80)
 }

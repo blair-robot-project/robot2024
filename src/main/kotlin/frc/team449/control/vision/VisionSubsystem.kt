@@ -87,11 +87,9 @@ class VisionSubsystem(
     if (numTags > 1) estStdDevs = VisionConstants.MULTI_TAG_TRUST.copy()
 
     // Increase std devs based on (average) distance
-    estStdDevs.times(
+    return estStdDevs.times(
       1 + avgDist.pow(VisionConstants.ORDER) * VisionConstants.PROPORTION
     )
-
-    return estStdDevs
   }
 
   fun simulationPeriodic(robotSimPose: Pose2d?) {

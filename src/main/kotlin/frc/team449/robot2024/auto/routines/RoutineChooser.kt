@@ -34,7 +34,7 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
     )
 
     this.addOption(
-      "4 Piece Subwoofer Amp Side",
+      "4 Piece Subwoofer Stage Side",
       if (isRed) "Red4PieceStage" else "Blue4PieceStage"
     )
 
