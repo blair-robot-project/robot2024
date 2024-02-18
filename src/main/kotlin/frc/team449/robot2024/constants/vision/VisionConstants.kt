@@ -34,21 +34,21 @@ object VisionConstants {
   )
 
   /** Robot to Camera distance */
-  val robotToCamera1 = Transform3d(
-    Translation3d(Units.inchesToMeters(12.696906), Units.inchesToMeters(11.957), Units.inchesToMeters(11.635)),
-    Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(180.0))
+  val frontLeft = Transform3d(
+    Translation3d(Units.inchesToMeters(9.143), Units.inchesToMeters(12.662), Units.inchesToMeters(15.4953)),
+    Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(45.0))
   )
-  val robotToCamera2 = Transform3d(
-    Translation3d(Units.inchesToMeters(10.579978), Units.inchesToMeters(-7.928648), Units.inchesToMeters(5.336082)),
-    Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(180.0))
+  val frontRight = Transform3d(
+    Translation3d(Units.inchesToMeters(9.143), Units.inchesToMeters(-12.662), Units.inchesToMeters(15.4953)),
+    Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(-45.0))
   )
-  val robotToCamera3 = Transform3d(
-    Translation3d(Units.inchesToMeters(-10.580250), Units.inchesToMeters(-7.928502), Units.inchesToMeters(5.336028)),
-    Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(180.0))
+  val backLeft = Transform3d(
+    Translation3d(Units.inchesToMeters(-10.696), Units.inchesToMeters(10.848), Units.inchesToMeters(9.11)),
+    Rotation3d(0.0, Units.degreesToRadians(-28.125), Units.degreesToRadians(180.0 + 7.5))
   )
-  val robotToCamera4 = Transform3d(
-    Translation3d(Units.inchesToMeters(-12.696906), Units.inchesToMeters(11.957), Units.inchesToMeters(11.635)),
-    Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(180.0))
+  val backRight = Transform3d(
+    Translation3d(Units.inchesToMeters(-10.696), Units.inchesToMeters(-10.848), Units.inchesToMeters(9.11)),
+    Rotation3d(0.0, Units.degreesToRadians(-28.125), Units.degreesToRadians(180.0 - 7.5))
   )
 
   val TAG_MODEL = TargetModel(
@@ -61,12 +61,12 @@ object VisionConstants {
   const val MAX_DISTANCE_SINGLE_TAG = 3.45
   const val MAX_DISTANCE_MULTI_TAG = 4.5
   const val SINGLE_TAG_HEADING_MAX_DEV_DEG = 5.0
-  const val MAX_HEIGHT_ERR_METERS = 0.075
+  const val MAX_HEIGHT_ERR_METERS = 0.10
   const val NUM_TAG_FACTOR = 2.0
 
   /** Std Dev Calculation Constants */
-  const val ORDER = 1
-  const val PROPORTION = 1 / 2
+  const val ORDER = 2
+  const val PROPORTION = 1 / 9
 
   val VISION_SIM = VisionSystemSim(
     "main"
@@ -86,56 +86,32 @@ object VisionConstants {
   /** List of cameras that we want to use */
   val ESTIMATORS: ArrayList<VisionSubsystem> = arrayListOf(
     VisionSubsystem(
-      "USB_GS_Camera",
+      "back_left",
       TAG_LAYOUT,
-      robotToCamera1,
+      backLeft,
       VISION_SIM
     ),
-//    VisionSubsystem(
-//      "spinel 2",
-//      TAG_LAYOUT,
-//      robotToCamera2,
-//      VISION_SIM
-//    ),
-//    VisionSubsystem(
-//      "spinel 3",
-//      TAG_LAYOUT,
-//      robotToCamera3,
-//      VISION_SIM
-//    ),
-//    VisionSubsystem(
-//      "spinel 4",
-//      TAG_LAYOUT,
-//      robotToCamera4,
-//      VISION_SIM
-//    ),
-//    VisionSubsystem(
-//      "arducam",
-//      TAG_LAYOUT,
-//      robotToCamera,
-//      VISION_SIM
-//    ),
-//    VisionSubsystem(
-//      "arducam2",
-//      TAG_LAYOUT,
-//      Transform3d(
-//        Translation3d(Units.inchesToMeters(11.48657), Units.inchesToMeters(-10.0), Units.inchesToMeters(8.3416)),
-//        Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(-45.0))
-//      ),
-//      VISION_SIM
-//    ),
-//    VisionSubsystem(
-//      "arducam3",
-//      TAG_LAYOUT,
-//      Transform3d(
-//        Translation3d(Units.inchesToMeters(11.48657), Units.inchesToMeters(10.0), Units.inchesToMeters(8.3416)),
-//        Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(45.0))
-//      ),
-//      VISION_SIM
-//    )
+    VisionSubsystem(
+      "back_right",
+      TAG_LAYOUT,
+      backRight,
+      VISION_SIM
+    ),
+    VisionSubsystem(
+      "front_left",
+      TAG_LAYOUT,
+      frontLeft,
+      VISION_SIM
+    ),
+    VisionSubsystem(
+      "front_right",
+      TAG_LAYOUT,
+      frontRight,
+      VISION_SIM
+    ),
   )
 
-  val ENCODER_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .125, .125, .015)
-  val SINGLE_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .125, .125, .80)
-  val MULTI_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .055, .055, .30)
+  val ENCODER_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .20, .20, .015)
+  val SINGLE_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .225, .225, Double.MAX_VALUE)
+  val MULTI_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .175, .175, .80)
 }

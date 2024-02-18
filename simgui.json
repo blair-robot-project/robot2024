@@ -102,7 +102,7 @@
             1.0,
             255.0
           ],
-          "style": "Hidden"
+          "style": "Box/Image"
         },
         "right": 2961,
         "top": 79,
@@ -135,12 +135,14 @@
       },
       "/SmartDashboard/VisionSystemSim-main/Sim Field": {
         "EstimatedRobot": {
+          "arrows": false,
           "color": [
             0.7058820724487305,
             0.0,
             1.0,
             255.0
-          ]
+          ],
+          "style": "Box/Image"
         },
         "Robot": {
           "color": [
@@ -150,6 +152,7 @@
             255.0
           ],
           "length": 0.8762999773025513,
+          "style": "Box/Image",
           "width": 0.8762999773025513
         },
         "VisionEstimation": {
@@ -164,7 +167,7 @@
         "bottom": 1476,
         "cameras": {
           "arrows": false,
-          "style": "Hidden"
+          "style": "Box/Image"
         },
         "height": 8.210550308227539,
         "image": "C:\\Users\\jpoth\\Downloads\\image(1).png",
@@ -196,6 +199,22 @@
         },
         "arducam2-processed": {
           "string[]##v_/CameraPublisher/arducam2-processed/streams": {
+            "open": true
+          }
+        },
+        "back_left-processed": {
+          "string[]##v_/CameraPublisher/back_left-processed/streams": {
+            "open": true
+          }
+        },
+        "back_right-raw": {
+          "string[]##v_/CameraPublisher/back_right-raw/streams": {
+            "open": true
+          }
+        },
+        "front_left-processed": {
+          "open": true,
+          "string[]##v_/CameraPublisher/front_left-processed/streams": {
             "open": true
           }
         },
@@ -282,7 +301,8 @@
             },
             "int[]##v_/Monologuing/robot/drive/2.7 Total Rejected Vision Sights": {
               "open": true
-            }
+            },
+            "open": true
           },
           "intake": {
             "double[]##v_/Monologuing/robot/intake/3.1 Intake 3D Position": {
@@ -290,9 +310,6 @@
             }
           },
           "open": true,
-          "shooter": {
-            "open": true
-          },
           "undertaker": {
             "open": true
           }
@@ -349,7 +366,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 599,
+          "height": 647,
           "series": [
             {
               "color": [
@@ -407,7 +424,10 @@
             }
           ]
         }
-      ]
+      ],
+      "window": {
+        "visible": false
+      }
     },
     "Plot <1>": {
       "plots": [
