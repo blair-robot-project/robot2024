@@ -33,7 +33,7 @@ class SwerveOrthogonalCommand(
   private var magAccClamped = 0.0
 
   private var rotScaled = 0.0
-  private val allianceCompensation = { if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) 0.0 else PI }
+  private val allianceCompensation = { if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) PI else 0.0 }
   private val directionCompensation = { if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) -1.0 else 1.0 }
 
   private var atGoal = true
@@ -75,15 +75,31 @@ class SwerveOrthogonalCommand(
     atGoal = true
   }
 
+  private fun snapToAngle(angle: Double) {
+    val desAngle = MathUtil.angleModulus(angle + allianceCompensation.invoke())
+    if (abs(desAngle - drive.heading.radians) > RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD
+      && abs(desAngle - drive.heading.radians) < 2 * PI - RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD) {
+      atGoal = false
+      rotCtrl.setpoint = desAngle
+    }
+  }
+
   override fun execute() {
     val currTime = timer.get()
     dt = currTime - prevTime
     prevTime = currTime
 
-    val ctrlX = if (abs(controller.leftY) < RobotConstants.TRANSLATION_DEADBAND) .0 else -controller.leftY
-    val ctrlY = if (abs(controller.leftX) < RobotConstants.TRANSLATION_DEADBAND) .0 else -controller.leftX
+    // val ctrlX = if (abs(controller.leftY) < RobotConstants.TRANSLATION_DEADBAND) .0 else -controller.leftY
+    // val ctrlY = if (abs(controller.leftX) < RobotConstants.TRANSLATION_DEADBAND) .0 else -controller.leftX
+    val ctrlX = -controller.leftY
+    val ctrlY = -controller.leftX
 
-    val ctrlRadius = sqrt(ctrlX.pow(2) + ctrlY.pow(2)).pow(SwerveConstants.JOYSTICK_FILTER_ORDER)
+    //val ctrlRadius = sqrt(ctrlX.pow(2) + ctrlY.pow(2)).pow(SwerveConstants.JOYSTICK_FILTER_ORDER)
+    val ctrlRadius = MathUtil.applyDeadband(
+      sqrt(ctrlX.pow(2) + ctrlY.pow(2)),
+      RobotConstants.DRIVE_RADIUS_DEADBAND,
+      1.0
+    ).pow(SwerveConstants.JOYSTICK_FILTER_ORDER)
 
     val ctrlTheta = atan2(ctrlY, ctrlX)
 
@@ -105,23 +121,11 @@ class SwerveOrthogonalCommand(
     prevY = yClamped
 
     if (controller.bButtonPressed) {
-      val desAngleX = MathUtil.angleModulus(5 * PI / 3 + allianceCompensation.invoke())
-      if (abs(desAngleX - drive.heading.radians) > 0.075 && abs(desAngleX - drive.heading.radians) < 2 * PI - 0.075) {
-        atGoal = false
-        rotCtrl.setpoint = desAngleX
-      }
+      snapToAngle(-PI / 3)
     } else if (controller.xButtonPressed) {
-      val desAngleB = MathUtil.angleModulus(7 * PI / 3 + allianceCompensation.invoke())
-      if (abs(desAngleB - drive.heading.radians) > 0.075 && abs(desAngleB - drive.heading.radians) < 2 * PI - 0.075) {
-        atGoal = false
-        rotCtrl.setpoint = desAngleB
-      }
+      snapToAngle(PI / 3)
     } else if (controller.aButtonPressed) {
-      val desAngleA = MathUtil.angleModulus(allianceCompensation.invoke())
-      if (abs(desAngleA - drive.heading.radians) > 0.075 && abs(desAngleA - drive.heading.radians) < 2 * PI - 0.075) {
-        atGoal = false
-        rotCtrl.setpoint = desAngleA
-      }
+      snapToAngle(0.0)
     }
 
     if (atGoal) {
@@ -172,8 +176,8 @@ class SwerveOrthogonalCommand(
 
   override fun initSendable(builder: SendableBuilder) {
     builder.publishConstString("1.0", "Controller X and Y Values")
-    builder.addDoubleProperty("1.1 currX", { if (abs(controller.leftY) < RobotConstants.TRANSLATION_DEADBAND) .0 else -controller.leftY }, null)
-    builder.addDoubleProperty("1.2 currY", { if (abs(controller.leftX) < RobotConstants.TRANSLATION_DEADBAND) .0 else -controller.leftX }, null)
+    builder.addDoubleProperty("1.1 currX", { if (abs(controller.leftY) < RobotConstants.DRIVE_RADIUS_DEADBAND) .0 else -controller.leftY }, null)
+    builder.addDoubleProperty("1.2 currY", { if (abs(controller.leftX) < RobotConstants.DRIVE_RADIUS_DEADBAND) .0 else -controller.leftX }, null)
     builder.addDoubleProperty("1.3 prevX", { prevX }, null)
     builder.addDoubleProperty("1.4 prevY", { prevY }, null)
 

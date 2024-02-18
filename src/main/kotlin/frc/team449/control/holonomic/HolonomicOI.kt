@@ -127,8 +127,8 @@ class HolonomicOI(
     fun createHolonomicOI(drive: HolonomicDrive, driveController: XboxController): HolonomicOI {
       return HolonomicOI(
         drive,
-        { if (abs(driveController.leftY) < RobotConstants.TRANSLATION_DEADBAND) .0 else -driveController.leftY },
-        { if (abs(driveController.leftX) < RobotConstants.TRANSLATION_DEADBAND) .0 else -driveController.leftX },
+        { if (abs(driveController.leftY) < RobotConstants.DRIVE_RADIUS_DEADBAND) .0 else -driveController.leftY },
+        { if (abs(driveController.leftX) < RobotConstants.DRIVE_RADIUS_DEADBAND) .0 else -driveController.leftX },
         { if (abs(driveController.getRawAxis(4)) < RobotConstants.ROTATION_DEADBAND) .0 else -driveController.getRawAxis(4) },
         SlewRateLimiter(RobotConstants.ROT_RATE_LIMIT, RobotConstants.NEG_ROT_RATE_LIM, 0.0),
         RobotConstants.MAX_ACCEL,
