@@ -51,7 +51,7 @@ class SwerveOrthogonalCommand(
   init {
     addRequirements(drive)
     rotCtrl.enableContinuousInput(-PI, PI)
-    rotCtrl.setTolerance(0.065)
+    rotCtrl.setTolerance(RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD)
   }
 
   override fun initialize() {

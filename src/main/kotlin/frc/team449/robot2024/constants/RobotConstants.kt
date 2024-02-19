@@ -18,7 +18,7 @@ object RobotConstants {
   const val NEG_ROT_RATE_LIM = -8.0 * PI
   const val DRIVE_RADIUS_DEADBAND = .125
   const val ROTATION_DEADBAND = .15
-  const val SNAP_TO_ANGLE_TOLERANCE_RAD = 0.075
+  val SNAP_TO_ANGLE_TOLERANCE_RAD = Units.degreesToRadians(5.0)
 
   /** In kilograms, include bumpers and battery and all */
   const val ROBOT_WEIGHT = 55.0
@@ -46,7 +46,7 @@ object RobotConstants {
 
   /** PID controller for Orthogonal turning */
   val ORTHOGONAL_CONTROLLER = PIDController(
-    2.0,
+    5.0,
     0.0,
     0.0
   )
