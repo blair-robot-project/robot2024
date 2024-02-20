@@ -20,7 +20,9 @@ object PivotConstants {
   const val ENC_INVERTED = true
 
   const val NUM_MOTORS = 2
-  const val MOMENT_OF_INERTIA = 0.631845006 + 0.010
+
+  /** Moment of inertia in m^2 kg given from CAD with a 0.05 m^2kg cushion for unmodeled objects */
+  const val MOMENT_OF_INERTIA = 0.570869 + 0.035
 
   const val EFFICIENCY = 1.0
 
