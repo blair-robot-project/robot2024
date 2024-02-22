@@ -14,9 +14,9 @@ object PivotConstants {
 
   /** Encoder stuff */
   const val ENC_CHANNEL = 0
-  const val OFFSET = -0.2125
   const val GEARING = 1.0 / 75.0
   const val UPR = 2 * PI / 1.5
+  const val OFFSET = -0.2125 + (0.150882 / UPR)
   const val ENC_INVERTED = true
 
   const val NUM_MOTORS = 2

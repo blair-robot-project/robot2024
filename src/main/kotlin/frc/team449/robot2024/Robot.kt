@@ -8,6 +8,7 @@ import frc.team449.RobotBase
 import frc.team449.control.holonomic.SwerveDrive
 import frc.team449.control.holonomic.SwerveOrthogonalCommand
 import frc.team449.robot2024.constants.RobotConstants
+import frc.team449.robot2024.subsystems.Climber.Companion.createClimber
 import frc.team449.robot2024.subsystems.Feeder.Companion.createFeeder
 import frc.team449.robot2024.subsystems.Undertaker.Companion.createUndertaker
 import frc.team449.robot2024.subsystems.pivot.Pivot.Companion.createPivot
@@ -52,5 +53,8 @@ class Robot : RobotBase(), Logged {
 
   @Log.NT
   val feeder = createFeeder()
+
+  val climber = createClimber(this)
+
   val infrared = DigitalInput(RobotConstants.IR_CHANNEL)
 }

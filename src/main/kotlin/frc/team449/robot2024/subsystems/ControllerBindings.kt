@@ -123,6 +123,18 @@ class ControllerBindings(
       robot.pivot.hold()
     )
 
+    robot.mechController.start().onTrue(
+      robot.climber.extend()
+    ).onFalse(
+      robot.climber.stop()
+    )
+
+    robot.mechController.back().onTrue(
+      robot.climber.retract()
+    ).onFalse(
+      robot.climber.stop()
+    )
+
     mechanismController.a().onTrue(
       robot.pivot.moveStow()
     )
