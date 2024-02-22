@@ -63,12 +63,11 @@ object ShooterConstants {
   const val LEFT_CHANNEL_A = 1
   const val LEFT_CHANNEL_B = 2
 
-  // check
   const val RIGHT_CHANNEL_A = 3
   const val RIGHT_CHANNEL_B = 4
   const val CPR = 2048
   const val UPR = 2 * PI
-  const val GEARING = 1.0 / 1.0
+  const val GEARING = 2.0 / 1.0
   const val LEFT_ENCODER_INVERTED = false
   const val RIGHT_ENCODER_INVERTED = false
   const val SAMPLES_TO_AVERAGE = 127

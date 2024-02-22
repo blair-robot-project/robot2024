@@ -1,11 +1,13 @@
 package frc.team449.robot2024.subsystems.pivot
 
 import edu.wpi.first.math.MathUtil
+import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
+import edu.wpi.first.math.controller.LinearQuadraticRegulator
+import edu.wpi.first.math.estimator.KalmanFilter
 import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N2
-import edu.wpi.first.math.system.LinearSystem
-import edu.wpi.first.math.system.LinearSystemLoop
+import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.util.sendable.SendableBuilder
@@ -19,16 +21,16 @@ import java.util.function.Supplier
 
 class PivotSim(
   private val motor: WrappedMotor,
-  loop: LinearSystemLoop<N2, N1, N1>,
-  system: LinearSystem<N2, N1, N1>,
+  controller: LinearQuadraticRegulator<N2, N1, N1>,
+  feedforward: LinearPlantInversionFeedforward<N2, N1, N1>,
+  observer: KalmanFilter<N3, N1, N1>,
   profile: TrapezoidProfile,
   robot: Robot
-) : Pivot(motor, loop, profile, robot) {
+) : Pivot(motor, controller, feedforward, observer, profile, robot) {
 
   private var currentState = Pair(0.0, 0.0)
 
   private val pivotSim = SingleJointedArmSim(
-    system,
     DCMotor(
       MotorConstants.NOMINAL_VOLTAGE,
       MotorConstants.STALL_TORQUE * PivotConstants.EFFICIENCY,
@@ -37,7 +39,8 @@ class PivotSim(
       MotorConstants.FREE_SPEED,
       PivotConstants.NUM_MOTORS
     ),
-    PivotConstants.GEARING,
+    1 / PivotConstants.GEARING,
+    PivotConstants.MOMENT_OF_INERTIA,
     PivotConstants.ARM_LENGTH,
     PivotConstants.MIN_ANGLE,
     PivotConstants.MAX_ANGLE,

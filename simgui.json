@@ -210,7 +210,6 @@
           }
         },
         "front_left-processed": {
-          "open": true,
           "string[]##v_/CameraPublisher/front_left-processed/streams": {
             "open": true
           }

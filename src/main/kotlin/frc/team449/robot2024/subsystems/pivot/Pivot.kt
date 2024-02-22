@@ -1,13 +1,13 @@
 package frc.team449.robot2024.subsystems.pivot
 
-import edu.wpi.first.math.MathUtil
-import edu.wpi.first.math.Nat
-import edu.wpi.first.math.VecBuilder
+import edu.wpi.first.math.*
+import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
 import edu.wpi.first.math.estimator.KalmanFilter
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N2
-import edu.wpi.first.math.system.LinearSystemLoop
+import edu.wpi.first.math.numbers.N3
+import edu.wpi.first.math.system.LinearSystem
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.math.trajectory.TrapezoidProfile
@@ -26,12 +26,15 @@ import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.DoubleSupplier
 import java.util.function.Supplier
+import kotlin.Pair
 import kotlin.math.abs
-import kotlin.math.sign
+import kotlin.math.pow
 
 open class Pivot(
   private val motor: WrappedMotor,
-  private val loop: LinearSystemLoop<N2, N1, N1>,
+  private val controller: LinearQuadraticRegulator<N2, N1, N1>,
+  private val feedforward: LinearPlantInversionFeedforward<N2, N1, N1>,
+  private val observer: KalmanFilter<N3, N1, N1>,
   private val profile: TrapezoidProfile,
   private val robot: Robot
 ) : SubsystemBase() {
@@ -45,19 +48,77 @@ open class Pivot(
   private var lastProfileReference = TrapezoidProfile.State(0.0, 0.0)
 
   init {
-    loop.reset(VecBuilder.fill(motor.position, motor.velocity))
+    controller.reset()
+
+    feedforward.reset(
+      VecBuilder.fill(
+        lastProfileReference.position,
+        lastProfileReference.velocity
+      )
+    )
+
+    observer.setXhat(
+      VecBuilder.fill(
+        lastProfileReference.position,
+        lastProfileReference.velocity,
+        0.0
+      )
+    )
+
     this.defaultCommand = hold()
+  }
+
+  /** Kalman Filter correct step */
+  private fun correct() {
+    observer.correct(
+      VecBuilder.fill(getVoltage()),
+      VecBuilder.fill(positionSupplier.get())
+    )
+  }
+
+  /** Give the LQR the next goal and do the KF predict step*/
+  private fun predict() {
+    val voltage = controller.calculate(
+      VecBuilder.fill(
+        observer.getXhat(0),
+        observer.getXhat(1)
+      ),
+      VecBuilder.fill(
+        lastProfileReference.position,
+        lastProfileReference.velocity
+      )
+    ).plus(
+      feedforward.calculate(
+        VecBuilder.fill(
+          lastProfileReference.position,
+          lastProfileReference.velocity
+        )
+      )
+    ).plus(
+      -observer.getXhat(2)
+    )
+
+    observer.predict(voltage, RobotConstants.LOOP_TIME)
+  }
+
+  private fun correctAndPredict() {
+    correct()
+    predict()
+  }
+
+  private fun getVoltage(): Double {
+    return MathUtil.clamp(
+      controller.getU(0) + feedforward.getUff(0) - observer.getXhat(2),
+      -PivotConstants.MAX_VOLTAGE,
+      PivotConstants.MAX_VOLTAGE
+    )
   }
 
   fun hold(): Command {
     return this.run {
       lastProfileReference = TrapezoidProfile.State(lastProfileReference.position, 0.0)
-
-      loop.setNextR(lastProfileReference.position, 0.0)
-      loop.correct(VecBuilder.fill(positionSupplier.get()))
-      loop.predict(RobotConstants.LOOP_TIME)
-
-      motor.setVoltage(loop.getU(0))
+      correctAndPredict()
+      motor.setVoltage(getVoltage())
     }
   }
 
@@ -113,11 +174,8 @@ open class Pivot(
       val distance = FieldConstants.SUBWOOFER_POSE.getDistance(robot.drive.pose.translation)
       val goal = ShooterConstants.SHOOTING_MAP.get(distance).get(2, 0)
 
-      loop.setNextR(goal, 0.0)
-      loop.correct(VecBuilder.fill(positionSupplier.get()))
-      loop.predict(RobotConstants.LOOP_TIME)
-
-      motor.setVoltage(loop.getU(0) + sign(lastProfileReference.velocity) * PivotConstants.KS)
+      correctAndPredict()
+      motor.setVoltage(getVoltage())
 
       lastProfileReference = TrapezoidProfile.State(goal, 0.0)
     }
@@ -126,11 +184,9 @@ open class Pivot(
   private fun moveToAngle(goal: Double) {
     lastProfileReference = profile.calculate(RobotConstants.LOOP_TIME, lastProfileReference, TrapezoidProfile.State(goal, 0.0))
 
-    loop.setNextR(lastProfileReference.position, lastProfileReference.velocity)
-    loop.correct(VecBuilder.fill(positionSupplier.get()))
-    loop.predict(RobotConstants.LOOP_TIME)
+    correctAndPredict()
 
-    motor.setVoltage(loop.getU(0) + sign(lastProfileReference.velocity) * PivotConstants.KS)
+    motor.setVoltage(getVoltage())
   }
 
   fun stop(): Command {
@@ -147,6 +203,10 @@ open class Pivot(
     builder.addDoubleProperty("2.2 Current Velocity", { velocitySupplier.get() }, null)
     builder.addDoubleProperty("2.3 Desired Position", { lastProfileReference.position }, null)
     builder.addDoubleProperty("2.4 Desired Velocity", { lastProfileReference.velocity }, null)
+    builder.publishConstString("3.0", "State Space Stuff")
+    builder.addDoubleProperty("3.1 Predicted Position", { observer.getXhat(0) }, null)
+    builder.addDoubleProperty("3.2 Predicted Velocity", { observer.getXhat(1) }, null)
+    builder.addDoubleProperty("3.3 Predicted Input Error", { -observer.getXhat(2) }, null)
   }
 
   companion object {
@@ -165,40 +225,84 @@ open class Pivot(
         slaveSparks = mapOf(Pair(PivotConstants.FOLLOWER_ID, PivotConstants.FOLLOWER_INVERTED))
       )
 
-      val plant = LinearSystemId.createSingleJointedArmSystem(
-        DCMotor(
-          MotorConstants.NOMINAL_VOLTAGE,
-          MotorConstants.STALL_TORQUE,
-          MotorConstants.STALL_CURRENT,
-          MotorConstants.FREE_CURRENT,
-          MotorConstants.FREE_SPEED,
-          PivotConstants.NUM_MOTORS
-        ),
+      val motorModel = DCMotor(
+        MotorConstants.NOMINAL_VOLTAGE,
+        MotorConstants.STALL_TORQUE,
+        MotorConstants.STALL_CURRENT,
+        MotorConstants.FREE_CURRENT,
+        MotorConstants.FREE_SPEED,
+        PivotConstants.NUM_MOTORS
+      )
+
+      val linearSystemIDPlant = LinearSystemId.createSingleJointedArmSystem(
+        motorModel,
         PivotConstants.MOMENT_OF_INERTIA,
         1 / PivotConstants.GEARING
       )
 
+      val A = MatBuilder.fill(
+        Nat.N3(),
+        Nat.N3(),
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        -PivotConstants.GEARING.pow(-2.0) * motorModel.KtNMPerAmp /
+          (motorModel.KvRadPerSecPerVolt * motorModel.rOhms * PivotConstants.MOMENT_OF_INERTIA),
+        PivotConstants.GEARING.pow(-1.0) * motorModel.KtNMPerAmp /
+          (motorModel.rOhms * PivotConstants.MOMENT_OF_INERTIA),
+        0.0,
+        0.0,
+        0.0
+      )
+
+      val B = MatBuilder.fill(
+        Nat.N3(),
+        Nat.N1(),
+        0.0,
+        PivotConstants.GEARING.pow(-1.0) * motorModel.KtNMPerAmp / (motorModel.rOhms * PivotConstants.MOMENT_OF_INERTIA),
+        0.0
+      )
+
+      val C = MatBuilder.fill(
+        Nat.N1(),
+        Nat.N3(),
+        1.0,
+        0.0,
+        0.0
+      )
+
+      val D = Matrix(Nat.N1(), Nat.N1())
+
+      val plant = LinearSystem(
+        A,
+        B,
+        C,
+        D
+      )
+
       val observer = KalmanFilter(
-        Nat.N2(),
+        Nat.N3(),
         Nat.N1(),
         plant,
-        VecBuilder.fill(PivotConstants.MODEL_POS_DEVIATION, PivotConstants.MODEL_VEL_DEVIATION),
+        VecBuilder.fill(
+          PivotConstants.MODEL_POS_DEVIATION,
+          PivotConstants.MODEL_VEL_DEVIATION,
+          PivotConstants.MODEL_ERROR_DEVIATION
+        ),
         VecBuilder.fill(PivotConstants.ENCODER_POS_DEVIATION),
         RobotConstants.LOOP_TIME
       )
 
       val controller = LinearQuadraticRegulator(
-        plant,
+        linearSystemIDPlant,
         VecBuilder.fill(PivotConstants.POS_TOLERANCE, PivotConstants.VEL_TOLERANCE),
         VecBuilder.fill(PivotConstants.CONTROL_EFFORT_VOLTS),
         RobotConstants.LOOP_TIME
       )
 
-      val loop = LinearSystemLoop(
-        plant,
-        controller,
-        observer,
-        PivotConstants.MAX_VOLTAGE,
+      val feedforward = LinearPlantInversionFeedforward(
+        linearSystemIDPlant,
         RobotConstants.LOOP_TIME
       )
 
@@ -210,9 +314,16 @@ open class Pivot(
       )
 
       return if (RobotBase.isReal()) {
-        Pivot(motor, loop, profile, robot)
+        Pivot(motor, controller, feedforward, observer, profile, robot)
       } else {
-        PivotSim(motor, loop, plant, profile, robot)
+        PivotSim(
+          motor,
+          controller,
+          feedforward,
+          observer,
+          profile,
+          robot
+        )
       }
     }
   }
