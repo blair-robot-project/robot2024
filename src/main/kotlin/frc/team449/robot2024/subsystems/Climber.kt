@@ -37,33 +37,40 @@ class Climber(
 
   fun extend(): Command {
     return this.run {
-      if (rightMotor.position < ClimberConstants.MAX_ENC_POS) {
-        rightMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
-      } else {
-        rightMotor.setVoltage(0.0)
-      }
+      rightMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
+      leftMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
 
-      if (leftMotor.position > ClimberConstants.MAX_ENC_POS) {
-        leftMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
-      } else {
-        leftMotor.setVoltage(0.0)
-      }
+//      if (rightMotor.position < ClimberConstants.MAX_ENC_POS) {
+//        rightMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
+//      } else {
+//        rightMotor.setVoltage(0.0)
+//      }
+//
+//      if (leftMotor.position < ClimberConstants.MAX_ENC_POS) {
+//        leftMotor.setVoltage(ClimberConstants.EXTEND_VOLTAGE)
+//      } else {
+//        leftMotor.setVoltage(0.0)
+//      }
     }
   }
 
   fun retract(): Command {
     return this.run {
-      if (rightMotor.position > ClimberConstants.MIN_ENC_POS) {
-        rightMotor.setVoltage(ClimberConstants.RETRACT_VOLTAGE)
-      } else {
-        rightMotor.setVoltage(0.0)
-      }
+      rightMotor.setVoltage(ClimberConstants.RETRACT_VOLTAGE)
+      leftMotor.setVoltage(ClimberConstants.RETRACT_VOLTAGE)
 
-      if (leftMotor.position > ClimberConstants.MIN_ENC_POS) {
-        leftMotor.setVoltage(ClimberConstants.RETRACT_VOLTAGE)
-      } else {
-        leftMotor.setVoltage(0.0)
-      }
+
+//      if (rightMotor.position > ClimberConstants.MIN_ENC_POS) {
+//        rightMotor.setVoltage(ClimberConstants.RETRACT_VOLTAGE)
+//      } else {
+//        rightMotor.setVoltage(0.0)
+//      }
+//
+//      if (leftMotor.position > ClimberConstants.MIN_ENC_POS) {
+//        leftMotor.setVoltage(ClimberConstants.RETRACT_VOLTAGE)
+//      } else {
+//        leftMotor.setVoltage(0.0)
+//      }
     }
   }
 
