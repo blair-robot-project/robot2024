@@ -59,7 +59,6 @@ class Climber(
       rightMotor.setVoltage(ClimberConstants.RETRACT_VOLTAGE)
       leftMotor.setVoltage(ClimberConstants.RETRACT_VOLTAGE)
 
-
 //      if (rightMotor.position > ClimberConstants.MIN_ENC_POS) {
 //        rightMotor.setVoltage(ClimberConstants.RETRACT_VOLTAGE)
 //      } else {
