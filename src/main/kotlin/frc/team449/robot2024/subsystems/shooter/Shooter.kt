@@ -370,8 +370,10 @@ open class Shooter(
           MatBuilder.fill(
             Nat.N2(),
             Nat.N2(),
-            -ShooterConstants.LEFT_KV / ShooterConstants.LEFT_KA, ShooterConstants.LEFT_KA.pow(-1.0),
-            0.0, 0.0
+            -ShooterConstants.LEFT_KV / ShooterConstants.LEFT_KA,
+            ShooterConstants.LEFT_KA.pow(-1.0),
+            0.0,
+            0.0
           ),
           MatBuilder.fill(
             Nat.N2(),
@@ -399,8 +401,10 @@ open class Shooter(
           MatBuilder.fill(
             Nat.N2(),
             Nat.N2(),
-            -ShooterConstants.RIGHT_KV / ShooterConstants.RIGHT_KA, ShooterConstants.RIGHT_KA.pow(-1.0),
-            0.0, 0.0
+            -ShooterConstants.RIGHT_KV / ShooterConstants.RIGHT_KA,
+            ShooterConstants.RIGHT_KA.pow(-1.0),
+            0.0,
+            0.0
           ),
           MatBuilder.fill(
             Nat.N2(),
