@@ -57,12 +57,10 @@ open class Pivot(
       )
     )
 
-    observer.setXhat(
-      VecBuilder.fill(
-        lastProfileReference.position,
-        lastProfileReference.velocity,
-        0.0
-      )
+    observer.xhat = VecBuilder.fill(
+      lastProfileReference.position,
+      lastProfileReference.velocity,
+      0.0
     )
 
     this.defaultCommand = hold()
@@ -203,10 +201,12 @@ open class Pivot(
     builder.addDoubleProperty("2.2 Current Velocity", { velocitySupplier.get() }, null)
     builder.addDoubleProperty("2.3 Desired Position", { lastProfileReference.position }, null)
     builder.addDoubleProperty("2.4 Desired Velocity", { lastProfileReference.velocity }, null)
+    builder.addDoubleProperty("2.5 Error", { lastProfileReference.position - positionSupplier.get() }, null)
     builder.publishConstString("3.0", "State Space Stuff")
     builder.addDoubleProperty("3.1 Predicted Position", { observer.getXhat(0) }, null)
     builder.addDoubleProperty("3.2 Predicted Velocity", { observer.getXhat(1) }, null)
     builder.addDoubleProperty("3.3 Predicted Input Error", { -observer.getXhat(2) }, null)
+    builder.addDoubleProperty("3.4 Predicted State Error", { lastProfileReference.position - observer.getXhat(0) }, null)
   }
 
   companion object {

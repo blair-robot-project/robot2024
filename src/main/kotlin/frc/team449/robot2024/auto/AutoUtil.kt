@@ -17,7 +17,7 @@ object AutoUtil {
     return ParallelCommandGroup(
       SequentialCommandGroup(
         robot.undertaker.intake(),
-        robot.feeder.autoIntake(),
+        robot.feeder.slowIntake(),
         WaitUntilCommand { !robot.infrared.get() },
         robot.undertaker.stop(),
         robot.feeder.outtake(),
@@ -33,7 +33,7 @@ object AutoUtil {
       SequentialCommandGroup(
         robot.pivot.moveStow(),
         robot.undertaker.intake(),
-        robot.feeder.autoIntake(),
+        robot.feeder.slowIntake(),
         WaitUntilCommand { !robot.infrared.get() },
         robot.undertaker.stop(),
         robot.feeder.outtake(),

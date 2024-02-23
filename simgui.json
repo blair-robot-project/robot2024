@@ -179,7 +179,10 @@
           "selectable": false,
           "style": "Hidden"
         },
-        "width": 16.541748046875
+        "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
       }
     }
   },
@@ -312,6 +315,9 @@
         }
       },
       "Shuffleboard": {
+        ".metadata": {
+          "open": true
+        },
         "SwerveSim": {
           "BLModule": {
             "BLDrive": {

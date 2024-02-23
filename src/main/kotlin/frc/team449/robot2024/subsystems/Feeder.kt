@@ -24,9 +24,9 @@ class Feeder(
     }
   }
 
-  fun autoIntake(): Command {
+  fun slowIntake(): Command {
     return this.runOnce {
-      motor.setVoltage(FeederConstants.AUTO_INTAKE_VOLTAGE)
+      motor.setVoltage(FeederConstants.SLOW_INTAKE_VOLTAGE)
     }
   }
 
