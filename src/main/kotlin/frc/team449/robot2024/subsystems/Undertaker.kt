@@ -18,6 +18,12 @@ class Undertaker(
     }
   }
 
+  fun slowIntake(): Command {
+    return this.runOnce {
+      motor.setVoltage(UndertakerConstants.SLOW_INTAKE_VOLTAGE)
+    }
+  }
+
   fun outtake(): Command {
     return this.runOnce {
       motor.setVoltage(UndertakerConstants.REVERSE_VOLTAGE)

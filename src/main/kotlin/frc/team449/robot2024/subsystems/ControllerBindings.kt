@@ -123,13 +123,13 @@ class ControllerBindings(
       robot.pivot.hold()
     )
 
-    robot.mechController.start().onTrue(
+    robot.mechController.povUp().onTrue(
       robot.climber.extend()
     ).onFalse(
       robot.climber.stop()
     )
 
-    robot.mechController.back().onTrue(
+    robot.mechController.povDown().onTrue(
       robot.climber.retract()
     ).onFalse(
       robot.climber.stop()
@@ -164,11 +164,17 @@ class ControllerBindings(
     )
 
     driveController.rightTrigger().onTrue(
-      intakePiece().andThen(
+      SequentialCommandGroup(
+        intakePiece(),
+        slowIntake(),
         outtakeToNotePosition()
       )
     ).onFalse(
-      outtakeToNotePosition()
+      SequentialCommandGroup(
+        slowIntake(),
+        outtakeToNotePosition(),
+        stopAll()
+      )
     )
 
     mechanismController.leftBumper().onTrue(
@@ -182,6 +188,7 @@ class ControllerBindings(
 
     mechanismController.rightBumper().onTrue(
       SequentialCommandGroup(
+        slowIntake(),
         outtakeToNotePosition(),
         robot.shooter.shootSubwoofer()
       )
@@ -244,9 +251,21 @@ class ControllerBindings(
     return SequentialCommandGroup(
       robot.undertaker.intake(),
       robot.feeder.intake(),
-      WaitUntilCommand { !robot.infrared.get() },
-      stopAll()
+      WaitUntilCommand { !robot.infrared.get() }
     )
+  }
+
+  private fun slowIntake(): Command {
+    return ConditionalCommand(
+      SequentialCommandGroup(
+        ParallelCommandGroup(
+          robot.undertaker.slowIntake(),
+          robot.feeder.slowIntake(),
+        ),
+        WaitUntilCommand { !robot.closeToShooterInfrared.get() }
+      ),
+      InstantCommand()
+    ) { robot.closeToShooterInfrared.get() }
   }
 
   private fun outtakeToNotePosition(): Command {
@@ -254,8 +273,9 @@ class ControllerBindings(
       SequentialCommandGroup(
         robot.undertaker.stop(),
         robot.feeder.outtake(),
-        WaitUntilCommand { robot.infrared.get() },
-        robot.feeder.stop()
+        WaitUntilCommand { robot.closeToShooterInfrared.get() },
+        robot.feeder.stop(),
+        robot.shooter.rampStop()
       ),
       stopAll()
     ) { !robot.infrared.get() }

@@ -10,6 +10,7 @@ object UndertakerConstants {
   const val GEARING = 1.0 / 3.0
 
   const val INTAKE_VOLTAGE = 12.0
+  const val SLOW_INTAKE_VOLTAGE = 4.0
   const val REVERSE_VOLTAGE = -12.0
 
   const val BRAKE_MODE = false
