@@ -1,12 +1,13 @@
 package frc.team449.robot2024.subsystems.shooter
 
-import edu.wpi.first.math.Nat
-import edu.wpi.first.math.VecBuilder
+import edu.wpi.first.math.*
+import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
 import edu.wpi.first.math.estimator.KalmanFilter
 import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.math.numbers.N1
-import edu.wpi.first.math.system.LinearSystemLoop
+import edu.wpi.first.math.numbers.N2
+import edu.wpi.first.math.system.LinearSystem
 import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
@@ -20,14 +21,20 @@ import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
+import kotlin.Pair
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.sign
 
 open class Shooter(
   val rightMotor: WrappedMotor,
   val leftMotor: WrappedMotor,
-  private val rightLoop: LinearSystemLoop<N1, N1, N1>,
-  private val leftLoop: LinearSystemLoop<N1, N1, N1>,
+  private val leftController: LinearQuadraticRegulator<N1, N1, N1>,
+  private val rightController: LinearQuadraticRegulator<N1, N1, N1>,
+  private val leftObserver: KalmanFilter<N2, N1, N1>,
+  private val rightObserver: KalmanFilter<N2, N1, N1>,
+  private val leftFeedforward: LinearPlantInversionFeedforward<N1, N1, N1>,
+  private val rightFeedforward: LinearPlantInversionFeedforward<N1, N1, N1>,
   private val robot: Robot
 ) : SubsystemBase() {
 
@@ -44,13 +51,108 @@ open class Shooter(
   private val rightRateLimiter = SlewRateLimiter(ShooterConstants.BRAKE_RATE_LIMIT)
 
   init {
+    leftController.reset()
+
+    leftFeedforward.reset(
+      VecBuilder.fill(
+        desiredVels.first
+      )
+    )
+
+    leftObserver.xhat = VecBuilder.fill(
+      desiredVels.first,
+      0.0
+    )
+
+    rightController.reset()
+
+    rightFeedforward.reset(
+      VecBuilder.fill(
+        desiredVels.first
+      )
+    )
+
+    rightObserver.xhat = VecBuilder.fill(
+      desiredVels.first,
+      0.0
+    )
+
     this.defaultCommand = updateOnly()
+  }
+
+  private fun correct() {
+    val voltages = getVoltages()
+
+    leftObserver.correct(
+      VecBuilder.fill(voltages.first),
+      VecBuilder.fill(leftVelocity.get())
+    )
+
+    rightObserver.correct(
+      VecBuilder.fill(voltages.second),
+      VecBuilder.fill(rightVelocity.get())
+    )
+  }
+
+  private fun predict() {
+    val leftVoltage = leftController.calculate(
+      VecBuilder.fill(
+        leftObserver.getXhat(0)
+      ),
+      VecBuilder.fill(
+        desiredVels.first
+      )
+    ).plus(
+      leftFeedforward.calculate(
+        VecBuilder.fill(
+          desiredVels.first
+        )
+      )
+    ).plus(
+      -leftObserver.getXhat(1)
+    )
+
+    leftObserver.predict(leftVoltage, RobotConstants.LOOP_TIME)
+
+    val rightVoltage = rightController.calculate(
+      VecBuilder.fill(
+        rightObserver.getXhat(0)
+      ),
+      VecBuilder.fill(
+        desiredVels.second
+      )
+    ).plus(
+      rightFeedforward.calculate(
+        VecBuilder.fill(
+          desiredVels.second
+        )
+      )
+    ).plus(
+      -rightObserver.getXhat(1)
+    )
+
+    rightObserver.predict(rightVoltage, RobotConstants.LOOP_TIME)
+  }
+
+  private fun getVoltages(): Pair<Double, Double> {
+    val leftVoltage = MathUtil.clamp(
+      leftController.getU(0) + leftFeedforward.getUff(0) - leftObserver.getXhat(1),
+      -ShooterConstants.MAX_VOLTAGE,
+      ShooterConstants.MAX_VOLTAGE
+    )
+
+    val rightVoltage = MathUtil.clamp(
+      rightController.getU(0) + rightFeedforward.getUff(0) - rightObserver.getXhat(1),
+      -ShooterConstants.MAX_VOLTAGE,
+      ShooterConstants.MAX_VOLTAGE
+    )
+
+    return Pair(leftVoltage, rightVoltage)
   }
 
   fun updateOnly(): Command {
     return this.run {
-      leftLoop.correct(VecBuilder.fill(leftVelocity.get()))
-      rightLoop.correct(VecBuilder.fill(rightVelocity.get()))
+      correct()
     }
   }
 
@@ -136,31 +238,23 @@ open class Shooter(
 
   private fun shootPiece(rightSpeed: Double, leftSpeed: Double) {
     if (DriverStation.isDisabled()) {
-      rightLoop.correct(VecBuilder.fill(rightVelocity.get()))
-      leftLoop.correct(VecBuilder.fill(leftVelocity.get()))
+      correct()
     } else {
-      rightLoop.nextR = VecBuilder.fill(rightSpeed)
-      leftLoop.nextR = VecBuilder.fill(leftSpeed)
-
       desiredVels = Pair(leftSpeed, rightSpeed)
 
-      rightLoop.correct(VecBuilder.fill(rightVelocity.get()))
-      leftLoop.correct(VecBuilder.fill(leftVelocity.get()))
+      correct()
+      predict()
 
-      rightLoop.predict(RobotConstants.LOOP_TIME)
-      leftLoop.predict(RobotConstants.LOOP_TIME)
+      val voltages = getVoltages()
 
-      rightMotor.setVoltage(rightLoop.getU(0) + sign(rightSpeed) * ShooterConstants.RIGHT_KS)
-      leftMotor.setVoltage(leftLoop.getU(0) + sign(leftSpeed) * ShooterConstants.LEFT_KS)
+      rightMotor.setVoltage(voltages.second + sign(rightSpeed) * ShooterConstants.RIGHT_KS)
+      leftMotor.setVoltage(voltages.first + sign(leftSpeed) * ShooterConstants.LEFT_KS)
     }
   }
 
   fun coast(): Command {
     val cmd = this.runOnce {
       desiredVels = Pair(0.0, 0.0)
-
-      rightLoop.nextR = VecBuilder.fill(0.0)
-      leftLoop.nextR = VecBuilder.fill(0.0)
 
       leftMotor.setVoltage(0.0)
       rightMotor.setVoltage(0.0)
@@ -217,13 +311,16 @@ open class Shooter(
     builder.addDoubleProperty("2.3 Left Desired Speed", { desiredVels.first }, null)
     builder.addDoubleProperty("2.4 Right Desired Speed", { desiredVels.second }, null)
     builder.publishConstString("3.0", "Velocity Errors")
-    builder.addDoubleProperty("3.1 Left Vel Error Pred", { leftLoop.error.get(0, 0) }, null)
-    builder.addDoubleProperty("3.2 Right Vel Error Pred", { rightLoop.error.get(0, 0) }, null)
+    builder.addDoubleProperty("3.1 Left Vel Error Pred", { leftObserver.getXhat(0) - desiredVels.first }, null)
+    builder.addDoubleProperty("3.2 Right Vel Error Pred", { rightObserver.getXhat(0) - desiredVels.second }, null)
     builder.addDoubleProperty("3.3 Left Vel Error", { leftVelocity.get() - desiredVels.first }, null)
     builder.addDoubleProperty("3.4 Right Vel Error", { rightVelocity.get() - desiredVels.second }, null)
     builder.publishConstString("4.0", "Encoder Positions")
     builder.addDoubleProperty("4.1 Left Enc Pos", { leftMotor.position }, null)
     builder.addDoubleProperty("4.2 Left Enc Pos", { rightMotor.position }, null)
+    builder.publishConstString("5.0", "Input Err Estimation")
+    builder.addDoubleProperty("5.1 Left Inpt Err Voltage", { -leftObserver.getXhat(1) }, null)
+    builder.addDoubleProperty("5.2 Right Inpt Err Voltage", { -rightObserver.getXhat(1) }, null)
   }
 
   companion object {
@@ -267,19 +364,59 @@ open class Shooter(
       )
 
       val leftObserver = KalmanFilter(
+        Nat.N2(),
         Nat.N1(),
-        Nat.N1(),
-        leftPlant,
-        VecBuilder.fill(ShooterConstants.MODEL_VEL_STDDEV),
+        LinearSystem(
+          MatBuilder.fill(
+            Nat.N2(),
+            Nat.N2(),
+            -ShooterConstants.LEFT_KV / ShooterConstants.LEFT_KA, ShooterConstants.LEFT_KA.pow(-1.0),
+            0.0, 0.0
+          ),
+          MatBuilder.fill(
+            Nat.N2(),
+            Nat.N1(),
+            ShooterConstants.LEFT_KA.pow(-1.0),
+            0.0
+          ),
+          MatBuilder.fill(
+            Nat.N1(),
+            Nat.N2(),
+            1.0,
+            0.0
+          ),
+          Matrix(Nat.N1(), Nat.N1())
+        ),
+        VecBuilder.fill(ShooterConstants.MODEL_VEL_STDDEV, ShooterConstants.INPT_ERR_STDDEV),
         VecBuilder.fill(ShooterConstants.ENCODER_VEL_STDDEV),
         RobotConstants.LOOP_TIME
       )
 
       val rightObserver = KalmanFilter(
+        Nat.N2(),
         Nat.N1(),
-        Nat.N1(),
-        rightPlant,
-        VecBuilder.fill(ShooterConstants.MODEL_VEL_STDDEV),
+        LinearSystem(
+          MatBuilder.fill(
+            Nat.N2(),
+            Nat.N2(),
+            -ShooterConstants.RIGHT_KV / ShooterConstants.RIGHT_KA, ShooterConstants.RIGHT_KA.pow(-1.0),
+            0.0, 0.0
+          ),
+          MatBuilder.fill(
+            Nat.N2(),
+            Nat.N1(),
+            ShooterConstants.RIGHT_KA.pow(-1.0),
+            0.0
+          ),
+          MatBuilder.fill(
+            Nat.N1(),
+            Nat.N2(),
+            1.0,
+            0.0
+          ),
+          Matrix(Nat.N1(), Nat.N1())
+        ),
+        VecBuilder.fill(ShooterConstants.MODEL_VEL_STDDEV, ShooterConstants.INPT_ERR_STDDEV),
         VecBuilder.fill(ShooterConstants.ENCODER_VEL_STDDEV),
         RobotConstants.LOOP_TIME
       )
@@ -298,23 +435,43 @@ open class Shooter(
         RobotConstants.LOOP_TIME
       )
 
-      val rightLoop = LinearSystemLoop(
-        rightPlant,
-        rightController,
-        rightObserver,
-        ShooterConstants.MAX_VOLTAGE,
-        RobotConstants.LOOP_TIME
-      )
-
-      val leftLoop = LinearSystemLoop(
+      val leftFeedforward = LinearPlantInversionFeedforward(
         leftPlant,
-        leftController,
-        leftObserver,
-        ShooterConstants.MAX_VOLTAGE,
         RobotConstants.LOOP_TIME
       )
 
-      return if (RobotBase.isReal()) Shooter(rightMotor, leftMotor, rightLoop, leftLoop, robot) else ShooterSim(rightMotor, leftMotor, rightLoop, leftLoop, robot, rightPlant, leftPlant)
+      val rightFeedforward = LinearPlantInversionFeedforward(
+        rightPlant,
+        RobotConstants.LOOP_TIME
+      )
+
+      return if (RobotBase.isReal()) {
+        Shooter(
+          rightMotor,
+          leftMotor,
+          leftController,
+          rightController,
+          leftObserver,
+          rightObserver,
+          leftFeedforward,
+          rightFeedforward,
+          robot
+        )
+      } else {
+        ShooterSim(
+          rightMotor,
+          leftMotor,
+          leftController,
+          rightController,
+          leftObserver,
+          rightObserver,
+          leftFeedforward,
+          rightFeedforward,
+          leftPlant,
+          rightPlant,
+          robot
+        )
+      }
     }
   }
 }
