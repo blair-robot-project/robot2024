@@ -114,9 +114,7 @@ open class Pivot(
 
   fun hold(): Command {
     return this.run {
-      lastProfileReference = TrapezoidProfile.State(lastProfileReference.position, 0.0)
-      correctAndPredict()
-      motor.setVoltage(getVoltage())
+      moveToAngle(lastProfileReference.position)
     }
   }
 

@@ -108,9 +108,9 @@ open class Shooter(
           desiredVels.first
         )
       )
-    ).plus(
-      -leftObserver.getXhat(1)
-    )
+    ) // .plus(
+//      -leftObserver.getXhat(1)
+//    )
 
     leftObserver.predict(leftVoltage, RobotConstants.LOOP_TIME)
 
@@ -127,22 +127,22 @@ open class Shooter(
           desiredVels.second
         )
       )
-    ).plus(
-      -rightObserver.getXhat(1)
-    )
+    ) // .plus(
+//      -rightObserver.getXhat(1)
+//    )
 
     rightObserver.predict(rightVoltage, RobotConstants.LOOP_TIME)
   }
 
   private fun getVoltages(): Pair<Double, Double> {
     val leftVoltage = MathUtil.clamp(
-      leftController.getU(0) + leftFeedforward.getUff(0) - leftObserver.getXhat(1),
+      leftController.getU(0) + leftFeedforward.getUff(0), // - leftObserver.getXhat(1),
       -ShooterConstants.MAX_VOLTAGE,
       ShooterConstants.MAX_VOLTAGE
     )
 
     val rightVoltage = MathUtil.clamp(
-      rightController.getU(0) + rightFeedforward.getUff(0) - rightObserver.getXhat(1),
+      rightController.getU(0) + rightFeedforward.getUff(0), // - rightObserver.getXhat(1),
       -ShooterConstants.MAX_VOLTAGE,
       ShooterConstants.MAX_VOLTAGE
     )

@@ -31,12 +31,12 @@ object ShooterConstants {
 
   val SHOOTING_MAP = InterpolatingMatrixTreeMap<Double, N3, N1>()
 
-  const val LEFT_KS = (0.10843 + 0.11944) / 2
-  const val RIGHT_KS = (0.11509 + 0.11287) / 2
-  const val LEFT_KV = (0.0204 + 0.020384) / 2
-  const val RIGHT_KV = (0.021071 + 0.021073) / 2
-  const val LEFT_KA = (0.0056603 + 0.0053949) / 2
-  const val RIGHT_KA = (0.0053768 + 0.0055329) / 2
+  const val LEFT_KS = 0.051294
+  const val RIGHT_KS = 0.067149
+  const val LEFT_KV = 0.012064
+  const val RIGHT_KV = 0.01155
+  const val LEFT_KA = 0.011574
+  const val RIGHT_KA = 0.0071641
 
   const val AMP_SCORE_VOLTAGE = 4.144
   const val DURING_INTAKE_VOLTAGE = -1.0
@@ -44,23 +44,23 @@ object ShooterConstants {
   /** In meters from the ground */
   const val SHOOTER_HEIGHT = 0.25
 
-  const val IN_TOLERANCE = 5.0
+  const val IN_TOLERANCE = 25.0
 
   /** These constants are PER SIDE of the shooter */
   const val NUM_MOTORS = 1
 
   const val MODEL_VEL_STDDEV = 3.0
-  const val INPT_ERR_STDDEV = 0.1
+  const val INPT_ERR_STDDEV = 0.25
   const val ENCODER_VEL_STDDEV = 0.01
-  const val LQR_VEL_TOL = 2.5
+  const val LQR_VEL_TOL = 15.0
   const val LQR_MAX_VOLTS = 12.0
   const val MAX_VOLTAGE = 12.0
 
   const val MIN_RAMP_VEL = 50.0
 
   /** Encoder stuff */
-  const val INTERNAL_ENC_DEPTH = 2
-  const val INTERNAL_MEASUREMENT_PD = 16
+  const val INTERNAL_ENC_DEPTH = 4
+  const val INTERNAL_MEASUREMENT_PD = 24
   const val LEFT_CHANNEL_A = 1
   const val LEFT_CHANNEL_B = 2
 

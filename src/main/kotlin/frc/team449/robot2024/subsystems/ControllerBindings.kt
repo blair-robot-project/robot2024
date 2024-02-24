@@ -43,7 +43,11 @@ class ControllerBindings(
   private val m_velocity = mutable(RadiansPerSecond.of(0.0))
 
   val shooterRoutine = SysIdRoutine(
-    SysIdRoutine.Config(),
+    SysIdRoutine.Config(
+      Volts.of(0.70).per(Seconds.of(1.0)),
+      Volts.of(6.0),
+      Seconds.of(10.0)
+    ),
     Mechanism(
       { voltage: Measure<Voltage> ->
         run {
