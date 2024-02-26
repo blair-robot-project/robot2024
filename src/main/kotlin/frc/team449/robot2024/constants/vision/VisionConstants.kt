@@ -14,6 +14,7 @@ import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.math.util.Units
 import frc.team449.control.vision.VisionSubsystem
+import org.photonvision.PhotonCamera
 import org.photonvision.estimation.TargetModel
 import org.photonvision.simulation.VisionSystemSim
 
@@ -33,7 +34,14 @@ object VisionConstants {
     AprilTagFields.k2024Crescendo.m_resourceFile
   )
 
-  /** Robot to Camera distance */
+  /** Object Detection */
+  val noteCam = PhotonCamera("note-cam")
+
+  const val CAMERA_HEIGHT_METERS = 0.0
+  const val TARGET_HEIGHT_METERS = 0.0
+  const val CAMERA_PITCH_RADIANS = 0.0
+
+  /** Robot to Camera Distance */
   val frontLeft = Transform3d(
     Translation3d(Units.inchesToMeters(9.143), Units.inchesToMeters(12.662), Units.inchesToMeters(15.4953)),
     Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(45.0))

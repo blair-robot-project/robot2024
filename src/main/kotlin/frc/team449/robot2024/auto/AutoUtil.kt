@@ -3,13 +3,18 @@ package frc.team449.robot2024.auto
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.Nat
+import edu.wpi.first.math.kinematics.ChassisSpeeds
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
 import frc.team449.control.auto.ChoreoTrajectory
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.auto.AutoConstants
 import frc.team449.robot2024.constants.field.FieldConstants
+import frc.team449.robot2024.constants.vision.VisionConstants
+import org.photonvision.PhotonUtils
 import kotlin.math.PI
+
 
 object AutoUtil {
 
@@ -85,6 +90,41 @@ object AutoUtil {
       ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!"))
     ) { RobotBase.isReal() }
   }
+
+  fun detectPiece(robot: Robot): Command {
+    val cmd = FunctionalCommand(
+      {},
+      {
+        val result = VisionConstants.noteCam.latestResult
+
+        if (result.hasTargets()) {
+          val target = result.bestTarget
+
+          val range = PhotonUtils.calculateDistanceToTargetMeters(
+            VisionConstants.CAMERA_HEIGHT_METERS,
+            VisionConstants.TARGET_HEIGHT_METERS,
+            VisionConstants.CAMERA_PITCH_RADIANS,
+            Units.degreesToRadians(target.pitch)
+          )
+
+          robot.drive.set(
+            ChassisSpeeds.fromRobotRelativeSpeeds(
+              -AutoConstants.X_CONTROLLER.calculate(range, 0.0),
+              0.0,
+              -AutoConstants.ROT_CONTROLLER.calculate(target.yaw, 0.0),
+              robot.ahrs.heading
+            )
+          )
+        }
+      },
+      {},
+      { !VisionConstants.noteCam.latestResult.hasTargets() },
+      robot.drive
+    )
+
+    return cmd
+  }
+
 
   fun transformForRed(pathGroup: MutableList<ChoreoTrajectory>): MutableList<ChoreoTrajectory> {
     for (index in 0 until pathGroup.size) {

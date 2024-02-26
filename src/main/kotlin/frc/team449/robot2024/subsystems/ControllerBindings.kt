@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
 import frc.team449.control.holonomic.SwerveSim
 import frc.team449.robot2024.Robot
+import frc.team449.robot2024.auto.AutoUtil
 import frc.team449.robot2024.commands.driveAlign.OrbitAlign
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
@@ -117,6 +118,11 @@ class ControllerBindings(
   }
 
   private fun robotBindings() {
+    driveController.povUp().onTrue(
+      AutoUtil.detectPiece(robot)
+    )
+
+
     mechanismController.y().onTrue(
       robot.pivot.moveAmp()
     )
