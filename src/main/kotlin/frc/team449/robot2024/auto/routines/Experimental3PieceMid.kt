@@ -15,14 +15,16 @@ class Experimental3PieceMid(
     ChoreoRoutine(
       drive = robot.drive,
       parallelEventMap = hashMapOf(
-        0 to AutoUtil.autoIntake(robot)
+        0 to AutoUtil.autoIntake(robot),
+        1 to AutoUtil.autoIntake(robot),
+        2 to AutoUtil.autoIntake(robot),
       ),
       stopEventMap = hashMapOf(
         0 to AutoUtil.autoShoot(robot),
         1 to AutoUtil.autoShoot(robot),
         2 to AutoUtil.autoShoot(robot)
       ),
-      debug = true
+      debug = false
     )
 
   override val trajectory: MutableList<ChoreoTrajectory> =

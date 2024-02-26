@@ -24,9 +24,7 @@ import frc.team449.robot2024.constants.subsystem.ShooterConstants
 import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
-import java.util.function.DoubleSupplier
 import java.util.function.Supplier
-import kotlin.Pair
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -115,6 +113,7 @@ open class Pivot(
   fun hold(): Command {
     return this.run {
       moveToAngle(lastProfileReference.position)
+      observer.setXhat(2, 0.0)
     }
   }
 
@@ -141,23 +140,38 @@ open class Pivot(
       abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_TOL
   }
 
-  fun manualMovement(axisSupplier: DoubleSupplier): Command {
+  fun manualUp(): Command {
     val cmd = this.run {
       moveToAngle(
         MathUtil.clamp(
-          lastProfileReference.position + axisSupplier.asDouble * PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 4,
+          lastProfileReference.position + PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 8,
           PivotConstants.MIN_ANGLE,
           PivotConstants.MAX_ANGLE
         )
       )
     }
-    cmd.name = "manual movement"
+    cmd.name = "manual movement up"
+    return cmd
+  }
+
+  fun manualDown(): Command {
+    val cmd = this.run {
+      moveToAngle(
+        MathUtil.clamp(
+          lastProfileReference.position - PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 8,
+          PivotConstants.MIN_ANGLE,
+          PivotConstants.MAX_ANGLE
+        )
+      )
+    }
+    cmd.name = "manual movement down"
     return cmd
   }
 
   fun moveStow(): Command {
     return this.run {
       moveToAngle(PivotConstants.STOW_ANGLE)
+      observer.setXhat(2, 0.0)
     }
   }
 
@@ -185,12 +199,6 @@ open class Pivot(
     motor.setVoltage(getVoltage())
   }
 
-  fun stop(): Command {
-    return this.runOnce {
-      motor.stopMotor()
-    }
-  }
-
   override fun initSendable(builder: SendableBuilder) {
     builder.publishConstString("1.0", "Motor Voltages")
     builder.addDoubleProperty("1.1 Last Voltage", { motor.lastVoltage }, null)
@@ -216,11 +224,14 @@ open class Pivot(
           PivotConstants.ENC_CHANNEL,
           PivotConstants.OFFSET,
           PivotConstants.UPR,
-          PivotConstants.ENC_INVERTED
+          PivotConstants.ENC_INVERTED,
+          max = PivotConstants.MAX_ENC,
+          min = PivotConstants.MIN_ENC
         ),
         inverted = PivotConstants.INVERTED,
         currentLimit = PivotConstants.CURRENT_LIM,
-        slaveSparks = mapOf(Pair(PivotConstants.FOLLOWER_ID, PivotConstants.FOLLOWER_INVERTED))
+        /** TODO: use other motor once it becomes good */
+//        slaveSparks = mapOf(Pair(PivotConstants.FOLLOWER_ID, PivotConstants.FOLLOWER_INVERTED))
       )
 
       val motorModel = DCMotor(

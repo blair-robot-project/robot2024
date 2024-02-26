@@ -29,6 +29,7 @@ class FourPieceSubwooferStage(
           robot.shooter.forceStop()
         )
       ),
+      timeout = 0.25,
       debug = false
     )
 

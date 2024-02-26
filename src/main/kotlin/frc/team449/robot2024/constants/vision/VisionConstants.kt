@@ -61,7 +61,7 @@ object VisionConstants {
   const val MAX_DISTANCE_SINGLE_TAG = 3.0
   const val MAX_DISTANCE_MULTI_TAG = 5.0
   const val SINGLE_TAG_HEADING_MAX_DEV_DEG = 5.0
-  const val MAX_HEIGHT_ERR_METERS = 0.10
+  var MAX_HEIGHT_ERR_METERS = 0.75
   const val NUM_TAG_FACTOR = 2.0
 
   /** Std Dev Calculation Constants */
@@ -85,30 +85,30 @@ object VisionConstants {
 
   /** List of cameras that we want to use */
   val ESTIMATORS: ArrayList<VisionSubsystem> = arrayListOf(
-    VisionSubsystem(
-      "back_left",
-      TAG_LAYOUT,
-      backLeft,
-      VISION_SIM
-    ),
-    VisionSubsystem(
-      "back_right",
-      TAG_LAYOUT,
-      backRight,
-      VISION_SIM
-    ),
-    VisionSubsystem(
-      "front_left",
-      TAG_LAYOUT,
-      frontLeft,
-      VISION_SIM
-    ),
-    VisionSubsystem(
-      "front_right",
-      TAG_LAYOUT,
-      frontRight,
-      VISION_SIM
-    ),
+//    VisionSubsystem(
+//      "back_left",
+//      TAG_LAYOUT,
+//      backLeft,
+//      VISION_SIM
+//    ),
+//    VisionSubsystem(
+//      "back_right",
+//      TAG_LAYOUT,
+//      backRight,
+//      VISION_SIM
+//    ),
+//    VisionSubsystem(
+//      "front_left",
+//      TAG_LAYOUT,
+//      frontLeft,
+//      VISION_SIM
+//    ),
+//    VisionSubsystem(
+//      "front_right",
+//      TAG_LAYOUT,
+//      frontRight,
+//      VISION_SIM
+//    ),
   )
 
   val ENCODER_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .20, .20, .015)

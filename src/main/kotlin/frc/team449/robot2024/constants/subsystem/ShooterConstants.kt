@@ -14,15 +14,14 @@ object ShooterConstants {
   const val RIGHT_MOTOR_INVERTED = true
   const val LEFT_MOTOR_ID = 46
   const val LEFT_MOTOR_INVERTED = false
-  const val CURRENT_LIMIT = 40
+  const val CURRENT_LIMIT = 50
   const val BRAKE_MODE = false
 
-  // Test these speeds, no spin
-  val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3538.0)
-  val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3538.0)
+  val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3850.0)
+  val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3850.0)
   val AUTO_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4750.0)
   val AUTO_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3650.0)
-  val AMP_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(1500.0)
+  val AMP_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(2000.0)
   val OUTTAKE_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(200.0)
 
   const val AUTO_SHOOT_TOL = 30.0

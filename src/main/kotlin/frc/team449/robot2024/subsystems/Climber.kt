@@ -12,6 +12,8 @@ import frc.team449.robot2024.constants.subsystem.ClimberConstants
 import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
+import java.util.function.DoubleSupplier
+import kotlin.math.pow
 import kotlin.math.sign
 
 class Climber(
@@ -70,6 +72,13 @@ class Climber(
 //      } else {
 //        leftMotor.setVoltage(0.0)
 //      }
+    }
+  }
+
+  fun manual(axisLeft: DoubleSupplier, axisRight: DoubleSupplier): Command {
+    return this.run {
+      leftMotor.setVoltage(axisLeft.asDouble.pow(2) * sign(axisLeft.asDouble) * 12)
+      rightMotor.setVoltage(axisRight.asDouble.pow(2) * sign(axisRight.asDouble) * 12)
     }
   }
 

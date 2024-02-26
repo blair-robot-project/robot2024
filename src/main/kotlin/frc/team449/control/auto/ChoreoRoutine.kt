@@ -23,9 +23,9 @@ import kotlin.math.abs
  * @param debug Whether to run on trajectory expected velocities only (no feedback control)
  */
 class ChoreoRoutine(
-  private val xController: PIDController = PIDController(AutoConstants.DEFAULT_X_KP, 0.0, 0.0),
-  private val yController: PIDController = PIDController(AutoConstants.DEFAULT_Y_KP, 0.0, 0.0),
-  private val thetaController: PIDController = PIDController(AutoConstants.DEFAULT_ROTATION_KP, 0.0, 0.0),
+  private val xController: PIDController = PIDController(AutoConstants.DEFAULT_X_KP, 0.0, AutoConstants.DEFAULT_X_KD),
+  private val yController: PIDController = PIDController(AutoConstants.DEFAULT_Y_KP, 0.0, AutoConstants.DEFAULT_Y_KD),
+  private val thetaController: PIDController = PIDController(AutoConstants.DEFAULT_ROTATION_KP, 0.0, AutoConstants.DEFAULT_ROTATION_KD),
   private val drive: SwerveDrive,
   private val stopEventMap: HashMap<Int, Command> = HashMap(),
   private val parallelEventMap: HashMap<Int, Command> = HashMap(),

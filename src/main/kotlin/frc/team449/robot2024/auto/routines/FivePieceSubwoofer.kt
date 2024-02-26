@@ -32,7 +32,7 @@ class FivePieceSubwoofer(
         )
       ),
       debug = false,
-      timeout = 0.15
+      timeout = 0.0
     )
 
   override val trajectory: MutableList<ChoreoTrajectory> =

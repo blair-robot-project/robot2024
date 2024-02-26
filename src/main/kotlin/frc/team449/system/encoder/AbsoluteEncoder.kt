@@ -18,7 +18,9 @@ open class AbsoluteEncoder(
   private val inverted: Boolean,
   private var offset: Double,
   pollTime: Double = .02,
-  samplesPerAverage: Int = 1
+  samplesPerAverage: Int = 1,
+  private val max: Double,
+  private val min: Double
 ) : Encoder(name, 1, unitPerRotation, 1.0, pollTime) {
   private var prevPos = Double.NaN
   private var prevTime = Double.NaN
@@ -32,16 +34,16 @@ open class AbsoluteEncoder(
       filter.calculate(
         MathUtil.inputModulus(
           1 - (enc.absolutePosition - offset),
-          -0.5,
-          0.5
+          min,
+          max
         )
       )
     } else {
       filter.calculate(
         MathUtil.inputModulus(
           (enc.absolutePosition - offset),
-          -0.5,
-          0.5
+          min,
+          max
         )
 
       )
@@ -89,7 +91,9 @@ open class AbsoluteEncoder(
       channel: Int,
       offset: Double,
       unitPerRotation: Double,
-      inverted: Boolean
+      inverted: Boolean,
+      max: Double = 0.5,
+      min: Double = -0.5
     ): EncoderCreator<T> =
       EncoderCreator { name, _, _ ->
         val enc = AbsoluteEncoder(
@@ -97,7 +101,9 @@ open class AbsoluteEncoder(
           DutyCycleEncoder(channel),
           unitPerRotation,
           inverted,
-          offset
+          offset,
+          max = max,
+          min = min
         )
         enc
       }

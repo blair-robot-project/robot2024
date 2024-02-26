@@ -98,8 +98,6 @@ class RobotLoop : TimedRobot(), Logged {
   override fun autonomousPeriodic() {}
 
   override fun teleopInit() {
-    VisionConstants.ENCODER_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .085, .085, .015))
-
     if (autoCommand != null) {
       CommandScheduler.getInstance().cancel(autoCommand)
     }

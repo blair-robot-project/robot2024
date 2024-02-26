@@ -54,7 +54,7 @@ object AutoUtil {
         robot.feeder.intake(),
         robot.undertaker.intake(),
         WaitUntilCommand { !robot.infrared.get() },
-        WaitUntilCommand { robot.infrared.get() }
+        WaitUntilCommand { robot.closeToShooterInfrared.get() }
       ),
       robot.shooter.shootAuto()
     )
@@ -64,11 +64,13 @@ object AutoUtil {
     return ConditionalCommand(
       ParallelDeadlineGroup(
         SequentialCommandGroup(
-          WaitUntilCommand { robot.shooter.atAutoSetpoint() },
+          WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(2.0),
           robot.feeder.autoShootIntake(),
           robot.undertaker.intake(),
-          WaitUntilCommand { !robot.infrared.get() },
-          WaitUntilCommand { robot.infrared.get() }
+          SequentialCommandGroup(
+            WaitUntilCommand { !robot.infrared.get() },
+            WaitUntilCommand { robot.closeToShooterInfrared.get() }
+          ).withTimeout(0.50)
         ),
         robot.shooter.shootSubwoofer()
       ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!")),

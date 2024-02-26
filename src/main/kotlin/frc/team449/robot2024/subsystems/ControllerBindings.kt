@@ -1,5 +1,6 @@
 package frc.team449.robot2024.subsystems
 
+import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.units.Measure
 import edu.wpi.first.units.MutableMeasure.mutable
@@ -21,7 +22,6 @@ import frc.team449.robot2024.constants.field.FieldConstants
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.pow
 
 class ControllerBindings(
   private val driveController: CommandXboxController,
@@ -121,31 +121,70 @@ class ControllerBindings(
       robot.pivot.moveAmp()
     )
 
-    Trigger { abs(mechanismController.hid.leftY) > 0.25 }.onTrue(
-      robot.pivot.manualMovement { -mechanismController.leftY.pow(3) }
+    Trigger { abs(mechanismController.hid.leftY) > 0.15 || abs(mechanismController.hid.rightY) > 0.15 }.onTrue(
+      robot.climber.manual({
+        MathUtil.applyDeadband(
+          -mechanismController.hid.leftY,
+          0.15,
+          1.0
+        )
+      }, {
+        MathUtil.applyDeadband(
+          -mechanismController.hid.rightY,
+          0.15,
+          1.0
+        )
+      })
     ).onFalse(
-      robot.pivot.hold()
+      robot.climber.stop()
     )
 
-    robot.mechController.povUp().onTrue(
+    robot.mechController.povRight().onTrue(
       robot.climber.extend()
     ).onFalse(
       robot.climber.stop()
     )
 
-    robot.mechController.povDown().onTrue(
+    robot.mechController.povLeft().onTrue(
       robot.climber.retract()
     ).onFalse(
       robot.climber.stop()
+    )
+
+    robot.mechController.povUp().onTrue(
+      robot.pivot.manualUp()
+    ).onFalse(
+      robot.pivot.hold()
+    )
+
+    robot.mechController.povDown().onTrue(
+      robot.pivot.manualDown()
+    ).onFalse(
+      robot.pivot.hold()
     )
 
     mechanismController.a().onTrue(
       robot.pivot.moveStow()
     )
 
-    mechanismController.x().onTrue(
-      robot.shooter.scoreAmp().alongWith(
-        robot.feeder.intake()
+    mechanismController.leftBumper().onTrue(
+      SequentialCommandGroup(
+        SequentialCommandGroup(
+          slowIntake(),
+          outtakeToNotePosition()
+        )
+          .withTimeout(2.0),
+        robot.shooter.scoreAmp()
+      )
+    )
+
+    mechanismController.leftTrigger().onTrue(
+      SequentialCommandGroup(
+        WaitUntilCommand { robot.shooter.atSetpoint() },
+        robot.feeder.intake(),
+        robot.undertaker.intake()
+      ).alongWith(
+        robot.shooter.scoreAmp()
       )
     ).onFalse(
       stopAll()
@@ -181,7 +220,13 @@ class ControllerBindings(
       )
     )
 
-    mechanismController.leftBumper().onTrue(
+    mechanismController.start().onTrue(
+      robot.feeder.autoShootIntake()
+    ).onFalse(
+      robot.feeder.stop()
+    )
+
+    mechanismController.x().onTrue(
       ParallelCommandGroup(
         robot.feeder.outtake(),
         robot.shooter.duringIntake()
@@ -192,8 +237,11 @@ class ControllerBindings(
 
     mechanismController.rightBumper().onTrue(
       SequentialCommandGroup(
-        slowIntake(),
-        outtakeToNotePosition(),
+        SequentialCommandGroup(
+          slowIntake(),
+          outtakeToNotePosition()
+        )
+          .withTimeout(2.0),
         robot.shooter.shootSubwoofer()
       )
     )
