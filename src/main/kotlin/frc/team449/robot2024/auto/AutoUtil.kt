@@ -107,6 +107,8 @@ object AutoUtil {
             Units.degreesToRadians(target.pitch)
           )
 
+          autoIntakeAway(robot)
+
           robot.drive.set(
             ChassisSpeeds.fromRobotRelativeSpeeds(
               -AutoConstants.X_CONTROLLER.calculate(range, 0.0),
