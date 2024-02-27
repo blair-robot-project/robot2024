@@ -22,6 +22,7 @@ import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
 import frc.team449.system.encoder.AbsoluteEncoder
+import frc.team449.system.encoder.QuadEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
@@ -30,7 +31,8 @@ import kotlin.math.abs
 import kotlin.math.pow
 
 open class Pivot(
-  private val motor: WrappedMotor,
+  val motor: WrappedMotor,
+  val encoder: QuadEncoder,
   private val controller: LinearQuadraticRegulator<N2, N1, N1>,
   private val feedforward: LinearPlantInversionFeedforward<N2, N1, N1>,
   private val observer: KalmanFilter<N3, N1, N1>,
@@ -39,10 +41,10 @@ open class Pivot(
 ) : SubsystemBase() {
 
   open val positionSupplier: Supplier<Double> =
-    Supplier { motor.position }
+    Supplier { encoder.position }
 
   open val velocitySupplier: Supplier<Double> =
-    Supplier { motor.velocity }
+    Supplier { encoder.velocity }
 
   private var lastProfileReference = TrapezoidProfile.State(0.0, 0.0)
 
@@ -209,6 +211,8 @@ open class Pivot(
     builder.addDoubleProperty("2.3 Desired Position", { lastProfileReference.position }, null)
     builder.addDoubleProperty("2.4 Desired Velocity", { lastProfileReference.velocity }, null)
     builder.addDoubleProperty("2.5 Error", { lastProfileReference.position - positionSupplier.get() }, null)
+    builder.addDoubleProperty("2.6 Absolute Position", { motor.position }, null)
+    builder.addDoubleProperty("2.7 Absolute Velocity", { motor.velocity }, null)
     builder.publishConstString("3.0", "State Space Stuff")
     builder.addDoubleProperty("3.1 Predicted Position", { observer.getXhat(0) }, null)
     builder.addDoubleProperty("3.2 Predicted Velocity", { observer.getXhat(1) }, null)
@@ -232,6 +236,15 @@ open class Pivot(
         inverted = PivotConstants.INVERTED,
         currentLimit = PivotConstants.CURRENT_LIM,
         slaveSparks = mapOf(Pair(PivotConstants.FOLLOWER_ID, PivotConstants.FOLLOWER_INVERTED))
+      )
+
+      val encoder = QuadEncoder(
+        name = "Pivot Quad Encoder",
+        encoder = PivotConstants.QUAD_ENCODER,
+        encoderCPR = PivotConstants.CPR,
+        unitPerRotation = PivotConstants.UPR,
+        gearing = 1.0,
+        samplesToAverage = PivotConstants.SAMPLES_TO_AVERAGE
       )
 
       val motorModel = DCMotor(
@@ -323,10 +336,11 @@ open class Pivot(
       )
 
       return if (RobotBase.isReal()) {
-        Pivot(motor, controller, feedforward, observer, profile, robot)
+        Pivot(motor, encoder, controller, feedforward, observer, profile, robot)
       } else {
         PivotSim(
           motor,
+          encoder,
           controller,
           feedforward,
           observer,

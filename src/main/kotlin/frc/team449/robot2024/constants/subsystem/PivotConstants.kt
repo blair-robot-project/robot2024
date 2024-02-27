@@ -1,6 +1,7 @@
 package frc.team449.robot2024.constants.subsystem
 
 import edu.wpi.first.math.util.Units
+import edu.wpi.first.wpilibj.Encoder
 import frc.team449.robot2024.constants.MotorConstants
 import kotlin.math.PI
 
@@ -20,6 +21,10 @@ object PivotConstants {
   const val ENC_INVERTED = true
   const val MIN_ENC = -0.05
   const val MAX_ENC = 0.95
+
+  val QUAD_ENCODER = Encoder(4, 6)
+  val CPR = 2048
+  val SAMPLES_TO_AVERAGE = 127
 
   const val NUM_MOTORS = 2
 
@@ -43,7 +48,7 @@ object PivotConstants {
   val VEL_TOLERANCE = Units.degreesToRadians(10.0)
   const val CONTROL_EFFORT_VOLTS = 12.0
 
-  val MAX_VEL_TOL = Units.degreesToRadians(5.0)
+  val MAX_VEL_TOL = Units.degreesToRadians(30.0)
 
   const val MAX_VOLTAGE = 12.0
 

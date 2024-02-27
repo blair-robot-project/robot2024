@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand
 import frc.team449.control.holonomic.SwerveSim
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.auto.routines.RoutineChooser
+import frc.team449.robot2024.commands.PivotCalibration
 import frc.team449.robot2024.commands.light.BlairChasing
 import frc.team449.robot2024.commands.light.BreatheHue
 import frc.team449.robot2024.commands.light.Rainbow
@@ -50,6 +51,8 @@ class RobotLoop : TimedRobot(), Logged {
 //      instance.stopServer()
 //      instance.startClient4("localhost")
     }
+
+    PivotCalibration(robot.pivot).ignoringDisable(true).schedule()
 
     println("Generating Auto Routines : ${Timer.getFPGATimestamp()}")
     routineMap = routineChooser.routineMap()
