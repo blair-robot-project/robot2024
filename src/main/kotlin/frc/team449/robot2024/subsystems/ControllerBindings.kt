@@ -19,6 +19,7 @@ import frc.team449.robot2024.Robot
 import frc.team449.robot2024.commands.driveAlign.OrbitAlign
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
+import frc.team449.robot2024.constants.subsystem.FeederConstants
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.PI
 import kotlin.math.abs
@@ -169,11 +170,7 @@ class ControllerBindings(
 
     mechanismController.leftBumper().onTrue(
       SequentialCommandGroup(
-        SequentialCommandGroup(
-          slowIntake(),
-          outtakeToNotePosition()
-        )
-          .withTimeout(2.0),
+        checkNoteInLocation(),
         robot.shooter.scoreAmp()
       )
     )
@@ -182,7 +179,6 @@ class ControllerBindings(
       SequentialCommandGroup(
         WaitUntilCommand { robot.shooter.atSetpoint() },
         robot.feeder.intake(),
-        robot.undertaker.intake()
       ).alongWith(
         robot.shooter.scoreAmp()
       )
@@ -214,8 +210,7 @@ class ControllerBindings(
       )
     ).onFalse(
       SequentialCommandGroup(
-        slowIntake(),
-        outtakeToNotePosition(),
+        checkNoteInLocation(),
         stopAll()
       )
     )
@@ -224,6 +219,14 @@ class ControllerBindings(
       robot.feeder.autoShootIntake()
     ).onFalse(
       robot.feeder.stop()
+    )
+
+    mechanismController.back().onTrue(
+      SequentialCommandGroup(
+        slowIntake(),
+        outtakeToNotePosition()
+      )
+        .withTimeout(FeederConstants.CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS)
     )
 
     mechanismController.x().onTrue(
@@ -237,11 +240,7 @@ class ControllerBindings(
 
     mechanismController.rightBumper().onTrue(
       SequentialCommandGroup(
-        SequentialCommandGroup(
-          slowIntake(),
-          outtakeToNotePosition()
-        )
-          .withTimeout(2.0),
+        checkNoteInLocation(),
         robot.shooter.shootSubwoofer()
       )
     )
@@ -307,6 +306,17 @@ class ControllerBindings(
     )
   }
 
+  private fun checkNoteInLocation(): Command {
+    return ConditionalCommand(
+      InstantCommand(),
+      SequentialCommandGroup(
+        slowIntake(),
+        outtakeToNotePosition()
+      )
+    ) { !robot.infrared.get() && robot.closeToShooterInfrared.get() }
+      .withTimeout(FeederConstants.CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS)
+  }
+
   private fun slowIntake(): Command {
     return ConditionalCommand(
       SequentialCommandGroup(
@@ -326,11 +336,10 @@ class ControllerBindings(
         robot.undertaker.stop(),
         robot.feeder.outtake(),
         WaitUntilCommand { robot.closeToShooterInfrared.get() },
-        robot.feeder.stop(),
-        robot.shooter.rampStop()
+        stopAll()
       ),
       stopAll()
-    ) { !robot.infrared.get() }
+    ) { !robot.closeToShooterInfrared.get() }
 
     cmd.name = "outtake to note pos"
     return cmd

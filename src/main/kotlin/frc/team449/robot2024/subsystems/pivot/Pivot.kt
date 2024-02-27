@@ -25,6 +25,7 @@ import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
+import kotlin.Pair
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -230,8 +231,7 @@ open class Pivot(
         ),
         inverted = PivotConstants.INVERTED,
         currentLimit = PivotConstants.CURRENT_LIM,
-        /** TODO: use other motor once it becomes good */
-//        slaveSparks = mapOf(Pair(PivotConstants.FOLLOWER_ID, PivotConstants.FOLLOWER_INVERTED))
+        slaveSparks = mapOf(Pair(PivotConstants.FOLLOWER_ID, PivotConstants.FOLLOWER_INVERTED))
       )
 
       val motorModel = DCMotor(

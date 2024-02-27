@@ -13,4 +13,6 @@ object FeederConstants {
   const val REVERSE_VOLTAGE = -3.0
 
   const val BRAKE_MODE = false
+
+  const val CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS = 3.0
 }

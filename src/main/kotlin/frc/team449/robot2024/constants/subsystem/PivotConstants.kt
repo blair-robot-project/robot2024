@@ -21,8 +21,7 @@ object PivotConstants {
   const val MIN_ENC = -0.05
   const val MAX_ENC = 0.95
 
-  /** TODO, BRING BACK TO 2 WHEN MOTOR GETS FIXED */
-  const val NUM_MOTORS = 1
+  const val NUM_MOTORS = 2
 
   /** Moment of inertia in m^2 kg given from CAD with a 0.035 m^2kg cushion for unmodeled objects */
   const val MOMENT_OF_INERTIA = 0.570869 + 0.035
@@ -52,8 +51,7 @@ object PivotConstants {
   val MAX_VELOCITY = MotorConstants.FREE_SPEED * GEARING
 
   // Max at 40A should be 10.567679154992222
-  /** TODO BRING BACK TO 8.0 WHEN MOTOR GETS FIXED */
-  const val MAX_ACCEL = 4.0
+  const val MAX_ACCEL = 8.0
 
   val MIN_ANGLE = Units.degreesToRadians(0.0)
   val MAX_ANGLE = Units.degreesToRadians(105.0)

@@ -64,13 +64,13 @@ object AutoUtil {
     return ConditionalCommand(
       ParallelDeadlineGroup(
         SequentialCommandGroup(
-          WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(2.0),
+          WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(AutoConstants.AUTO_SPINUP_TIMEOUT_SECONDS),
           robot.feeder.autoShootIntake(),
           robot.undertaker.intake(),
           SequentialCommandGroup(
             WaitUntilCommand { !robot.infrared.get() },
             WaitUntilCommand { robot.closeToShooterInfrared.get() }
-          ).withTimeout(0.50)
+          ).withTimeout(AutoConstants.AUTO_SHOOT_TIMEOUT_SECONDS)
         ),
         robot.shooter.shootSubwoofer()
       ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!")),

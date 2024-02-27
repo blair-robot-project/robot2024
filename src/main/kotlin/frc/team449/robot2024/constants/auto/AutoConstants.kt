@@ -12,7 +12,9 @@ object AutoConstants {
   const val ORBIT_KP = 2.0
 
   const val SHOOT_INTAKE_TIME = 0.35
-  const val FEEDER_REVERSE_TIME = 0.35
+
+  const val AUTO_SHOOT_TIMEOUT_SECONDS = 2.0
+  const val AUTO_SPINUP_TIMEOUT_SECONDS = 2.0
 
   const val SHOOT_AWAY_WAIT = 0.25
 }
