@@ -18,6 +18,7 @@ import frc.team449.robot2024.auto.routines.RoutineChooser
 import frc.team449.robot2024.commands.light.BlairChasing
 import frc.team449.robot2024.commands.light.BreatheHue
 import frc.team449.robot2024.commands.light.Rainbow
+import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.vision.VisionConstants
 import frc.team449.robot2024.subsystems.ControllerBindings
 import monologue.Annotations.Log
@@ -49,9 +50,12 @@ class RobotLoop : TimedRobot(), Logged {
     if (RobotBase.isSimulation()) {
       // Don't complain about joysticks if there aren't going to be any
       DriverStation.silenceJoystickConnectionWarning(true)
-//      val instance = NetworkTableInstance.getDefault()
-//      instance.stopServer()
-//      instance.startClient4("localhost")
+    }
+
+    FieldConstants.SPEAKER_POSE = if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+      FieldConstants.BLUE_SPEAKER
+    } else {
+      FieldConstants.RED_SPEAKER
     }
 
     println("Generating Auto Routines : ${Timer.getFPGATimestamp()}")

@@ -15,7 +15,6 @@ import frc.team449.robot2024.constants.vision.VisionConstants
 import org.photonvision.PhotonUtils
 import kotlin.math.PI
 
-
 object AutoUtil {
 
   fun autoIntake(robot: Robot): Command {
@@ -107,14 +106,14 @@ object AutoUtil {
             Units.degreesToRadians(target.pitch)
           )
 
-          autoIntakeAway(robot)
+          autoIntake(robot)
 
           robot.drive.set(
             ChassisSpeeds.fromRobotRelativeSpeeds(
               -AutoConstants.X_CONTROLLER.calculate(range, 0.0),
               0.0,
               -AutoConstants.ROT_CONTROLLER.calculate(target.yaw, 0.0),
-              robot.ahrs.heading
+              robot.drive.pose.rotation
             )
           )
         }
@@ -126,7 +125,6 @@ object AutoUtil {
 
     return cmd
   }
-
 
   fun transformForRed(pathGroup: MutableList<ChoreoTrajectory>): MutableList<ChoreoTrajectory> {
     for (index in 0 until pathGroup.size) {
