@@ -52,11 +52,11 @@ class RobotLoop : TimedRobot(), Logged {
       DriverStation.silenceJoystickConnectionWarning(true)
     }
 
-    FieldConstants.SPEAKER_POSE = if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-      FieldConstants.BLUE_SPEAKER
-    } else {
-      FieldConstants.RED_SPEAKER
-    }
+//    FieldConstants.SPEAKER_POSE = if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+//      FieldConstants.BLUE_SPEAKER
+//    } else {
+//      FieldConstants.RED_SPEAKER
+//    }
 
     println("Generating Auto Routines : ${Timer.getFPGATimestamp()}")
     routineMap = routineChooser.routineMap()
