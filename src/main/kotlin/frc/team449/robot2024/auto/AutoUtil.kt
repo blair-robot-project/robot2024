@@ -3,88 +3,11 @@ package frc.team449.robot2024.auto
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.Nat
-import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj2.command.*
 import frc.team449.control.auto.ChoreoTrajectory
-import frc.team449.robot2024.Robot
-import frc.team449.robot2024.constants.auto.AutoConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import kotlin.math.PI
 
 object AutoUtil {
-
-  fun autoIntake(robot: Robot): Command {
-    return ParallelCommandGroup(
-      SequentialCommandGroup(
-        robot.undertaker.intake(),
-        robot.feeder.slowIntake(),
-        WaitUntilCommand { !robot.infrared.get() },
-        robot.undertaker.stop(),
-        robot.feeder.outtake(),
-        WaitUntilCommand { robot.infrared.get() },
-        robot.feeder.stop(),
-      ),
-      robot.shooter.shootSubwoofer()
-    )
-  }
-
-  fun autoIntakeAway(robot: Robot): Command {
-    return ParallelCommandGroup(
-      SequentialCommandGroup(
-        robot.pivot.moveStow(),
-        robot.undertaker.intake(),
-        robot.feeder.slowIntake(),
-        WaitUntilCommand { !robot.infrared.get() },
-        robot.undertaker.stop(),
-        robot.feeder.outtake(),
-        robot.pivot.autoAngle(),
-        WaitUntilCommand { robot.infrared.get() },
-        robot.feeder.stop(),
-      ),
-      robot.shooter.shootAuto(),
-    )
-  }
-
-  fun autoShootAway(robot: Robot): Command {
-    return ParallelDeadlineGroup(
-      SequentialCommandGroup(
-        robot.pivot.autoAngle(),
-        WaitUntilCommand { robot.shooter.atAutoSetpoint() && robot.pivot.inTolerance() },
-        WaitCommand(AutoConstants.SHOOT_AWAY_WAIT),
-        robot.feeder.intake(),
-        robot.undertaker.intake(),
-        WaitUntilCommand { !robot.infrared.get() },
-        WaitUntilCommand { robot.closeToShooterInfrared.get() }
-      ),
-      robot.shooter.shootAuto()
-    )
-  }
-
-  fun autoShoot(robot: Robot): Command {
-    return ConditionalCommand(
-      ParallelDeadlineGroup(
-        SequentialCommandGroup(
-          WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(AutoConstants.AUTO_SPINUP_TIMEOUT_SECONDS),
-          robot.feeder.autoShootIntake(),
-          robot.undertaker.intake(),
-          SequentialCommandGroup(
-            WaitUntilCommand { !robot.infrared.get() },
-            WaitUntilCommand { robot.closeToShooterInfrared.get() }
-          ).withTimeout(AutoConstants.AUTO_SHOOT_TIMEOUT_SECONDS)
-        ),
-        robot.shooter.shootSubwoofer()
-      ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!")),
-      ParallelDeadlineGroup(
-        SequentialCommandGroup(
-          WaitUntilCommand { robot.shooter.atAutoSetpoint() },
-          robot.feeder.autoShootIntake(),
-          robot.undertaker.intake(),
-          WaitCommand(AutoConstants.SHOOT_INTAKE_TIME)
-        ),
-        robot.shooter.shootSubwoofer()
-      ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!"))
-    ) { RobotBase.isReal() }
-  }
 
   fun transformForRed(pathGroup: MutableList<ChoreoTrajectory>): MutableList<ChoreoTrajectory> {
     for (index in 0 until pathGroup.size) {

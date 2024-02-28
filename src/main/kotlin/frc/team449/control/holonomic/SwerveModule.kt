@@ -1,5 +1,6 @@
 package frc.team449.control.holonomic
 
+import com.revrobotics.CANSparkMax
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.SimpleMotorFeedforward
 import edu.wpi.first.math.geometry.Rotation2d
@@ -11,7 +12,6 @@ import edu.wpi.first.wpilibj.RobotController
 import edu.wpi.first.wpilibj.Timer
 import frc.team449.robot2024.constants.drives.SwerveConstants
 import frc.team449.system.encoder.Encoder
-import frc.team449.system.motor.WrappedMotor
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.sign
@@ -29,8 +29,9 @@ import kotlin.math.sign
  */
 open class SwerveModule(
   private val name: String,
-  private val drivingMotor: WrappedMotor,
-  private val turningMotor: WrappedMotor,
+  private val drivingMotor: CANSparkMax,
+  private val turningMotor: CANSparkMax,
+  private val turnEncoder: Encoder,
   val driveController: PIDController,
   val turnController: PIDController,
   private val driveFeedforward: SimpleMotorFeedforward,
@@ -51,8 +52,8 @@ open class SwerveModule(
   open var state: SwerveModuleState
     get() {
       return SwerveModuleState(
-        drivingMotor.velocity,
-        Rotation2d(turningMotor.position)
+        drivingMotor.encoder.velocity,
+        Rotation2d(turnEncoder.velocity)
       )
     }
     set(desState) {
@@ -63,7 +64,7 @@ open class SwerveModule(
       /** Ensure the module doesn't turn more than 90 degrees. */
       val optimizedState = SwerveModuleState.optimize(
         desState,
-        Rotation2d(turningMotor.position)
+        Rotation2d(turnEncoder.position)
       )
 
       turnController.setpoint = optimizedState.angle.radians
@@ -76,8 +77,8 @@ open class SwerveModule(
   open val position: SwerveModulePosition
     get() {
       return SwerveModulePosition(
-        drivingMotor.position,
-        Rotation2d(turningMotor.position)
+        drivingMotor.encoder.position,
+        Rotation2d(turnEncoder.position)
       )
     }
 
@@ -86,60 +87,52 @@ open class SwerveModule(
     desiredState.speedMetersPerSecond = 0.0
     turnController.setpoint = 0.0
 
-    turningMotor.set(turnController.calculate(turningMotor.position))
+    turningMotor.set(turnController.calculate(turnEncoder.position))
     drivingMotor.setVoltage(volts)
   }
 
   fun lastDrivingVoltage(): Double {
-    return drivingMotor.lastVoltage
+    return drivingMotor.get() * RobotController.getBatteryVoltage()
   }
 
   fun lastSteeringVoltage(): Double {
-    return turningMotor.lastVoltage
-  }
-
-  fun requestedDutyCycleDriving(): Double {
-    return drivingMotor.getDutyCycle?.asDouble ?: Double.NaN
-  }
-
-  fun requestedDutyCycleSteering(): Double {
-    return turningMotor.getDutyCycle?.asDouble ?: Double.NaN
+    return turningMotor.get() * RobotController.getBatteryVoltage()
   }
 
   fun appliedDutyCycleDriving(): Double {
-    return drivingMotor.appliedOutput?.asDouble ?: Double.NaN
+    return drivingMotor.appliedOutput
   }
 
   fun appliedDutyCycleSteering(): Double {
-    return turningMotor.appliedOutput?.asDouble ?: Double.NaN
+    return turningMotor.appliedOutput
   }
 
   fun busVoltageDriving(): Double {
-    return drivingMotor.busVoltage?.asDouble ?: Double.NaN
+    return drivingMotor.busVoltage
   }
 
   fun busVoltageSteering(): Double {
-    return turningMotor.busVoltage?.asDouble ?: Double.NaN
+    return turningMotor.busVoltage
   }
 
   fun outputCurrentDriving(): Double {
-    return drivingMotor.outputCurrent?.asDouble ?: Double.NaN
+    return drivingMotor.outputCurrent
   }
 
   fun outputCurrentSteering(): Double {
-    return turningMotor.outputCurrent?.asDouble ?: Double.NaN
+    return turningMotor.outputCurrent
   }
 
   /** Set module speed to zero but keep module angle the same. */
   fun stop() {
-    turnController.setpoint = turningMotor.position
+    turnController.setpoint = turnEncoder.position
     desiredState.speedMetersPerSecond = 0.0
   }
 
   open fun update() {
     /** CONTROL speed of module */
     val drivePid = driveController.calculate(
-      drivingMotor.velocity
+      drivingMotor.encoder.velocity
     )
     val driveFF = driveFeedforward.calculate(
       desiredState.speedMetersPerSecond
@@ -148,12 +141,12 @@ open class SwerveModule(
 
     /** CONTROL direction of module */
     val turnPid = turnController.calculate(
-      turningMotor.position
+      turnEncoder.position
     )
 
     turningMotor.set(
       turnPid +
-        sign(desiredState.angle.radians - turningMotor.position) *
+        sign(desiredState.angle.radians - turnEncoder.position) *
         SwerveConstants.STEER_KS / RobotController.getBatteryVoltage()
     )
   }
@@ -162,8 +155,9 @@ open class SwerveModule(
     /** Create a real or simulated [SwerveModule] based on the simulation status of the robot. */
     fun create(
       name: String,
-      drivingMotor: WrappedMotor,
-      turningMotor: WrappedMotor,
+      drivingMotor: CANSparkMax,
+      turningMotor: CANSparkMax,
+      turnEncoder: Encoder,
       driveController: PIDController,
       turnController: PIDController,
       driveFeedforward: SimpleMotorFeedforward,
@@ -174,6 +168,7 @@ open class SwerveModule(
           name,
           drivingMotor,
           turningMotor,
+          turnEncoder,
           driveController,
           turnController,
           driveFeedforward,
@@ -184,6 +179,7 @@ open class SwerveModule(
           name,
           drivingMotor,
           turningMotor,
+          turnEncoder,
           driveController,
           turnController,
           driveFeedforward,
@@ -197,8 +193,9 @@ open class SwerveModule(
 /** A "simulated" swerve module. Immediately reaches to its desired state. */
 class SwerveModuleSim(
   name: String,
-  drivingMotor: WrappedMotor,
-  turningMotor: WrappedMotor,
+  drivingMotor: CANSparkMax,
+  turningMotor: CANSparkMax,
+  turnEncoder: Encoder,
   driveController: PIDController,
   turnController: PIDController,
   driveFeedforward: SimpleMotorFeedforward,
@@ -207,11 +204,13 @@ class SwerveModuleSim(
   name,
   drivingMotor,
   turningMotor,
+  turnEncoder,
   driveController,
   turnController,
   driveFeedforward,
   location
 ) {
+  // TODO: Sim needs integrating with refactored motor system
   private val turningMotorEncoder = Encoder.SimController(turningMotor.encoder)
   private val driveEncoder = Encoder.SimController(drivingMotor.encoder)
   private var prevTime = Timer.getFPGATimestamp()

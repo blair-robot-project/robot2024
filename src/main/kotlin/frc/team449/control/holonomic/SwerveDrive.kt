@@ -1,5 +1,6 @@
 package frc.team449.control.holonomic
 
+import com.revrobotics.CANSparkMax
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.SimpleMotorFeedforward
@@ -22,9 +23,8 @@ import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.drives.SwerveConstants
 import frc.team449.robot2024.constants.vision.VisionConstants
 import frc.team449.system.AHRS
+import frc.team449.system.SparkUtil.createSparkMax
 import frc.team449.system.encoder.AbsoluteEncoder
-import frc.team449.system.encoder.NEOEncoder
-import frc.team449.system.motor.createSparkMax
 import kotlin.math.*
 
 /**
@@ -341,16 +341,6 @@ open class SwerveDrive(
       null
     )
     builder.addDoubleArrayProperty(
-      "5.21 Driving Requested Duty Cycle",
-      { DoubleArray(modules.size) { index -> modules[index].requestedDutyCycleDriving() } },
-      null
-    )
-    builder.addDoubleArrayProperty(
-      "5.22 Steering Requested Duty Cycle",
-      { DoubleArray(modules.size) { index -> modules[index].requestedDutyCycleSteering() } },
-      null
-    )
-    builder.addDoubleArrayProperty(
       "5.31 Driving Applied Duty Cycle",
       { DoubleArray(modules.size) { index -> modules[index].appliedDutyCycleDriving() } },
       null
@@ -413,6 +403,38 @@ open class SwerveDrive(
       val driveMotorController = { PIDController(SwerveConstants.DRIVE_KP, SwerveConstants.DRIVE_KI, SwerveConstants.DRIVE_KD) }
       val turnMotorController = { PIDController(SwerveConstants.TURN_KP, SwerveConstants.TURN_KI, SwerveConstants.TURN_KD) }
       val driveFeedforward = SimpleMotorFeedforward(SwerveConstants.DRIVE_KS, SwerveConstants.DRIVE_KV, SwerveConstants.DRIVE_KA)
+      val frontLeftTurn = makeTurningMotor(
+        "FL",
+        SwerveConstants.TURN_MOTOR_FL,
+        inverted = true,
+        sensorPhase = false,
+        SwerveConstants.TURN_ENC_CHAN_FL,
+        SwerveConstants.TURN_ENC_OFFSET_FL
+      )
+      val frontRightTurn = makeTurningMotor(
+        "FR",
+        SwerveConstants.TURN_MOTOR_FR,
+        inverted = true,
+        sensorPhase = false,
+        SwerveConstants.TURN_ENC_CHAN_FR,
+        SwerveConstants.TURN_ENC_OFFSET_FR
+      )
+      val backLeftTurn = makeTurningMotor(
+        "BL",
+        SwerveConstants.TURN_MOTOR_BL,
+        inverted = true,
+        sensorPhase = false,
+        SwerveConstants.TURN_ENC_CHAN_BL,
+        SwerveConstants.TURN_ENC_OFFSET_BL
+      )
+      val backRightTurn = makeTurningMotor(
+        "BR",
+        SwerveConstants.TURN_MOTOR_BR,
+        inverted = true,
+        sensorPhase = false,
+        SwerveConstants.TURN_ENC_CHAN_BR,
+        SwerveConstants.TURN_ENC_OFFSET_BR
+      )
       val modules = listOf(
         SwerveModule.create(
           "FLModule",
@@ -421,14 +443,17 @@ open class SwerveDrive(
             SwerveConstants.DRIVE_MOTOR_FL,
             inverted = false
           ),
-          makeTurningMotor(
-            "FL",
-            SwerveConstants.TURN_MOTOR_FL,
-            inverted = true,
-            sensorPhase = false,
+          frontLeftTurn,
+          AbsoluteEncoder.creator<CANSparkMax>(
             SwerveConstants.TURN_ENC_CHAN_FL,
-            SwerveConstants.TURN_ENC_OFFSET_FL
-          ),
+            SwerveConstants.TURN_ENC_OFFSET_FL,
+            SwerveConstants.TURN_UPR,
+            SwerveConstants.TURN_ENC_INVERTED_FL
+          ).create(
+            "FL",
+            frontLeftTurn,
+            frontLeftTurn.inverted
+            ),
           driveMotorController(),
           turnMotorController(),
           driveFeedforward,
@@ -441,19 +466,23 @@ open class SwerveDrive(
             SwerveConstants.DRIVE_MOTOR_FR,
             inverted = false
           ),
-          makeTurningMotor(
-            "FR",
-            SwerveConstants.TURN_MOTOR_FR,
-            inverted = true,
-            sensorPhase = false,
+          frontRightTurn,
+          AbsoluteEncoder.creator<CANSparkMax>(
             SwerveConstants.TURN_ENC_CHAN_FR,
-            SwerveConstants.TURN_ENC_OFFSET_FR
+            SwerveConstants.TURN_ENC_OFFSET_FR,
+            SwerveConstants.TURN_UPR,
+            SwerveConstants.TURN_ENC_INVERTED_FR
+          ).create(
+            "FL",
+            frontLeftTurn,
+            frontRightTurn.inverted
           ),
           driveMotorController(),
           turnMotorController(),
           driveFeedforward,
           Translation2d(SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT, -SwerveConstants.TRACKWIDTH / 2)
         ),
+
         SwerveModule.create(
           "BLModule",
           makeDrivingMotor(
@@ -461,13 +490,16 @@ open class SwerveDrive(
             SwerveConstants.DRIVE_MOTOR_BL,
             inverted = false
           ),
-          makeTurningMotor(
-            "BL",
-            SwerveConstants.TURN_MOTOR_BL,
-            inverted = true,
-            sensorPhase = false,
+          backLeftTurn,
+          AbsoluteEncoder.creator<CANSparkMax>(
             SwerveConstants.TURN_ENC_CHAN_BL,
-            SwerveConstants.TURN_ENC_OFFSET_BL
+            SwerveConstants.TURN_ENC_OFFSET_BL,
+            SwerveConstants.TURN_UPR,
+            SwerveConstants.TURN_ENC_INVERTED_BL
+          ).create(
+            "BL",
+            backLeftTurn,
+            backLeftTurn.inverted
           ),
           driveMotorController(),
           turnMotorController(),
@@ -481,13 +513,16 @@ open class SwerveDrive(
             SwerveConstants.DRIVE_MOTOR_BR,
             inverted = false
           ),
-          makeTurningMotor(
-            "BR",
-            SwerveConstants.TURN_MOTOR_BR,
-            inverted = true,
-            sensorPhase = false,
+          backRightTurn,
+          AbsoluteEncoder.creator<CANSparkMax>(
             SwerveConstants.TURN_ENC_CHAN_BR,
-            SwerveConstants.TURN_ENC_OFFSET_BR
+            SwerveConstants.TURN_ENC_OFFSET_BR,
+            SwerveConstants.TURN_UPR,
+            SwerveConstants.TURN_ENC_INVERTED_BR
+          ).create(
+            "BL",
+            backRightTurn,
+            backRightTurn.inverted
           ),
           driveMotorController(),
           turnMotorController(),
@@ -523,15 +558,11 @@ open class SwerveDrive(
       inverted: Boolean
     ) =
       createSparkMax(
-        name = name + "Drive",
         id = motorId,
         enableBrakeMode = true,
         inverted = inverted,
-        encCreator =
-        NEOEncoder.creator(
-          SwerveConstants.DRIVE_UPR,
-          SwerveConstants.DRIVE_GEARING
-        ),
+        unitPerRotation = SwerveConstants.DRIVE_UPR,
+        gearing = SwerveConstants.DRIVE_GEARING,
         currentLimit = SwerveConstants.DRIVE_CURRENT_LIM
       )
 
@@ -545,16 +576,12 @@ open class SwerveDrive(
       offset: Double
     ) =
       createSparkMax(
-        name = name + "Turn",
         id = motorId,
         enableBrakeMode = false,
         inverted = inverted,
-        encCreator = AbsoluteEncoder.creator(
-          encoderChannel,
-          offset,
-          SwerveConstants.TURN_UPR,
-          sensorPhase
-        ),
+        gearing = 1.0,
+        unitPerRotation = SwerveConstants.TURN_UPR,
+        offset = offset,
         currentLimit = SwerveConstants.STEERING_CURRENT_LIM
       )
   }

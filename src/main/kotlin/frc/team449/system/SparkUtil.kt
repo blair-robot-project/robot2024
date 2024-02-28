@@ -69,6 +69,32 @@ object SparkUtil {
     sparkMax.burnFlash()
   }
 
+  fun createSparkMax (
+    id: Int,
+    unitPerRotation: Double,
+    gearing: Double,
+    offset: Double = 0.0,
+    enableBrakeMode: Boolean = true,
+    inverted: Boolean = false,
+    currentLimit: Int = 0,
+    enableVoltageComp: Boolean = false,
+    slaveSparks: Map<Int, Boolean> = mapOf(),
+    controlFrameRateMillis: Int = -1,
+    statusFrameRatesMillis: Map<CANSparkLowLevel.PeriodicFrame, Int> = mapOf(),
+
+    // encoder information
+
+    encInverted: Boolean = false
+  ) : CANSparkMax {
+    val motor = CANSparkMax(
+      id,
+      CANSparkLowLevel.MotorType.kBrushless
+    )
+    val encoder = motor.encoder
+    applySparkSettings(motor, enableBrakeMode, inverted, currentLimit, enableVoltageComp, slaveSparks, controlFrameRateMillis, statusFrameRatesMillis, encoder, unitPerRotation, gearing)
+    return motor
+  }
+
   fun enableContinuousInput(sparkMax: CANSparkMax, min: Double, max: Double) {
     val controller = sparkMax.pidController
 

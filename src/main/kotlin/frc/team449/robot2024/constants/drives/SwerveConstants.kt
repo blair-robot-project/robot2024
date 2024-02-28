@@ -3,6 +3,10 @@ package frc.team449.robot2024.constants.drives
 import edu.wpi.first.math.util.Units
 
 object SwerveConstants {
+  const val TURN_ENC_INVERTED_FL = false
+  const val TURN_ENC_INVERTED_FR = false
+  const val TURN_ENC_INVERTED_BL = false
+  const val TURN_ENC_INVERTED_BR = false
   const val EFFICIENCY = 0.95
 
   /** Drive motor ports */

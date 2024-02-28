@@ -8,15 +8,6 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
 
   fun routineMap(): HashMap<String, Command> {
     return hashMapOf(
-      "DoNothing" to DoNothing(robot).createCommand(),
-      "Red4PieceAmp" to FourPieceSubwooferAmp(robot, true).createCommand(),
-      "Blue4PieceAmp" to FourPieceSubwooferAmp(robot, false).createCommand(),
-      "Red4PieceStage" to FourPieceSubwooferStage(robot, true).createCommand(),
-      "Blue4PieceStage" to FourPieceSubwooferStage(robot, false).createCommand(),
-      "Red3PieceMid" to Experimental3PieceMid(robot, true).createCommand(),
-      "Blue3PieceMid" to Experimental3PieceMid(robot, false).createCommand(),
-      "RedSubwoofer5Piece" to FivePieceSubwoofer(robot, true).createCommand(),
-      "BlueSubwoofer5Piece" to FivePieceSubwoofer(robot, false).createCommand(),
     )
   }
 
