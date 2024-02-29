@@ -21,7 +21,7 @@ class ShooterSim(
   controller: LinearQuadraticRegulator<N1, N1, N1>,
   observer: KalmanFilter<N2, N1, N1>,
   feedforward: LinearPlantInversionFeedforward<N1, N1, N1>,
-  plant: LinearSystem<N1, N1, N1>,
+  plant: LinearSystem<N1, N1, N1>
 ) : Shooter(motor, controller, observer, feedforward) {
 
   private val flywheelSim = FlywheelSim(
