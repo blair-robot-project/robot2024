@@ -3,7 +3,7 @@ package frc.team449.robot2024.auto
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.Nat
-import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.wpilibj2.command.*
 import frc.team449.control.auto.ChoreoTrajectory
 import frc.team449.robot2024.Robot
@@ -17,11 +17,11 @@ object AutoUtil {
     return ParallelCommandGroup(
       SequentialCommandGroup(
         robot.undertaker.intake(),
-        robot.feeder.slowIntake(),
+        robot.feeder.intake(),
         WaitUntilCommand { !robot.infrared.get() },
         robot.undertaker.stop(),
-        robot.feeder.outtake(),
-        WaitUntilCommand { robot.infrared.get() },
+//        robot.feeder.outtake(),
+//        WaitUntilCommand { robot.infrared.get() },
         robot.feeder.stop(),
       ),
       robot.shooter.shootSubwoofer()
@@ -61,29 +61,28 @@ object AutoUtil {
   }
 
   fun autoShoot(robot: Robot): Command {
-    return ConditionalCommand(
-      ParallelDeadlineGroup(
+    // return //ConditionalCommand(
+    return ParallelDeadlineGroup(
         SequentialCommandGroup(
           WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(AutoConstants.AUTO_SPINUP_TIMEOUT_SECONDS),
           robot.feeder.autoShootIntake(),
           robot.undertaker.intake(),
-          SequentialCommandGroup(
-            WaitUntilCommand { !robot.infrared.get() },
-            WaitUntilCommand { robot.closeToShooterInfrared.get() }
-          ).withTimeout(AutoConstants.AUTO_SHOOT_TIMEOUT_SECONDS)
+          WaitUntilCommand { robot.infrared.get() && robot.closeToShooterInfrared.get() }
+            .withTimeout(AutoConstants.AUTO_SHOOT_TIMEOUT_SECONDS)
         ),
-        robot.shooter.shootSubwoofer()
-      ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!")),
-      ParallelDeadlineGroup(
-        SequentialCommandGroup(
-          WaitUntilCommand { robot.shooter.atAutoSetpoint() },
-          robot.feeder.autoShootIntake(),
-          robot.undertaker.intake(),
-          WaitCommand(AutoConstants.SHOOT_INTAKE_TIME)
-        ),
-        robot.shooter.shootSubwoofer()
+        robot.shooter.shootSubwoofer(),
+        InstantCommand({ robot.drive.desiredSpeeds = ChassisSpeeds() })
       ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!"))
-    ) { RobotBase.isReal() }
+//      ParallelDeadlineGroup(
+//        SequentialCommandGroup(
+//          WaitUntilCommand { robot.shooter.atAutoSetpoint() },
+//          robot.feeder.autoShootIntake(),
+//          robot.undertaker.intake(),
+//          WaitCommand(AutoConstants.SHOOT_INTAKE_TIME)
+//        ),
+//        robot.shooter.shootSubwoofer()
+//      ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!"))
+//    ) { RobotBase.isReal() }
   }
 
   fun transformForRed(pathGroup: MutableList<ChoreoTrajectory>): MutableList<ChoreoTrajectory> {

@@ -45,54 +45,34 @@ class ControllerBindings(
 
   val shooterRoutine = SysIdRoutine(
     SysIdRoutine.Config(
-      Volts.of(0.70).per(Seconds.of(1.0)),
-      Volts.of(6.0),
-      Seconds.of(10.0)
+      Volts.of(0.20).per(Seconds.of(1.0)),
+      Volts.of(3.0),
+      Seconds.of(20.0)
     ),
     Mechanism(
       { voltage: Measure<Voltage> ->
         run {
-          robot.shooter.setLeftVoltage(voltage.`in`(Volts))
-          robot.shooter.setRightVoltage(voltage.`in`(Volts))
+          robot.shooter.setVoltage(voltage.`in`(Volts))
         }
       },
       { log: SysIdRoutineLog ->
         run {
-          log.motor("shooter-left")
+          log.motor("shooter")
             .voltage(
               m_appliedVoltage.mut_replace(
-                robot.shooter.leftMotor.get() * robot.powerDistribution.voltage,
+                robot.shooter.motor.get() * robot.powerDistribution.voltage,
                 Volts
               )
             )
             .angularPosition(
               m_angle.mut_replace(
-                robot.shooter.leftMotor.position,
+                robot.shooter.motor.position,
                 Radians
               )
             )
             .angularVelocity(
               m_velocity.mut_replace(
-                robot.shooter.leftVelocity.get(),
-                RadiansPerSecond
-              )
-            )
-          log.motor("shooter-right")
-            .voltage(
-              m_appliedVoltage.mut_replace(
-                robot.shooter.rightMotor.get() * robot.powerDistribution.voltage,
-                Volts
-              )
-            )
-            .angularPosition(
-              m_angle.mut_replace(
-                robot.shooter.rightMotor.position,
-                Radians
-              )
-            )
-            .angularVelocity(
-              m_velocity.mut_replace(
-                robot.shooter.rightVelocity.get(),
+                robot.shooter.velocity.get(),
                 RadiansPerSecond
               )
             )
@@ -154,14 +134,10 @@ class ControllerBindings(
 
     robot.mechController.povUp().onTrue(
       robot.pivot.manualUp()
-    ).onFalse(
-      robot.pivot.hold()
     )
 
     robot.mechController.povDown().onTrue(
       robot.pivot.manualDown()
-    ).onFalse(
-      robot.pivot.hold()
     )
 
     mechanismController.a().onTrue(
@@ -171,7 +147,7 @@ class ControllerBindings(
     mechanismController.leftBumper().onTrue(
       SequentialCommandGroup(
         checkNoteInLocation(),
-        robot.shooter.scoreAmp()
+        robot.shooter.scoreAmp(),
       )
     )
 
@@ -241,7 +217,7 @@ class ControllerBindings(
     mechanismController.rightBumper().onTrue(
       SequentialCommandGroup(
         checkNoteInLocation(),
-        robot.shooter.shootSubwoofer()
+        robot.shooter.shootSubwoofer(),
       )
     )
 

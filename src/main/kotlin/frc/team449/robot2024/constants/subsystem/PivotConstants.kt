@@ -17,12 +17,11 @@ object PivotConstants {
   const val ENC_CHANNEL = 0
   const val GEARING = 1.0 / 75.0
   const val UPR = 2 * PI / 1.5
-  const val OFFSET = -0.2125 + (0.150882 / UPR) + (0.829237 / UPR)
+  const val OFFSET = -0.2125 + (0.150882 / UPR) + (0.829237 / UPR) - (0.012295 / UPR) +
+    (0.020301 / UPR)
   const val ENC_INVERTED = true
-  const val MIN_ENC = -0.05
-  const val MAX_ENC = 0.95
 
-  val QUAD_ENCODER = Encoder(4, 6)
+  val QUAD_ENCODER = Encoder(1, 2)
   val CPR = 2048
   val SAMPLES_TO_AVERAGE = 127
 
@@ -40,7 +39,7 @@ object PivotConstants {
   /** Deviations for Kalman filter in units of radians or radians / seconds */
   val MODEL_POS_DEVIATION = Units.degreesToRadians(10.0)
   val MODEL_VEL_DEVIATION = Units.degreesToRadians(20.0)
-  const val MODEL_ERROR_DEVIATION = 0.075
+  const val MODEL_ERROR_DEVIATION = 0.10
   val ENCODER_POS_DEVIATION = Units.degreesToRadians(0.25)
 
   /** LQR Position and Velocity tolerances */

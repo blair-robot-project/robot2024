@@ -18,21 +18,16 @@ import frc.team449.system.motor.WrappedMotor
 import java.util.function.Supplier
 
 class ShooterSim(
-  rightMotor: WrappedMotor,
-  leftMotor: WrappedMotor,
-  leftController: LinearQuadraticRegulator<N1, N1, N1>,
-  rightController: LinearQuadraticRegulator<N1, N1, N1>,
-  leftObserver: KalmanFilter<N2, N1, N1>,
-  rightObserver: KalmanFilter<N2, N1, N1>,
-  leftFeedforward: LinearPlantInversionFeedforward<N1, N1, N1>,
-  rightFeedforward: LinearPlantInversionFeedforward<N1, N1, N1>,
-  leftPlant: LinearSystem<N1, N1, N1>,
-  rightPlant: LinearSystem<N1, N1, N1>,
+  motor: WrappedMotor,
+  controller: LinearQuadraticRegulator<N1, N1, N1>,
+  observer: KalmanFilter<N2, N1, N1>,
+  feedforward: LinearPlantInversionFeedforward<N1, N1, N1>,
+  plant: LinearSystem<N1, N1, N1>,
   robot: Robot
-) : Shooter(rightMotor, leftMotor, leftController, rightController, leftObserver, rightObserver, leftFeedforward, rightFeedforward, robot) {
+) : Shooter(motor, controller, observer, feedforward, robot) {
 
-  private val leftFlywheelSim = FlywheelSim(
-    leftPlant,
+  private val flywheelSim = FlywheelSim(
+    plant,
     DCMotor(
       MotorConstants.NOMINAL_VOLTAGE,
       MotorConstants.STALL_TORQUE * ShooterConstants.EFFICIENCY,
@@ -44,35 +39,17 @@ class ShooterSim(
     1 / ShooterConstants.GEARING,
   )
 
-  private val rightFlywheelSim = FlywheelSim(
-    rightPlant,
-    DCMotor(
-      MotorConstants.NOMINAL_VOLTAGE,
-      MotorConstants.STALL_TORQUE * ShooterConstants.EFFICIENCY,
-      MotorConstants.STALL_CURRENT,
-      MotorConstants.FREE_CURRENT,
-      MotorConstants.FREE_SPEED,
-      ShooterConstants.NUM_MOTORS
-    ),
-    1 / ShooterConstants.GEARING,
-  )
-
-  override val leftVelocity: Supplier<Double> =
-    Supplier { leftFlywheelSim.angularVelocityRadPerSec }
-
-  override val rightVelocity: Supplier<Double> =
-    Supplier { rightFlywheelSim.angularVelocityRadPerSec }
+  override val velocity: Supplier<Double> =
+    Supplier { flywheelSim.angularVelocityRadPerSec }
 
   private var currentDraw = 0.0
 
   override fun periodic() {
-    leftFlywheelSim.setInputVoltage(MathUtil.clamp(leftMotor.lastVoltage, -12.0, 12.0))
-    rightFlywheelSim.setInputVoltage(MathUtil.clamp(rightMotor.lastVoltage, -12.0, 12.0))
+    flywheelSim.setInputVoltage(MathUtil.clamp(motor.lastVoltage, -12.0, 12.0))
 
-    leftFlywheelSim.update(RobotConstants.LOOP_TIME)
-    rightFlywheelSim.update(RobotConstants.LOOP_TIME)
+    flywheelSim.update(RobotConstants.LOOP_TIME)
 
-    currentDraw = leftFlywheelSim.currentDrawAmps + rightFlywheelSim.currentDrawAmps
+    currentDraw = ShooterConstants.NUM_MOTORS * flywheelSim.currentDrawAmps
   }
 
   override fun initSendable(builder: SendableBuilder) {

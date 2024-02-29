@@ -20,7 +20,7 @@ import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
-import frc.team449.robot2024.constants.subsystem.ShooterConstants
+import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
 import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.encoder.QuadEncoder
 import frc.team449.system.motor.WrappedMotor
@@ -185,7 +185,7 @@ open class Pivot(
   fun pivotShootAnywhere(): Command {
     return this.run {
       val distance = FieldConstants.SUBWOOFER_POSE.getDistance(robot.drive.pose.translation)
-      val goal = ShooterConstants.SHOOTING_MAP.get(distance).get(2, 0)
+      val goal = SpinShooterConstants.SHOOTING_MAP.get(distance).get(2, 0)
 
       correctAndPredict()
       motor.setVoltage(getVoltage())
@@ -223,15 +223,13 @@ open class Pivot(
   companion object {
     fun createPivot(robot: Robot): Pivot {
       val motor = createSparkMax(
-        "Shooter Right Motor",
+        "Pivot Motors",
         PivotConstants.MOTOR_ID,
         encCreator = AbsoluteEncoder.creator(
           PivotConstants.ENC_CHANNEL,
           PivotConstants.OFFSET,
           PivotConstants.UPR,
           PivotConstants.ENC_INVERTED,
-          max = PivotConstants.MAX_ENC,
-          min = PivotConstants.MIN_ENC
         ),
         inverted = PivotConstants.INVERTED,
         currentLimit = PivotConstants.CURRENT_LIM,

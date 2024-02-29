@@ -42,7 +42,7 @@ class PivotSim(
       PivotConstants.NUM_MOTORS
     ),
     1 / PivotConstants.GEARING,
-    PivotConstants.MOMENT_OF_INERTIA,
+    PivotConstants.MOMENT_OF_INERTIA + 1.0,
     PivotConstants.ARM_LENGTH,
     PivotConstants.MIN_ANGLE,
     PivotConstants.MAX_ANGLE,
