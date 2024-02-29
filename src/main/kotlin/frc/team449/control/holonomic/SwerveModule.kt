@@ -211,28 +211,29 @@ class SwerveModuleSim(
   location
 ) {
   // TODO: Sim needs integrating with refactored motor system
-  private val turningMotorEncoder = Encoder.SimController(turningMotor.encoder)
-  private val driveEncoder = Encoder.SimController(drivingMotor.encoder)
+  private var turnAngle = Rotation2d(0.0)
+  private var drivePosition = 0.0
+  private var driveVelocity = 0.0
   private var prevTime = Timer.getFPGATimestamp()
   override var state: SwerveModuleState
     get() = SwerveModuleState(
-      driveEncoder.velocity,
-      Rotation2d(turningMotorEncoder.position)
+      driveVelocity,
+      turnAngle
     )
     set(desiredState) {
       super.state = desiredState
-      turningMotorEncoder.position = desiredState.angle.radians
-      driveEncoder.velocity = desiredState.speedMetersPerSecond
+      turnAngle = desiredState.angle
+      driveVelocity = desiredState.speedMetersPerSecond
     }
   override val position: SwerveModulePosition
     get() = SwerveModulePosition(
-      driveEncoder.position,
-      Rotation2d(turningMotorEncoder.position)
+      drivePosition,
+      turnAngle
     )
 
   override fun update() {
     val currTime = Timer.getFPGATimestamp()
-    driveEncoder.position += driveEncoder.velocity * (currTime - prevTime)
+    drivePosition += driveVelocity * (currTime - prevTime)
     prevTime = currTime
   }
 }
