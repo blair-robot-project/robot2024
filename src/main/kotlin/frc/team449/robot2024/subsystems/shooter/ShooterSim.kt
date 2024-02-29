@@ -10,7 +10,6 @@ import edu.wpi.first.math.system.LinearSystem
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.simulation.FlywheelSim
-import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
@@ -23,8 +22,7 @@ class ShooterSim(
   observer: KalmanFilter<N2, N1, N1>,
   feedforward: LinearPlantInversionFeedforward<N1, N1, N1>,
   plant: LinearSystem<N1, N1, N1>,
-  robot: Robot
-) : Shooter(motor, controller, observer, feedforward, robot) {
+) : Shooter(motor, controller, observer, feedforward) {
 
   private val flywheelSim = FlywheelSim(
     plant,

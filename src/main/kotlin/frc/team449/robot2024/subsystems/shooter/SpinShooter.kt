@@ -136,19 +136,19 @@ open class SpinShooter(
 
   private fun getVoltages(): Pair<Double, Double> {
     val leftVoltage = MathUtil.clamp(
-      leftController.getU(0)
-        + leftFeedforward.getUff(0)
-        - leftObserver.getXhat(1)
-        + sign(desiredVels.first) * SpinShooterConstants.LEFT_KS,
+      leftController.getU(0) +
+        leftFeedforward.getUff(0) -
+        leftObserver.getXhat(1) +
+        sign(desiredVels.first) * SpinShooterConstants.LEFT_KS,
       -SpinShooterConstants.MAX_VOLTAGE,
       SpinShooterConstants.MAX_VOLTAGE
     )
 
     val rightVoltage = MathUtil.clamp(
-      rightController.getU(0)
-        + rightFeedforward.getUff(0)
-        - rightObserver.getXhat(1)
-        + sign(desiredVels.second) * SpinShooterConstants.RIGHT_KS,
+      rightController.getU(0) +
+        rightFeedforward.getUff(0) -
+        rightObserver.getXhat(1) +
+        sign(desiredVels.second) * SpinShooterConstants.RIGHT_KS,
       -SpinShooterConstants.MAX_VOLTAGE,
       SpinShooterConstants.MAX_VOLTAGE
     )

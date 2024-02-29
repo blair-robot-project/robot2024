@@ -49,7 +49,7 @@ class Robot : RobotBase(), Logged {
   val pivot = createPivot(this)
 
   @Log.NT
-  val shooter = createShooter(this)
+  val shooter = createShooter()
 
   @Log.NT
   val feeder = createFeeder()

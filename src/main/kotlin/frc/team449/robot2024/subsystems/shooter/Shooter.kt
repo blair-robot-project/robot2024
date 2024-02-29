@@ -13,7 +13,6 @@ import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
-import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
 import frc.team449.system.encoder.NEOEncoder
@@ -29,8 +28,7 @@ open class Shooter(
   val motor: WrappedMotor,
   private val controller: LinearQuadraticRegulator<N1, N1, N1>,
   private val observer: KalmanFilter<N2, N1, N1>,
-  private val feedforward: LinearPlantInversionFeedforward<N1, N1, N1>,
-  private val robot: Robot
+  private val feedforward: LinearPlantInversionFeedforward<N1, N1, N1>
 ) : SubsystemBase() {
 
   /** Desired velocity */
@@ -85,10 +83,10 @@ open class Shooter(
 
   private fun getVoltage(): Double {
     val voltage = MathUtil.clamp(
-      controller.getU(0)
-        + feedforward.getUff(0)
-        - observer.getXhat(1)
-        + sign(desiredVel) * ShooterConstants.KS,
+      controller.getU(0) +
+        feedforward.getUff(0) -
+        observer.getXhat(1) +
+        sign(desiredVel) * ShooterConstants.KS,
       -ShooterConstants.MAX_VOLTAGE,
       ShooterConstants.MAX_VOLTAGE
     )
@@ -231,7 +229,7 @@ open class Shooter(
   }
 
   companion object {
-    fun createShooter(robot: Robot): Shooter {
+    fun createShooter(): Shooter {
       val motor = createSparkMax(
         "Shooter Motor",
         ShooterConstants.RIGHT_MOTOR_ID,
@@ -305,8 +303,7 @@ open class Shooter(
           motor,
           controller,
           observer,
-          feedforward,
-          robot
+          feedforward
         )
       } else {
         ShooterSim(
@@ -314,8 +311,7 @@ open class Shooter(
           controller,
           observer,
           feedforward,
-          plantSim,
-          robot
+          plantSim
         )
       }
     }

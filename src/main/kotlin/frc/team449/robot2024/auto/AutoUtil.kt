@@ -63,16 +63,16 @@ object AutoUtil {
   fun autoShoot(robot: Robot): Command {
     // return //ConditionalCommand(
     return ParallelDeadlineGroup(
-        SequentialCommandGroup(
-          WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(AutoConstants.AUTO_SPINUP_TIMEOUT_SECONDS),
-          robot.feeder.autoShootIntake(),
-          robot.undertaker.intake(),
-          WaitUntilCommand { robot.infrared.get() && robot.closeToShooterInfrared.get() }
-            .withTimeout(AutoConstants.AUTO_SHOOT_TIMEOUT_SECONDS)
-        ),
-        robot.shooter.shootSubwoofer(),
-        InstantCommand({ robot.drive.desiredSpeeds = ChassisSpeeds() })
-      ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!"))
+      SequentialCommandGroup(
+        WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(AutoConstants.AUTO_SPINUP_TIMEOUT_SECONDS),
+        robot.feeder.autoShootIntake(),
+        robot.undertaker.intake(),
+        WaitUntilCommand { robot.infrared.get() && robot.closeToShooterInfrared.get() }
+          .withTimeout(AutoConstants.AUTO_SHOOT_TIMEOUT_SECONDS)
+      ),
+      robot.shooter.shootSubwoofer(),
+      InstantCommand({ robot.drive.desiredSpeeds = ChassisSpeeds() })
+    ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!"))
 //      ParallelDeadlineGroup(
 //        SequentialCommandGroup(
 //          WaitUntilCommand { robot.shooter.atAutoSetpoint() },
