@@ -439,7 +439,6 @@ open class SwerveDrive(
         SwerveModule.create(
           "FLModule",
           makeDrivingMotor(
-            "FL",
             SwerveConstants.DRIVE_MOTOR_FL,
             inverted = false
           ),
@@ -453,7 +452,7 @@ open class SwerveDrive(
             "FL",
             frontLeftTurn,
             frontLeftTurn.inverted
-            ),
+          ),
           driveMotorController(),
           turnMotorController(),
           driveFeedforward,
@@ -462,7 +461,6 @@ open class SwerveDrive(
         SwerveModule.create(
           "FRModule",
           makeDrivingMotor(
-            "FR",
             SwerveConstants.DRIVE_MOTOR_FR,
             inverted = false
           ),
@@ -486,7 +484,6 @@ open class SwerveDrive(
         SwerveModule.create(
           "BLModule",
           makeDrivingMotor(
-            "BL",
             SwerveConstants.DRIVE_MOTOR_BL,
             inverted = false
           ),
@@ -509,7 +506,6 @@ open class SwerveDrive(
         SwerveModule.create(
           "BRModule",
           makeDrivingMotor(
-            "BR",
             SwerveConstants.DRIVE_MOTOR_BR,
             inverted = false
           ),
@@ -553,7 +549,6 @@ open class SwerveDrive(
 
     /** Helper to make turning motors for swerve. */
     private fun makeDrivingMotor(
-      name: String,
       motorId: Int,
       inverted: Boolean
     ) =
@@ -582,7 +577,7 @@ open class SwerveDrive(
         gearing = 1.0,
         unitPerRotation = SwerveConstants.TURN_UPR,
         offset = offset,
-        currentLimit = SwerveConstants.STEERING_CURRENT_LIM
+        currentLimit = SwerveConstants.STEERING_CURRENT_LIM,
       )
   }
 }

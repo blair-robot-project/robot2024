@@ -7,8 +7,7 @@ import frc.team449.robot2024.Robot
 class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
 
   fun routineMap(): HashMap<String, Command> {
-    return hashMapOf(
-    )
+    return hashMapOf()
   }
 
   init {

@@ -69,7 +69,7 @@ object SparkUtil {
     sparkMax.burnFlash()
   }
 
-  fun createSparkMax (
+  fun createSparkMax(
     id: Int,
     unitPerRotation: Double,
     gearing: Double,
@@ -85,7 +85,7 @@ object SparkUtil {
     // encoder information
 
     encInverted: Boolean = false
-  ) : CANSparkMax {
+  ): CANSparkMax {
     val motor = CANSparkMax(
       id,
       CANSparkLowLevel.MotorType.kBrushless

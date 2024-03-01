@@ -39,31 +39,27 @@ class ControllerBindings(
   private val m_angle = mutable(Radians.of(0.0))
   private val m_velocity = mutable(RadiansPerSecond.of(0.0))
 
-
-
   val orbitCmd = OrbitAlign(
     robot.drive,
     robot.driveController.hid,
     FieldConstants.SUBWOOFER_POSE
   )
 
-
-
-  private fun robotBindings() {
-
-  }
+  private fun robotBindings() {}
 
   private fun nonRobotBindings() {
     // slow drive
-    driveController.rightBumper().onTrue(
-      InstantCommand({ robot.drive.maxLinearSpeed = 1.0 })
-        .andThen(InstantCommand({ robot.drive.maxRotSpeed = PI / 4 }))
-    ).onFalse(
-      InstantCommand({ robot.drive.maxLinearSpeed = RobotConstants.MAX_LINEAR_SPEED })
-        .andThen(
-          InstantCommand({ robot.drive.maxRotSpeed = RobotConstants.MAX_ROT_SPEED })
-        )
-    )
+    driveController.rightBumper()
+      .onTrue(
+        InstantCommand(
+          { robot.drive.maxLinearSpeed = 1.0 }
+        ).andThen(InstantCommand({ robot.drive.maxRotSpeed = PI / 4 }))
+      ).onFalse(
+        InstantCommand({ robot.drive.maxLinearSpeed = RobotConstants.MAX_LINEAR_SPEED })
+          .andThen(
+            InstantCommand({ robot.drive.maxRotSpeed = RobotConstants.MAX_ROT_SPEED })
+          )
+      )
 
     // reset gyro
     driveController.start().onTrue(
