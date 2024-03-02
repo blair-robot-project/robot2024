@@ -8,7 +8,9 @@ import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.math.numbers.N3
+import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.Filesystem
+import frc.team449.robot2024.auto.AutoUtil
 import org.json.simple.JSONArray
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
@@ -67,7 +69,8 @@ class ChoreoTrajectory(
      * @param filename Filename of .chor document file. By default, it will check in the deploy/choreo folder
      */
     fun createTrajectory(
-      filename: String
+      filename: String,
+      alliance: Alliance = Alliance.Blue
     ): MutableList<ChoreoTrajectory> {
       val path = Filesystem.getDeployDirectory().absolutePath.plus("/choreo/$filename.chor")
       val document = (JSONParser().parse(FileReader(File(path).absolutePath)) as JSONObject)["paths"] as HashMap<*, *>
@@ -93,8 +96,7 @@ class ChoreoTrajectory(
           )
         )
       }
-
-      return trajList
+      return if (alliance == Alliance.Red) AutoUtil.transformForRed(trajList) else trajList
     }
 
     private fun deadband(value: Double, deadband: Double = 1e-6): Double {

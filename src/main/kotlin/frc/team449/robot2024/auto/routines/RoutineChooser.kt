@@ -1,5 +1,6 @@
 package frc.team449.robot2024.auto.routines
 
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj2.command.Command
 import frc.team449.robot2024.Robot
@@ -9,14 +10,14 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
   fun routineMap(): HashMap<String, Command> {
     return hashMapOf(
       "DoNothing" to DoNothing(robot).createCommand(),
-      "Red4PieceAmp" to FourPieceSubwooferAmp(robot, true).createCommand(),
-      "Blue4PieceAmp" to FourPieceSubwooferAmp(robot, false).createCommand(),
-      "Red4PieceStage" to FourPieceSubwooferStage(robot, true).createCommand(),
-      "Blue4PieceStage" to FourPieceSubwooferStage(robot, false).createCommand(),
-      "Red3PieceMid" to Experimental3PieceMid(robot, true).createCommand(),
-      "Blue3PieceMid" to Experimental3PieceMid(robot, false).createCommand(),
-      "RedSubwoofer5Piece" to FivePieceSubwoofer(robot, true).createCommand(),
-      "BlueSubwoofer5Piece" to FivePieceSubwoofer(robot, false).createCommand(),
+      "Red4PieceAmp" to FourPieceSubwooferAmp(robot, DriverStation.Alliance.Red).createCommand(),
+      "Blue4PieceAmp" to FourPieceSubwooferAmp(robot, DriverStation.Alliance.Blue).createCommand(),
+      "Red4PieceStage" to FourPieceSubwooferStage(robot, DriverStation.Alliance.Red).createCommand(),
+      "Blue4PieceStage" to FourPieceSubwooferStage(robot, DriverStation.Alliance.Blue).createCommand(),
+      "Red3PieceMid" to Experimental3PieceMid(robot, DriverStation.Alliance.Red).createCommand(),
+      "Blue3PieceMid" to Experimental3PieceMid(robot, DriverStation.Alliance.Blue).createCommand(),
+      "RedSubwoofer5Piece" to FivePieceSubwoofer(robot, DriverStation.Alliance.Red).createCommand(),
+      "BlueSubwoofer5Piece" to FivePieceSubwoofer(robot, DriverStation.Alliance.Blue).createCommand(),
     )
   }
 
