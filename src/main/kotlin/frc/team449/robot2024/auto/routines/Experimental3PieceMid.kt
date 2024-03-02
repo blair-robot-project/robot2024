@@ -1,6 +1,5 @@
 package frc.team449.robot2024.auto.routines
 
-import edu.wpi.first.wpilibj.DriverStation.Alliance
 import frc.team449.control.auto.ChoreoRoutine
 import frc.team449.control.auto.ChoreoRoutineStructure
 import frc.team449.control.auto.ChoreoTrajectory
@@ -9,7 +8,7 @@ import frc.team449.robot2024.auto.AutoUtil
 
 class Experimental3PieceMid(
   robot: Robot,
-  alliance: Alliance
+  isRed: Boolean
 ) : ChoreoRoutineStructure {
 
   override val routine =
@@ -28,8 +27,12 @@ class Experimental3PieceMid(
       debug = false
     )
 
-  override val trajectory: MutableList<ChoreoTrajectory> = ChoreoTrajectory.createTrajectory(
-    "3_Piece_Mid",
-    alliance
-  )
+  override val trajectory: MutableList<ChoreoTrajectory> =
+    if (isRed) {
+      AutoUtil.transformForRed(
+        ChoreoTrajectory.createTrajectory("3_Piece_Mid")
+      )
+    } else {
+      ChoreoTrajectory.createTrajectory("3_Piece_Mid")
+    }
 }

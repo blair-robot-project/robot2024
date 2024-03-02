@@ -1,6 +1,5 @@
 package frc.team449.robot2024.auto.routines
 
-import edu.wpi.first.wpilibj.DriverStation.Alliance
 import frc.team449.control.auto.ChoreoRoutine
 import frc.team449.control.auto.ChoreoRoutineStructure
 import frc.team449.control.auto.ChoreoTrajectory
@@ -9,7 +8,7 @@ import frc.team449.robot2024.auto.AutoUtil
 
 class FivePiece(
   robot: Robot,
-  alliance: Alliance
+  isRed: Boolean
 ) : ChoreoRoutineStructure {
   override val routine =
     ChoreoRoutine(
@@ -31,8 +30,12 @@ class FivePiece(
       debug = false
     )
 
-  override val trajectory: MutableList<ChoreoTrajectory> = ChoreoTrajectory.createTrajectory(
-    "4_Piece_Shoot_Anywhere",
-    alliance
-  )
+  override val trajectory: MutableList<ChoreoTrajectory> =
+    if (isRed) {
+      AutoUtil.transformForRed(
+        ChoreoTrajectory.createTrajectory("4_Piece_Shoot_Anywhere")
+      )
+    } else {
+      ChoreoTrajectory.createTrajectory("4_Piece_Shoot_Anywhere")
+    }
 }
