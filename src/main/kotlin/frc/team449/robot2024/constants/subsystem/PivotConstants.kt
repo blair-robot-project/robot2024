@@ -56,10 +56,12 @@ object PivotConstants {
 
   // Max at 40A should be 10.567679154992222
   const val MAX_ACCEL = 8.0
+  const val SLOW_ACCEL = 3.0
 
   val MIN_ANGLE = Units.degreesToRadians(0.0)
   val MAX_ANGLE = Units.degreesToRadians(105.0)
   val AMP_ANGLE = Units.degreesToRadians(100.53)
+  val CLIMB_ANGLE = Units.degreesToRadians(75.0)
   val STOW_ANGLE = Units.degreesToRadians(-1.0)
 
   // IS THIS CORRECT???

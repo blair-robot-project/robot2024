@@ -17,7 +17,7 @@ object SwerveConstants {
 
   /** Turning encoder channels */
   const val TURN_ENC_CHAN_FL = 5
-  const val TURN_ENC_CHAN_FR = 6
+  const val TURN_ENC_CHAN_FR = 4
   const val TURN_ENC_CHAN_BL = 7
   const val TURN_ENC_CHAN_BR = 8
 

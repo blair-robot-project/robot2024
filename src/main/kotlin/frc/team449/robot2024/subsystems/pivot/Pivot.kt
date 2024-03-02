@@ -40,6 +40,13 @@ open class Pivot(
   private val robot: Robot
 ) : SubsystemBase() {
 
+  private val slowProfile = TrapezoidProfile(
+    TrapezoidProfile.Constraints(
+      PivotConstants.MAX_VELOCITY,
+      PivotConstants.SLOW_ACCEL
+    )
+  )
+
   open val positionSupplier: Supplier<Double> =
     Supplier { encoder.position }
 
@@ -126,6 +133,12 @@ open class Pivot(
     }
   }
 
+  fun moveClimb(): Command {
+    return this.run {
+      moveToAngleSlow(PivotConstants.CLIMB_ANGLE)
+    }
+  }
+
   fun autoAngle(): Command {
     return this.run {
       moveToAngle(PivotConstants.AUTO_ANGLE)
@@ -192,6 +205,14 @@ open class Pivot(
 
       lastProfileReference = TrapezoidProfile.State(goal, 0.0)
     }
+  }
+
+  private fun moveToAngleSlow(goal: Double) {
+    lastProfileReference = slowProfile.calculate(RobotConstants.LOOP_TIME, lastProfileReference, TrapezoidProfile.State(goal, 0.0))
+
+    correctAndPredict()
+
+    motor.setVoltage(getVoltage())
   }
 
   private fun moveToAngle(goal: Double) {

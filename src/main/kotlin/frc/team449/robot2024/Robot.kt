@@ -57,6 +57,9 @@ class Robot : RobotBase(), Logged {
   @Log.NT
   val climber = createClimber(this)
 
+  @Log.NT
   val infrared = DigitalInput(RobotConstants.IR_CHANNEL)
+
+  @Log.NT
   val closeToShooterInfrared = DigitalInput(RobotConstants.IR_CHANNEL2)
 }

@@ -134,10 +134,14 @@ class ControllerBindings(
 
     robot.mechController.povUp().onTrue(
       robot.pivot.manualUp()
+    ).onFalse(
+      robot.pivot.hold()
     )
 
     robot.mechController.povDown().onTrue(
       robot.pivot.manualDown()
+    ).onFalse(
+      robot.pivot.hold()
     )
 
     mechanismController.a().onTrue(
@@ -191,10 +195,8 @@ class ControllerBindings(
       )
     )
 
-    mechanismController.start().onTrue(
-      robot.feeder.autoShootIntake()
-    ).onFalse(
-      robot.feeder.stop()
+    mechanismController.x().onTrue(
+      robot.pivot.moveClimb()
     )
 
     mechanismController.back().onTrue(
@@ -205,7 +207,7 @@ class ControllerBindings(
         .withTimeout(FeederConstants.CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS)
     )
 
-    mechanismController.x().onTrue(
+    mechanismController.start().onTrue(
       ParallelCommandGroup(
         robot.feeder.outtake(),
         robot.shooter.duringIntake()
