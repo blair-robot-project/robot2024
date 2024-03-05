@@ -8,9 +8,9 @@ object FeederConstants {
   const val GEARING = 1.0 / 9.0
 
   const val INTAKE_VOLTAGE = 7.5
-  const val SLOW_INTAKE_VOLTAGE = 6.0
+  const val SLOW_INTAKE_VOLTAGE = 4.0
   const val AUTO_SHOOT_INTAKE_VOLTAGE = 12.0
-  const val REVERSE_VOLTAGE = -3.0
+  const val REVERSE_VOLTAGE = -2.35
 
   const val BRAKE_MODE = false
 

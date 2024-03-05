@@ -20,8 +20,8 @@ object AutoUtil {
         robot.feeder.intake(),
         WaitUntilCommand { !robot.infrared.get() },
         robot.undertaker.stop(),
-//        robot.feeder.outtake(),
-//        WaitUntilCommand { robot.infrared.get() },
+        robot.feeder.outtake(),
+        WaitCommand(0.10),
         robot.feeder.stop(),
       ),
       robot.shooter.shootSubwoofer()

@@ -18,7 +18,7 @@ object PivotConstants {
   const val GEARING = 1.0 / 75.0
   const val UPR = 2 * PI / 1.5
   const val OFFSET = -0.2125 + (0.150882 / UPR) + (0.829237 / UPR) - (0.012295 / UPR) +
-    (0.020301 / UPR)
+    (0.020301 / UPR) + (0.339 / UPR)
   const val ENC_INVERTED = true
 
   val QUAD_ENCODER = Encoder(1, 2)
@@ -60,9 +60,9 @@ object PivotConstants {
 
   val MIN_ANGLE = Units.degreesToRadians(0.0)
   val MAX_ANGLE = Units.degreesToRadians(105.0)
-  val AMP_ANGLE = Units.degreesToRadians(100.53)
-  val CLIMB_ANGLE = Units.degreesToRadians(75.0)
-  val STOW_ANGLE = Units.degreesToRadians(-1.0)
+  val AMP_ANGLE = Units.degreesToRadians(95.0)
+  val CLIMB_ANGLE = Units.degreesToRadians(70.0)
+  val STOW_ANGLE = Units.degreesToRadians(-2.0)
 
   // IS THIS CORRECT???
   val AUTO_ANGLE = 0.350

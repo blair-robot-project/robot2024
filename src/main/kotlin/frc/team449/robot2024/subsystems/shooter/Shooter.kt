@@ -251,8 +251,8 @@ open class Shooter(
       )
 
       val plantSim = LinearSystemId.identifyVelocitySystem(
-        ShooterConstants.KV + 0.005,
-        ShooterConstants.KA + 0.003
+        ShooterConstants.KV + 0.0125,
+        ShooterConstants.KA + 0.0065
       )
 
       val observer = KalmanFilter(

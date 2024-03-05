@@ -99,7 +99,13 @@ class ControllerBindings(
 
   private fun robotBindings() {
     mechanismController.y().onTrue(
-      robot.pivot.moveAmp()
+      ParallelCommandGroup(
+        robot.undertaker.slowIntake().andThen(
+          WaitCommand(0.25),
+          robot.pivot.moveAmp()
+        ),
+        robot.shooter.scoreAmp()
+      )
     )
 
     Trigger { abs(mechanismController.hid.leftY) > 0.15 || abs(mechanismController.hid.rightY) > 0.15 }.onTrue(
@@ -150,7 +156,8 @@ class ControllerBindings(
 
     mechanismController.leftBumper().onTrue(
       SequentialCommandGroup(
-        checkNoteInLocation(),
+        slowIntake(),
+        outtakeToNotePosition(),
         robot.shooter.scoreAmp(),
       )
     )
@@ -218,7 +225,8 @@ class ControllerBindings(
 
     mechanismController.rightBumper().onTrue(
       SequentialCommandGroup(
-        checkNoteInLocation(),
+        slowIntake(),
+        outtakeToNotePosition(),
         robot.shooter.shootSubwoofer(),
       )
     )

@@ -21,9 +21,9 @@ object ShooterConstants {
 
   val BRAKE_RATE_LIMIT = Units.rotationsPerMinuteToRadiansPerSecond(4000.0)
 
-  const val KS = 0.38732
+  const val KS = 0.075
   const val KV = 0.012718
-  const val KA = 0.0075191
+  const val KA = 0.010
 
   const val IN_TOLERANCE = 6.5
 
