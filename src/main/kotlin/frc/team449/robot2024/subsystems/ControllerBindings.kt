@@ -20,6 +20,7 @@ import frc.team449.robot2024.auto.AutoUtil
 import frc.team449.robot2024.commands.drive.OrbitAlign
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
+import frc.team449.robot2024.constants.subsystem.FeederConstants
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.PI
 import kotlin.math.abs
@@ -45,54 +46,34 @@ class ControllerBindings(
 
   val shooterRoutine = SysIdRoutine(
     SysIdRoutine.Config(
-      Volts.of(0.70).per(Seconds.of(1.0)),
-      Volts.of(6.0),
-      Seconds.of(10.0)
+      Volts.of(0.20).per(Seconds.of(1.0)),
+      Volts.of(3.0),
+      Seconds.of(20.0)
     ),
     Mechanism(
       { voltage: Measure<Voltage> ->
         run {
-          robot.shooter.setLeftVoltage(voltage.`in`(Volts))
-          robot.shooter.setRightVoltage(voltage.`in`(Volts))
+          robot.shooter.setVoltage(voltage.`in`(Volts))
         }
       },
       { log: SysIdRoutineLog ->
         run {
-          log.motor("shooter-left")
+          log.motor("shooter")
             .voltage(
               m_appliedVoltage.mut_replace(
-                robot.shooter.leftMotor.get() * robot.powerDistribution.voltage,
+                robot.shooter.motor.get() * robot.powerDistribution.voltage,
                 Volts
               )
             )
             .angularPosition(
               m_angle.mut_replace(
-                robot.shooter.leftMotor.position,
+                robot.shooter.motor.position,
                 Radians
               )
             )
             .angularVelocity(
               m_velocity.mut_replace(
-                robot.shooter.leftVelocity.get(),
-                RadiansPerSecond
-              )
-            )
-          log.motor("shooter-right")
-            .voltage(
-              m_appliedVoltage.mut_replace(
-                robot.shooter.rightMotor.get() * robot.powerDistribution.voltage,
-                Volts
-              )
-            )
-            .angularPosition(
-              m_angle.mut_replace(
-                robot.shooter.rightMotor.position,
-                Radians
-              )
-            )
-            .angularVelocity(
-              m_velocity.mut_replace(
-                robot.shooter.rightVelocity.get(),
+                robot.shooter.velocity.get(),
                 RadiansPerSecond
               )
             )
@@ -123,7 +104,13 @@ class ControllerBindings(
     )
 
     mechanismController.y().onTrue(
-      robot.pivot.moveAmp()
+      ParallelCommandGroup(
+        robot.undertaker.slowIntake().andThen(
+          WaitCommand(0.25),
+          robot.pivot.moveAmp()
+        ),
+        robot.shooter.scoreAmp()
+      )
     )
 
     Trigger { abs(mechanismController.hid.leftY) > 0.15 || abs(mechanismController.hid.rightY) > 0.15 }.onTrue(
@@ -174,12 +161,9 @@ class ControllerBindings(
 
     mechanismController.leftBumper().onTrue(
       SequentialCommandGroup(
-        SequentialCommandGroup(
-          slowIntake(),
-          outtakeToNotePosition()
-        )
-          .withTimeout(2.0),
-        robot.shooter.scoreAmp()
+        slowIntake(),
+        outtakeToNotePosition(),
+        robot.shooter.scoreAmp(),
       )
     )
 
@@ -187,7 +171,6 @@ class ControllerBindings(
       SequentialCommandGroup(
         WaitUntilCommand { robot.shooter.atSetpoint() },
         robot.feeder.intake(),
-        robot.undertaker.intake()
       ).alongWith(
         robot.shooter.scoreAmp()
       )
@@ -219,19 +202,24 @@ class ControllerBindings(
       )
     ).onFalse(
       SequentialCommandGroup(
-        slowIntake(),
-        outtakeToNotePosition(),
+        checkNoteInLocation(),
         stopAll()
       )
     )
 
-    mechanismController.start().onTrue(
-      robot.feeder.autoShootIntake()
-    ).onFalse(
-      robot.feeder.stop()
+    mechanismController.x().onTrue(
+      robot.pivot.moveClimb()
     )
 
-    mechanismController.x().onTrue(
+    mechanismController.back().onTrue(
+      SequentialCommandGroup(
+        slowIntake(),
+        outtakeToNotePosition()
+      )
+        .withTimeout(FeederConstants.CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS)
+    )
+
+    mechanismController.start().onTrue(
       ParallelCommandGroup(
         robot.feeder.outtake(),
         robot.shooter.duringIntake()
@@ -242,12 +230,9 @@ class ControllerBindings(
 
     mechanismController.rightBumper().onTrue(
       SequentialCommandGroup(
-        SequentialCommandGroup(
-          slowIntake(),
-          outtakeToNotePosition()
-        )
-          .withTimeout(2.0),
-        robot.shooter.shootSubwoofer()
+        slowIntake(),
+        outtakeToNotePosition(),
+        robot.shooter.shootSubwoofer(),
       )
     )
 
@@ -312,6 +297,17 @@ class ControllerBindings(
     )
   }
 
+  private fun checkNoteInLocation(): Command {
+    return ConditionalCommand(
+      InstantCommand(),
+      SequentialCommandGroup(
+        slowIntake(),
+        outtakeToNotePosition()
+      )
+    ) { !robot.infrared.get() && robot.closeToShooterInfrared.get() }
+      .withTimeout(FeederConstants.CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS)
+  }
+
   private fun slowIntake(): Command {
     return ConditionalCommand(
       SequentialCommandGroup(
@@ -331,11 +327,10 @@ class ControllerBindings(
         robot.undertaker.stop(),
         robot.feeder.outtake(),
         WaitUntilCommand { robot.closeToShooterInfrared.get() },
-        robot.feeder.stop(),
-        robot.shooter.rampStop()
+        stopAll()
       ),
       stopAll()
-    ) { !robot.infrared.get() }
+    ) { !robot.closeToShooterInfrared.get() }
 
     cmd.name = "outtake to note pos"
     return cmd

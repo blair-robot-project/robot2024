@@ -2,12 +2,8 @@ package frc.team449
 
 import edu.wpi.first.hal.FRCNetComm
 import edu.wpi.first.hal.HAL
-import edu.wpi.first.math.MatBuilder
-import edu.wpi.first.math.Nat
-import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj.TimedRobot
-import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -15,10 +11,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand
 import frc.team449.control.holonomic.SwerveSim
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.auto.routines.RoutineChooser
+import frc.team449.robot2024.commands.PivotCalibration
 import frc.team449.robot2024.commands.light.BlairChasing
 import frc.team449.robot2024.commands.light.BreatheHue
 import frc.team449.robot2024.commands.light.Rainbow
-import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.vision.VisionConstants
 import frc.team449.robot2024.subsystems.ControllerBindings
 import monologue.Annotations.Log
@@ -27,7 +23,8 @@ import monologue.Monologue
 import org.littletonrobotics.urcl.URCL
 import kotlin.jvm.optionals.getOrNull
 
-/** The main class of the robot, constructs all the subsystems and initializes default commands . */
+/** The main class of the robot, constructs all the subsystems
+ * and initializes default commands . */
 class RobotLoop : TimedRobot(), Logged {
 
   @Log.NT
@@ -50,13 +47,12 @@ class RobotLoop : TimedRobot(), Logged {
     if (RobotBase.isSimulation()) {
       // Don't complain about joysticks if there aren't going to be any
       DriverStation.silenceJoystickConnectionWarning(true)
+//      val instance = NetworkTableInstance.getDefault()
+//      instance.stopServer()
+//      instance.startClient4("localhost")
     }
 
-//    FieldConstants.SPEAKER_POSE = if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-//      FieldConstants.BLUE_SPEAKER
-//    } else {
-//      FieldConstants.RED_SPEAKER
-//    }
+    PivotCalibration(robot.pivot).ignoringDisable(true).schedule()
 
     println("Generating Auto Routines : ${Timer.getFPGATimestamp()}")
     routineMap = routineChooser.routineMap()
@@ -69,6 +65,7 @@ class RobotLoop : TimedRobot(), Logged {
 
     controllerBinder.bindButtons()
 
+    DriverStation.startDataLog(DataLogManager.getLog())
     Monologue.setupMonologue(this, "/Monologuing", false, false)
 
     URCL.start()
@@ -86,8 +83,6 @@ class RobotLoop : TimedRobot(), Logged {
   }
 
   override fun autonomousInit() {
-    VisionConstants.ENCODER_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .0125, .0125, .010))
-
     /** Every time auto starts, we update the chosen auto command */
     this.autoCommand = routineMap[routineChooser.selected]
     CommandScheduler.getInstance().schedule(this.autoCommand)

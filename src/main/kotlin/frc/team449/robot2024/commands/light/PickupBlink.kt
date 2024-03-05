@@ -15,7 +15,7 @@ class PickupBlink {
 
     for (x in 0 until 5) {
       cmdGroup.addCommands(InstantCommand({ setColor(light, 0, 255, 0) }))
-      cmdGroup.addCommands(WaitCommand(0.1))
+      cmdGroup.addCommands(WaitCommand(0.15))
       cmdGroup.addCommands(InstantCommand({ setColor(light, 0, 0, 0) }))
       cmdGroup.addCommands(WaitCommand(0.1))
     }

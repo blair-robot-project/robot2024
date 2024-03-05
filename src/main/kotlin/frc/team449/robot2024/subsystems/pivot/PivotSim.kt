@@ -16,17 +16,19 @@ import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
+import frc.team449.system.encoder.QuadEncoder
 import frc.team449.system.motor.WrappedMotor
 import java.util.function.Supplier
 
 class PivotSim(
-  private val motor: WrappedMotor,
+  simmedMotor: WrappedMotor,
+  encoder: QuadEncoder,
   controller: LinearQuadraticRegulator<N2, N1, N1>,
   feedforward: LinearPlantInversionFeedforward<N2, N1, N1>,
   observer: KalmanFilter<N3, N1, N1>,
   profile: TrapezoidProfile,
   robot: Robot
-) : Pivot(motor, controller, feedforward, observer, profile, robot) {
+) : Pivot(simmedMotor, encoder, controller, feedforward, observer, profile, robot) {
 
   private var currentState = Pair(0.0, 0.0)
 
@@ -40,7 +42,7 @@ class PivotSim(
       PivotConstants.NUM_MOTORS
     ),
     1 / PivotConstants.GEARING,
-    PivotConstants.MOMENT_OF_INERTIA,
+    PivotConstants.MOMENT_OF_INERTIA + 1.0,
     PivotConstants.ARM_LENGTH,
     PivotConstants.MIN_ANGLE,
     PivotConstants.MAX_ANGLE,
