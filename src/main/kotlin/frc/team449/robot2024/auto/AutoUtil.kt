@@ -61,7 +61,6 @@ object AutoUtil {
   }
 
   fun autoShoot(robot: Robot): Command {
-    // return //ConditionalCommand(
     return ParallelDeadlineGroup(
       SequentialCommandGroup(
         WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(AutoConstants.AUTO_SPINUP_TIMEOUT_SECONDS),
@@ -71,18 +70,8 @@ object AutoUtil {
           .withTimeout(AutoConstants.AUTO_SHOOT_TIMEOUT_SECONDS)
       ),
       robot.shooter.shootSubwoofer(),
-      InstantCommand({ robot.drive.desiredSpeeds = ChassisSpeeds() })
+      InstantCommand({ robot.drive.set(ChassisSpeeds()) })
     ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!"))
-//      ParallelDeadlineGroup(
-//        SequentialCommandGroup(
-//          WaitUntilCommand { robot.shooter.atAutoSetpoint() },
-//          robot.feeder.autoShootIntake(),
-//          robot.undertaker.intake(),
-//          WaitCommand(AutoConstants.SHOOT_INTAKE_TIME)
-//        ),
-//        robot.shooter.shootSubwoofer()
-//      ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!"))
-//    ) { RobotBase.isReal() }
   }
 
   fun transformForRed(pathGroup: MutableList<ChoreoTrajectory>): MutableList<ChoreoTrajectory> {

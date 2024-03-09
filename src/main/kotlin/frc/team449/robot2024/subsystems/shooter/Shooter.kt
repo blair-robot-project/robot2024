@@ -251,8 +251,8 @@ open class Shooter(
       )
 
       val plantSim = LinearSystemId.identifyVelocitySystem(
-        ShooterConstants.KV + 0.0125,
-        ShooterConstants.KA + 0.0065
+        ShooterConstants.KV - 0.0075,
+        ShooterConstants.KA
       )
 
       val observer = KalmanFilter(
@@ -292,6 +292,8 @@ open class Shooter(
         VecBuilder.fill(ShooterConstants.LQR_MAX_VOLTS),
         RobotConstants.LOOP_TIME
       )
+
+      controller.latencyCompensate(plant, RobotConstants.LOOP_TIME, ShooterConstants.ENCODER_DELAY)
 
       val feedforward = LinearPlantInversionFeedforward(
         plant,

@@ -144,6 +144,7 @@
             1.0,
             255.0
           ],
+          "length": 0.6858000159263611,
           "style": "Box/Image"
         },
         "Robot": {
@@ -168,15 +169,15 @@
         },
         "bottom": 1476,
         "cameras": {
-          "arrows": false,
-          "style": "Box/Image"
+          "arrowSize": 3,
+          "style": "Track"
         },
         "height": 8.210550308227539,
         "image": "C:\\Users\\jpoth\\Downloads\\image(1).png",
         "left": 150,
         "right": 2961,
         "top": 79,
-        "units": "meters",
+        "units": "inches",
         "visibleTargetPoses": {
           "selectable": false,
           "style": "Hidden"
@@ -206,6 +207,11 @@
         },
         "back_left-processed": {
           "string[]##v_/CameraPublisher/back_left-processed/streams": {
+            "open": true
+          }
+        },
+        "back_right-processed": {
+          "string[]##v_/CameraPublisher/back_right-processed/streams": {
             "open": true
           }
         },

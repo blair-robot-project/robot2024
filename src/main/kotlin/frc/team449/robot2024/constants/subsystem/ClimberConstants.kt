@@ -5,7 +5,7 @@ object ClimberConstants {
   const val LEFT_ID = 13
 
   const val RIGHT_INVERTED = true
-  const val LEFT_INVERTED = false
+  const val LEFT_INVERTED = true
 
   const val CURRENT_LIM = 40
 

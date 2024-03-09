@@ -30,11 +30,12 @@ object ShooterConstants {
   const val NUM_MOTORS = 2
 
   const val MODEL_VEL_STDDEV = 3.0
-  const val INPT_ERR_STDDEV = 0.000275
+  const val INPT_ERR_STDDEV = 0.000575
   const val ENCODER_VEL_STDDEV = 0.01
   const val LQR_VEL_TOL = 15.0
   const val LQR_MAX_VOLTS = 12.0
   const val MAX_VOLTAGE = 12.0
+  const val ENCODER_DELAY = 0.035
 
   const val MIN_COAST_VEL = 15.0
 

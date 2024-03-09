@@ -34,14 +34,6 @@ object VisionConstants {
   )
 
   /** Robot to Camera distance */
-  val frontLeft = Transform3d(
-    Translation3d(Units.inchesToMeters(9.143), Units.inchesToMeters(12.662), Units.inchesToMeters(15.4953)),
-    Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(45.0))
-  )
-  val frontRight = Transform3d(
-    Translation3d(Units.inchesToMeters(9.143), Units.inchesToMeters(-12.662), Units.inchesToMeters(15.4953)),
-    Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(-45.0))
-  )
   val backLeft = Transform3d(
     Translation3d(Units.inchesToMeters(-10.696), Units.inchesToMeters(10.848), Units.inchesToMeters(9.11)),
     Rotation3d(0.0, Units.degreesToRadians(-28.125), Units.degreesToRadians(180.0 + 7.5))
@@ -85,33 +77,21 @@ object VisionConstants {
 
   /** List of cameras that we want to use */
   val ESTIMATORS: ArrayList<VisionSubsystem> = arrayListOf(
-//    VisionSubsystem(
-//      "back_left",
-//      TAG_LAYOUT,
-//      backLeft,
-//      VISION_SIM
-//    ),
-//    VisionSubsystem(
-//      "back_right",
-//      TAG_LAYOUT,
-//      backRight,
-//      VISION_SIM
-//    ),
-//    VisionSubsystem(
-//      "front_left",
-//      TAG_LAYOUT,
-//      frontLeft,
-//      VISION_SIM
-//    ),
-//    VisionSubsystem(
-//      "front_right",
-//      TAG_LAYOUT,
-//      frontRight,
-//      VISION_SIM
-//    ),
+    VisionSubsystem(
+      "back_left",
+      TAG_LAYOUT,
+      backLeft,
+      VISION_SIM
+    ),
+    VisionSubsystem(
+      "back_right",
+      TAG_LAYOUT,
+      backRight,
+      VISION_SIM
+    )
   )
 
-  val ENCODER_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .20, .20, .015)
+  val ENCODER_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .125, .125, .0125)
   val SINGLE_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .225, .225, 1e+9)
   val MULTI_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .175, .175, .80)
 }

@@ -28,7 +28,7 @@ object SwerveConstants {
   const val TURN_ENC_OFFSET_BR = 0.5 + (0.3895)
 
   /** PID gains for turning each module */
-  const val TURN_KP = 0.85
+  const val TURN_KP = 0.95
   const val TURN_KI = 0.0
   const val TURN_KD = 0.0
 
@@ -41,7 +41,7 @@ object SwerveConstants {
   const val STEER_KS = 0.05
 
   /** PID gains for driving each module*/
-  const val DRIVE_KP = 0.4
+  const val DRIVE_KP = 0.475
   const val DRIVE_KI = 0.0
   const val DRIVE_KD = 0.0
 

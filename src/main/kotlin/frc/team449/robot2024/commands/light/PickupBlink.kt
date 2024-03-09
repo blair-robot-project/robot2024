@@ -9,20 +9,17 @@ import frc.team449.system.light.Light
 /** Description: Blink a certain color 5 times */
 class PickupBlink {
   fun blinkGreen(light: Light): Command {
-    val cmdGroup = SequentialCommandGroup()
+    val blinkCmd = InstantCommand({ setColor(light, 0, 255, 0) })
+    val wait1Cmd = WaitCommand(0.15)
+    val offCmd = InstantCommand({ setColor(light, 0, 0, 0) })
+    val wait2Cmd = WaitCommand(0.10)
 
-    cmdGroup.addRequirements(light)
-
-    for (x in 0 until 5) {
-      cmdGroup.addCommands(InstantCommand({ setColor(light, 0, 255, 0) }))
-      cmdGroup.addCommands(WaitCommand(0.15))
-      cmdGroup.addCommands(InstantCommand({ setColor(light, 0, 0, 0) }))
-      cmdGroup.addCommands(WaitCommand(0.1))
-    }
-
-    cmdGroup.ignoringDisable(true)
-
-    return cmdGroup
+    return SequentialCommandGroup(
+      blinkCmd,
+      wait1Cmd,
+      offCmd,
+      wait2Cmd
+    ).repeatedly()
   }
 
   private fun setColor(led: Light, r: Int, g: Int, b: Int) {

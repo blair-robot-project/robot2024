@@ -25,7 +25,10 @@ import frc.team449.system.AHRS
 import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.createSparkMax
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.hypot
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 /**
  * A Swerve Drive chassis.
@@ -100,32 +103,6 @@ open class SwerveDrive(
 
     for (module in modules)
       module.update()
-  }
-
-  // TODO: Do you notice a difference with this normalize function?
-  private fun normalizeDrive(desiredStates: Array<SwerveModuleState>, speeds: ChassisSpeeds) {
-    val translationalK: Double = hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) / maxLinearSpeed
-    val rotationalK: Double = abs(speeds.omegaRadiansPerSecond) / maxRotSpeed
-    val k = max(translationalK, rotationalK)
-
-    // Find how fast the fastest spinning drive motor is spinning
-    var realMaxSpeed = 0.0
-    for (moduleState in desiredStates) {
-      realMaxSpeed = max(realMaxSpeed, abs(moduleState.speedMetersPerSecond))
-    }
-
-    val scale =
-      if (realMaxSpeed > 0 && k < 1) {
-        k * SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED / realMaxSpeed
-      } else if (realMaxSpeed > 0) {
-        SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED / realMaxSpeed
-      } else {
-        1.0
-      }
-
-    for (moduleState in desiredStates) {
-      moduleState.speedMetersPerSecond *= scale
-    }
   }
 
   fun setVoltage(volts: Double) {
