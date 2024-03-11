@@ -45,9 +45,9 @@ class ControllerBindings(
 
   val shooterRoutine = SysIdRoutine(
     SysIdRoutine.Config(
-      Volts.of(0.20).per(Seconds.of(1.0)),
-      Volts.of(3.0),
-      Seconds.of(20.0)
+      Volts.of(0.7).per(Seconds.of(1.0)),
+      Volts.of(7.0),
+      Seconds.of(10.0)
     ),
     Mechanism(
       { voltage: Measure<Voltage> ->

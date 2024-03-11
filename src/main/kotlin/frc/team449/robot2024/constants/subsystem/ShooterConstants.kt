@@ -9,10 +9,10 @@ object ShooterConstants {
   const val RIGHT_MOTOR_INVERTED = true
   const val LEFT_MOTOR_ID = 46
   const val LEFT_MOTOR_INVERTED_RELATIVE_TO_RIGHT = true
-  const val CURRENT_LIMIT = 50
+  const val CURRENT_LIMIT = 100
   const val BRAKE_MODE = false
 
-  val SUBWOOFER_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3478.0)
+  val SUBWOOFER_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4000.0)
   val AUTO_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4350.0)
   val AMP_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(2000.0)
   val OUTTAKE_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(-200.0)
@@ -21,9 +21,9 @@ object ShooterConstants {
 
   val BRAKE_RATE_LIMIT = Units.rotationsPerMinuteToRadiansPerSecond(4000.0)
 
-  const val KS = 0.075
-  const val KV = 0.012718
-  const val KA = 0.010
+  const val KS = 0.45861
+  const val KV = 0.012569
+  const val KA = 0.011134
 
   const val IN_TOLERANCE = 6.5
 
