@@ -1,5 +1,7 @@
 package frc.team449.robot2024.subsystems.shooter
 
+
+import com.ctre.phoenix6.hardware.TalonFX
 import edu.wpi.first.math.*
 import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
@@ -15,9 +17,7 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
-import frc.team449.system.encoder.NEOEncoder
-import frc.team449.system.motor.WrappedMotor
-import frc.team449.system.motor.createSparkMax
+import frc.team449.system.motor.createTalon
 import java.util.function.Supplier
 import kotlin.Pair
 import kotlin.math.abs
@@ -25,7 +25,7 @@ import kotlin.math.pow
 import kotlin.math.sign
 
 open class Shooter(
-  val motor: WrappedMotor,
+  val motor: TalonFX,
   private val controller: LinearQuadraticRegulator<N1, N1, N1>,
   private val observer: KalmanFilter<N2, N1, N1>,
   private val feedforward: LinearPlantInversionFeedforward<N1, N1, N1>
@@ -35,7 +35,7 @@ open class Shooter(
   private var desiredVel = 0.0
 
   open val velocity: Supplier<Double> =
-    Supplier { motor.velocity }
+    Supplier { motor.velocity.value }
 
   private val rateLimiter = SlewRateLimiter(ShooterConstants.BRAKE_RATE_LIMIT)
 
@@ -215,7 +215,7 @@ open class Shooter(
 
   override fun initSendable(builder: SendableBuilder) {
     builder.publishConstString("1.0", "Motor Voltages")
-    builder.addDoubleProperty("1.1 Last Voltage", { motor.lastVoltage }, null)
+    builder.addDoubleProperty("1.1 Last Voltage", { motor.motorVoltage.value }, null)
     builder.publishConstString("2.0", "Current and Desired Velocities")
     builder.addDoubleProperty("2.1 Current Speed", { velocity.get() }, null)
     builder.addDoubleProperty("2.2 Desired Speed", { desiredVel }, null)
@@ -223,26 +223,20 @@ open class Shooter(
     builder.addDoubleProperty("3.1 Vel Error Pred", { observer.getXhat(0) - desiredVel }, null)
     builder.addDoubleProperty("3.2 Vel Error", { velocity.get() - desiredVel }, null)
     builder.publishConstString("4.0", "Encoder Positions")
-    builder.addDoubleProperty("4.1 Enc Pos", { motor.position }, null)
+    builder.addDoubleProperty("4.1 Enc Pos", { motor.position.value }, null)
     builder.publishConstString("5.0", "Input Err Estimation")
     builder.addDoubleProperty("5.1 Inpt Err Voltage", { -observer.getXhat(1) }, null)
   }
 
   companion object {
     fun createShooter(): Shooter {
-      val motor = createSparkMax(
-        "Shooter Motor",
+      val motor = createTalon(
         ShooterConstants.RIGHT_MOTOR_ID,
-        encCreator = NEOEncoder.creator(
-          ShooterConstants.UPR,
-          ShooterConstants.GEARING,
-          measurementPeriod = ShooterConstants.INTERNAL_MEASUREMENT_PD,
-          depth = ShooterConstants.INTERNAL_ENC_DEPTH
-        ),
         inverted = ShooterConstants.RIGHT_MOTOR_INVERTED,
         currentLimit = ShooterConstants.CURRENT_LIMIT,
-        enableBrakeMode = ShooterConstants.BRAKE_MODE,
-        slaveSparks = mapOf(Pair(ShooterConstants.LEFT_MOTOR_ID, ShooterConstants.LEFT_MOTOR_INVERTED_RELATIVE_TO_RIGHT))
+        followerTalons = listOf(
+          Pair(ShooterConstants.LEFT_MOTOR_ID, ShooterConstants.LEFT_MOTOR_INVERTED)
+        )
       )
 
       val plant = LinearSystemId.identifyVelocitySystem(

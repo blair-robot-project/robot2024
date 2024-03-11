@@ -66,7 +66,7 @@ class ControllerBindings(
             )
             .angularPosition(
               m_angle.mut_replace(
-                robot.shooter.motor.position,
+                robot.shooter.motor.position.value,
                 Radians
               )
             )

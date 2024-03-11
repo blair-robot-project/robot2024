@@ -1,5 +1,6 @@
 package frc.team449.robot2024.subsystems.shooter
 
+import com.ctre.phoenix6.hardware.TalonFX
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
@@ -13,11 +14,10 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim
 import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
-import frc.team449.system.motor.WrappedMotor
 import java.util.function.Supplier
 
 class ShooterSim(
-  motor: WrappedMotor,
+  motor: TalonFX,
   controller: LinearQuadraticRegulator<N1, N1, N1>,
   observer: KalmanFilter<N2, N1, N1>,
   feedforward: LinearPlantInversionFeedforward<N1, N1, N1>,
@@ -43,7 +43,7 @@ class ShooterSim(
   private var currentDraw = 0.0
 
   override fun periodic() {
-    flywheelSim.setInputVoltage(MathUtil.clamp(motor.lastVoltage, -12.0, 12.0))
+    flywheelSim.setInputVoltage(MathUtil.clamp(motor.motorVoltage.value, -12.0, 12.0))
 
     flywheelSim.update(RobotConstants.LOOP_TIME)
 

@@ -1,15 +1,16 @@
 package frc.team449.robot2024.constants.subsystem
 
+import com.ctre.phoenix6.signals.InvertedValue
 import edu.wpi.first.math.util.Units
 import kotlin.math.PI
 
 object ShooterConstants {
   const val EFFICIENCY = 0.8
   const val RIGHT_MOTOR_ID = 45
-  const val RIGHT_MOTOR_INVERTED = true
+  val RIGHT_MOTOR_INVERTED = InvertedValue.Clockwise_Positive
   const val LEFT_MOTOR_ID = 46
-  const val LEFT_MOTOR_INVERTED_RELATIVE_TO_RIGHT = true
-  const val CURRENT_LIMIT = 50
+  val LEFT_MOTOR_INVERTED = InvertedValue.CounterClockwise_Positive
+  const val CURRENT_LIMIT = 100.0
   const val BRAKE_MODE = false
 
   val SUBWOOFER_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3478.0)
