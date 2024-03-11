@@ -1,14 +1,15 @@
 package frc.team449.robot2024.commands.driveAlign
 
 import edu.wpi.first.math.MathUtil
-import edu.wpi.first.math.controller.PIDController
+import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
+import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Timer
-import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.team449.control.holonomic.SwerveDrive
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.auto.AutoConstants
@@ -23,12 +24,13 @@ import kotlin.math.*
  */
 class OrbitAlign(
   private val drive: SwerveDrive,
-  private val controller: XboxController,
-  private val point: Translation2d,
-  private val headingPID: PIDController = PIDController(
+  private val controller: CommandXboxController,
+  private val point: () -> Translation2d,
+  private val headingPID: ProfiledPIDController = ProfiledPIDController(
     AutoConstants.ORBIT_KP,
     0.0,
-    0.0
+    AutoConstants.ORBIT_KD,
+    TrapezoidProfile.Constraints(AutoConstants.MAX_ROT_VEL, AutoConstants.MAX_ROT_ACCEL)
   ),
   tolerance: Double = 0.015
 ) : Command() {
@@ -82,8 +84,8 @@ class OrbitAlign(
 
   override fun execute() {
     fieldToRobot = drive.pose.translation
-    robotToPoint = point - fieldToRobot
-    headingPID.setpoint = robotToPoint.angle.radians
+    robotToPoint = point.invoke() - fieldToRobot
+    headingPID.goal = TrapezoidProfile.State(robotToPoint.angle.radians, 0.0)
 
     val currTime = timer.get()
     dt = currTime - prevTime

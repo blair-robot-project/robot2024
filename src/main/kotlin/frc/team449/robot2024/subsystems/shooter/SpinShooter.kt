@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.RobotConstants
-import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
 import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.WrappedMotor
@@ -200,20 +199,20 @@ open class SpinShooter(
     return cmd
   }
 
-  fun shootAnywhere(): Command {
-    val cmd = this.run {
-      val distance = FieldConstants.SUBWOOFER_POSE.getDistance(robot.drive.pose.translation)
-
-      val rightSpeed = SpinShooterConstants.SHOOTING_MAP.get(distance).get(0, 0)
-      val leftSpeed = SpinShooterConstants.SHOOTING_MAP.get(distance).get(1, 0)
-
-      desiredVels = Pair(leftSpeed, rightSpeed)
-
-      shootPiece(rightSpeed, leftSpeed)
-    }
-    cmd.name = "shooting anywhere"
-    return cmd
-  }
+//  fun shootAnywhere(): Command {
+//    val cmd = this.run {
+//      val distance = FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)
+//
+//      val rightSpeed = SpinShooterConstants.SHOOTING_MAP.get(distance).get(0, 0)
+//      val leftSpeed = SpinShooterConstants.SHOOTING_MAP.get(distance).get(1, 0)
+//
+//      desiredVels = Pair(leftSpeed, rightSpeed)
+//
+//      shootPiece(rightSpeed, leftSpeed)
+//    }
+//    cmd.name = "shooting anywhere"
+//    return cmd
+//  }
 
   fun atSetpoint(): Boolean {
     return abs(leftVelocity.get() - desiredVels.first) < SpinShooterConstants.IN_TOLERANCE &&

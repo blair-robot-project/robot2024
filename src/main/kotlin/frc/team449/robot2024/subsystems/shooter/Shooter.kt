@@ -152,7 +152,7 @@ open class Shooter(
     return cmd
   }
 
-  private fun shootPiece(speed: Double) {
+  fun shootPiece(speed: Double) {
     if (DriverStation.isDisabled()) {
       correct()
     } else {

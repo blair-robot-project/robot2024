@@ -15,6 +15,7 @@ import frc.team449.robot2024.commands.PivotCalibration
 import frc.team449.robot2024.commands.light.BlairChasing
 import frc.team449.robot2024.commands.light.BreatheHue
 import frc.team449.robot2024.commands.light.Rainbow
+import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.vision.VisionConstants
 import frc.team449.robot2024.subsystems.ControllerBindings
 import monologue.Annotations.Log
@@ -83,7 +84,7 @@ class RobotLoop : TimedRobot(), Logged {
   }
 
   override fun autonomousInit() {
-    /** Every time auto starts, we update the chosen auto command */
+    /** Every time auto starts, we update the chosen auto command. */
     this.autoCommand = routineMap[routineChooser.selected]
     CommandScheduler.getInstance().schedule(this.autoCommand)
 
@@ -91,6 +92,12 @@ class RobotLoop : TimedRobot(), Logged {
       BreatheHue(robot.light, 0).schedule()
     } else {
       BreatheHue(robot.light, 95).schedule()
+    }
+
+    if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
+      FieldConstants.SPEAKER_POSE = FieldConstants.RED_SPEAKER_POSE
+    } else if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
+      FieldConstants.SPEAKER_POSE = FieldConstants.BLUE_SPEAKER_POSE
     }
   }
 
@@ -104,6 +111,12 @@ class RobotLoop : TimedRobot(), Logged {
     (robot.light.currentCommand ?: InstantCommand()).cancel()
 
     robot.drive.defaultCommand = robot.driveCommand
+
+    if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
+      FieldConstants.SPEAKER_POSE = FieldConstants.RED_SPEAKER_POSE
+    } else if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
+      FieldConstants.SPEAKER_POSE = FieldConstants.BLUE_SPEAKER_POSE
+    }
   }
 
   override fun teleopPeriodic() {

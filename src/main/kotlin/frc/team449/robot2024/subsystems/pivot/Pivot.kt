@@ -197,8 +197,8 @@ open class Pivot(
 
   fun pivotShootAnywhere(): Command {
     return this.run {
-      val distance = FieldConstants.SUBWOOFER_POSE.getDistance(robot.drive.pose.translation)
-      val goal = SpinShooterConstants.SHOOTING_MAP.get(distance).get(2, 0)
+      val distance = FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)
+      val goal = SpinShooterConstants.SHOOTING_MAP.get(distance)
 
       correctAndPredict()
       motor.setVoltage(getVoltage())
@@ -207,7 +207,7 @@ open class Pivot(
     }
   }
 
-  private fun moveToAngleSlow(goal: Double) {
+  fun moveToAngleSlow(goal: Double) {
     lastProfileReference = slowProfile.calculate(RobotConstants.LOOP_TIME, lastProfileReference, TrapezoidProfile.State(goal, 0.0))
 
     correctAndPredict()
@@ -215,7 +215,7 @@ open class Pivot(
     motor.setVoltage(getVoltage())
   }
 
-  private fun moveToAngle(goal: Double) {
+  fun moveToAngle(goal: Double) {
     lastProfileReference = profile.calculate(RobotConstants.LOOP_TIME, lastProfileReference, TrapezoidProfile.State(goal, 0.0))
 
     correctAndPredict()
