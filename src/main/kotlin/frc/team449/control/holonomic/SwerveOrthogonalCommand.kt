@@ -75,7 +75,7 @@ class SwerveOrthogonalCommand(
     atGoal = true
   }
 
-  private fun snapToAngle(angle: Double) {
+  fun snapToAngle(angle: Double) {
     val desAngle = MathUtil.angleModulus(angle + allianceCompensation.invoke())
     if (abs(desAngle - drive.heading.radians) > RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
       abs(desAngle - drive.heading.radians) < 2 * PI - RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD

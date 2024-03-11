@@ -1,10 +1,6 @@
 package frc.team449.robot2024.constants.subsystem
 
-import edu.wpi.first.math.InterpolatingMatrixTreeMap
-import edu.wpi.first.math.MatBuilder
-import edu.wpi.first.math.Nat
-import edu.wpi.first.math.numbers.N1
-import edu.wpi.first.math.numbers.N3
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap
 import edu.wpi.first.math.util.Units
 import kotlin.math.PI
 
@@ -28,7 +24,8 @@ object SpinShooterConstants {
 
   val BRAKE_RATE_LIMIT = Units.rotationsPerMinuteToRadiansPerSecond(3750.0)
 
-  val SHOOTING_MAP = InterpolatingMatrixTreeMap<Double, N3, N1>()
+  val SHOOTING_MAP = InterpolatingDoubleTreeMap()
+  const val MAX_RANGE = 10.0 // m
 
   const val LEFT_KS = 0.051294
   const val RIGHT_KS = 0.067149
@@ -74,24 +71,9 @@ object SpinShooterConstants {
 
   init {
     /**
-     * Fill with values of optimized left/right and pivot angles
-     *  for a given distance to the Speaker
-     *
-     * It may be better to mathematically calculate pivot angle,
-     *  this is something to test
-     *
-     * Data is entered as following:
-     *  Right shooter speed, left shooter speed, pivot angle
+     * Data is entered as follows:
+     * SHOOTING_MAP.put(distanceToSpeaker, pivotAngle)
      */
-    SHOOTING_MAP.put(
-      0.0,
-      MatBuilder.fill(
-        Nat.N3(),
-        Nat.N1(),
-        0.0,
-        0.0,
-        0.0
-      )
-    )
+    SHOOTING_MAP.put(1.0, 1.0)
   }
 }
