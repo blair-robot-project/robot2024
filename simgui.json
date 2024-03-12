@@ -219,6 +219,9 @@
       "Monologuing": {
         "open": true,
         "robot": {
+          "closeToShooterInfrared": {
+            "open": true
+          },
           "drive": {
             "boolean[]##v_/Monologuing/robot/drive/2.1 Used Last Vision Estimate?": {
               "open": true
@@ -297,8 +300,7 @@
             },
             "int[]##v_/Monologuing/robot/drive/2.7 Total Rejected Vision Sights": {
               "open": true
-            },
-            "open": true
+            }
           },
           "intake": {
             "double[]##v_/Monologuing/robot/intake/3.1 Intake 3D Position": {

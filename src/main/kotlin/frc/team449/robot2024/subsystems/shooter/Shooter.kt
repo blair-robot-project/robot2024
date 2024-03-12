@@ -82,7 +82,7 @@ open class Shooter(
   }
 
   private fun getVoltage(): Double {
-    val voltage = MathUtil.clamp(
+    return MathUtil.clamp(
       controller.getU(0) +
         feedforward.getUff(0) -
         observer.getXhat(1) +
@@ -90,8 +90,6 @@ open class Shooter(
       -ShooterConstants.MAX_VOLTAGE,
       ShooterConstants.MAX_VOLTAGE
     )
-
-    return voltage
   }
 
   fun hold(): Command {
@@ -241,6 +239,7 @@ open class Shooter(
         ),
         inverted = ShooterConstants.RIGHT_MOTOR_INVERTED,
         currentLimit = ShooterConstants.CURRENT_LIMIT,
+        secondaryCurrentLimit = ShooterConstants.SECONDARY_CURRENT_LIMIT,
         enableBrakeMode = ShooterConstants.BRAKE_MODE,
         slaveSparks = mapOf(Pair(ShooterConstants.LEFT_MOTOR_ID, ShooterConstants.LEFT_MOTOR_INVERTED_RELATIVE_TO_RIGHT))
       )

@@ -19,6 +19,7 @@ fun createSparkMax(
   enableBrakeMode: Boolean = true,
   inverted: Boolean = false,
   currentLimit: Int = 0,
+  secondaryCurrentLimit: Double = 0.0,
   enableVoltageComp: Boolean = false,
   slaveSparks: Map<Int, Boolean> = mapOf(),
   controlFrameRateMillis: Int = -1,
@@ -65,6 +66,10 @@ fun createSparkMax(
   // Set the current limit if it was given
   if (currentLimit > 0) {
     motor.setSmartCurrentLimit(currentLimit)
+  }
+
+  if (secondaryCurrentLimit > 0) {
+    motor.setSecondaryCurrentLimit(secondaryCurrentLimit)
   }
 
   if (enableVoltageComp) {

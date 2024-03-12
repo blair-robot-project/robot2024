@@ -9,7 +9,8 @@ object ShooterConstants {
   const val RIGHT_MOTOR_INVERTED = true
   const val LEFT_MOTOR_ID = 46
   const val LEFT_MOTOR_INVERTED_RELATIVE_TO_RIGHT = true
-  const val CURRENT_LIMIT = 100
+  const val CURRENT_LIMIT = 85
+  const val SECONDARY_CURRENT_LIMIT = 150.0
   const val BRAKE_MODE = false
 
   val SUBWOOFER_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4000.0)

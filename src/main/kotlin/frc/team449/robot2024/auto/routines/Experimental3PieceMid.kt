@@ -34,9 +34,9 @@ class Experimental3PieceMid(
   override val trajectory: MutableList<ChoreoTrajectory> =
     if (isRed) {
       AutoUtil.transformForRed(
-        ChoreoTrajectory.createTrajectory("3_Piece_Mid")
+        ChoreoTrajectory.createTrajectory("3_Piece_Mid_ADJUSTED")
       )
     } else {
-      ChoreoTrajectory.createTrajectory("3_Piece_Mid")
+      ChoreoTrajectory.createTrajectory("3_Piece_Mid_ADJUSTED")
     }
 }

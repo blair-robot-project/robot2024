@@ -282,27 +282,37 @@ open class SwerveDrive(
       println(index)
     }
 
-    builder.publishConstString("3.0", "Steering Rot (Std Order FL, FR, BL, BR)")
+    builder.publishConstString("3.0", "Driving & Steering (Std Order FL, FR, BL, BR)")
     builder.addDoubleArrayProperty(
-      "3.1 Current Rotation",
-      { DoubleArray(modules.size) { index -> modules[index].position.angle.rotations } },
+      "3.1 Current States",
+      {
+        doubleArrayOf(
+          modules[0].state.angle.radians,
+          modules[0].state.speedMetersPerSecond,
+          modules[1].state.angle.radians,
+          modules[1].state.speedMetersPerSecond,
+          modules[2].state.angle.radians,
+          modules[2].state.speedMetersPerSecond,
+          modules[3].state.angle.radians,
+          modules[3].state.speedMetersPerSecond,
+        )
+      },
       null
     )
     builder.addDoubleArrayProperty(
-      "3.2 Desired Rotation",
-      { DoubleArray(modules.size) { index -> modules[index].desiredState.angle.rotations } },
-      null
-    )
-
-    builder.publishConstString("4.0", "Module Driving Speeds (Std Order FL, FR, BL, BR)")
-    builder.addDoubleArrayProperty(
-      "4.1 Desired Speed",
-      { DoubleArray(modules.size) { index -> modules[index].desiredState.speedMetersPerSecond } },
-      null
-    )
-    builder.addDoubleArrayProperty(
-      "4.2 Current Speeds",
-      { DoubleArray(modules.size) { index -> modules[index].state.speedMetersPerSecond } },
+      "3.2 Desired States",
+      {
+        doubleArrayOf(
+          modules[0].desiredState.angle.radians,
+          modules[0].desiredState.speedMetersPerSecond,
+          modules[1].desiredState.angle.radians,
+          modules[1].desiredState.speedMetersPerSecond,
+          modules[2].desiredState.angle.radians,
+          modules[2].desiredState.speedMetersPerSecond,
+          modules[3].desiredState.angle.radians,
+          modules[3].desiredState.speedMetersPerSecond,
+        )
+      },
       null
     )
 

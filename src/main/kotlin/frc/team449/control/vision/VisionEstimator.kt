@@ -2,6 +2,7 @@ package frc.team449.control.vision
 
 import edu.wpi.first.apriltag.AprilTag
 import edu.wpi.first.apriltag.AprilTagFieldLayout
+import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.geometry.*
 import edu.wpi.first.math.numbers.N1
@@ -100,6 +101,7 @@ class VisionEstimator(
         )
       )
     } else {
+      println("getting into single tag")
       lowestAmbiguityStrategy(result)
     }
   }
@@ -202,61 +204,43 @@ class VisionEstimator(
     val bestPose = targetPosition
       .get()
       .transformBy(
-        Transform3d(
-          lowestAmbiguityTarget.bestCameraToTarget.translation,
-          Rotation3d(
-            lowestAmbiguityTarget.bestCameraToTarget.rotation.x,
-            lowestAmbiguityTarget.bestCameraToTarget.rotation.y,
-            driveHeading!!.radians + robotToCam.rotation.z - targetPosition.get().rotation.z
-          )
-        ).inverse()
+        lowestAmbiguityTarget.bestCameraToTarget.inverse()
       )
       .transformBy(robotToCam.inverse())
+
+    println(driveHeading!!.radians)
 
     val altPose = targetPosition
       .get()
       .transformBy(
-        Transform3d(
-          lowestAmbiguityTarget.alternateCameraToTarget.translation,
-          Rotation3d(
-            lowestAmbiguityTarget.alternateCameraToTarget.rotation.x,
-            lowestAmbiguityTarget.alternateCameraToTarget.rotation.y,
-            driveHeading!!.radians + robotToCam.rotation.z - targetPosition.get().rotation.z
-          )
-        ).inverse()
+        lowestAmbiguityTarget.alternateCameraToTarget.inverse()
       )
       .transformBy(robotToCam.inverse())
 
     val usedPose = checkBest(lastPose, bestPose, altPose) ?: bestPose
 
     if (usedPose == bestPose) {
-      val camBestPose = targetPosition
-        .get()
-        .transformBy(
-          Transform3d(
-            lowestAmbiguityTarget.bestCameraToTarget.translation,
-            lowestAmbiguityTarget.bestCameraToTarget.rotation
-          ).inverse()
+      if (abs(
+          MathUtil.angleModulus(
+              MathUtil.angleModulus(bestPose.rotation.z) -
+                MathUtil.angleModulus(driveHeading!!.radians)
+            )
         )
-        .transformBy(robotToCam.inverse())
-
-      if (abs(camBestPose.rotation.z * (180 / (2 * PI)) - driveHeading!!.degrees) > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_DEG) {
-        DriverStation.reportWarning("Best Single Tag Heading over Max Deviation, deviated by ${abs(camBestPose.rotation.z * (180 / (2 * PI)) - driveHeading!!.degrees)}", false)
+      > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_RAD
+      ) {
+        DriverStation.reportWarning("Best Single Tag Heading over Max Deviation, deviated by ${abs(bestPose.rotation.z * (180 / (2 * PI)) - driveHeading!!.degrees)}", false)
         return Optional.empty()
       }
     } else {
-      val camAltPose = targetPosition
-        .get()
-        .transformBy(
-          Transform3d(
-            lowestAmbiguityTarget.alternateCameraToTarget.translation,
-            lowestAmbiguityTarget.alternateCameraToTarget.rotation
-          ).inverse()
+      if (abs(
+          MathUtil.angleModulus(
+              MathUtil.angleModulus(altPose.rotation.z) -
+                MathUtil.angleModulus(driveHeading!!.radians)
+            )
         )
-        .transformBy(robotToCam.inverse())
-
-      if (abs(camAltPose.rotation.z * (180 / (2 * PI)) - driveHeading!!.degrees) > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_DEG) {
-        DriverStation.reportWarning("Alt Single Tag Heading over Max Deviation, deviated by ${abs(camAltPose.rotation.z * (180 / (2 * PI)) - driveHeading!!.degrees)}", false)
+      > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_RAD
+      ) {
+        DriverStation.reportWarning("Alt Single Tag Heading over Max Deviation, deviated by ${abs(altPose.rotation.z * (180 / (2 * PI)) - driveHeading!!.degrees)}", false)
         return Optional.empty()
       }
     }

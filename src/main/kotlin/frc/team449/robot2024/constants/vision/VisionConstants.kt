@@ -50,9 +50,9 @@ object VisionConstants {
 
   /** Filtering Constants */
   const val MAX_AMBIGUITY = 0.325
-  const val MAX_DISTANCE_SINGLE_TAG = 3.0
-  const val MAX_DISTANCE_MULTI_TAG = 5.0
-  const val SINGLE_TAG_HEADING_MAX_DEV_DEG = 5.0
+  const val MAX_DISTANCE_SINGLE_TAG = 4.5
+  const val MAX_DISTANCE_MULTI_TAG = 6.0
+  val SINGLE_TAG_HEADING_MAX_DEV_RAD = Units.radiansToDegrees(5.0)
   var MAX_HEIGHT_ERR_METERS = 0.75
   const val NUM_TAG_FACTOR = 2.0
 

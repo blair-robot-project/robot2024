@@ -21,7 +21,7 @@ object AutoUtil {
         WaitUntilCommand { !robot.infrared.get() },
         robot.undertaker.stop(),
         robot.feeder.outtake(),
-        WaitCommand(0.10),
+        WaitCommand(0.075),
         robot.feeder.stop(),
       ),
       robot.shooter.shootSubwoofer()
@@ -66,6 +66,7 @@ object AutoUtil {
         WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(AutoConstants.AUTO_SPINUP_TIMEOUT_SECONDS),
         robot.feeder.autoShootIntake(),
         robot.undertaker.intake(),
+        WaitUntilCommand { !robot.infrared.get() || !robot.closeToShooterInfrared.get() },
         WaitUntilCommand { robot.infrared.get() && robot.closeToShooterInfrared.get() }
           .withTimeout(AutoConstants.AUTO_SHOOT_TIMEOUT_SECONDS)
       ),
