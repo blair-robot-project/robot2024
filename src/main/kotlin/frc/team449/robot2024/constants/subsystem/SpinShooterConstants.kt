@@ -19,7 +19,7 @@ object SpinShooterConstants {
   val ANYWHERE_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5750.0)
   val AUTO_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4750.0)
   val AUTO_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3650.0)
-  val AMP_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(2000.0)
+  val AMP_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(2250.0)
   val OUTTAKE_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(-200.0)
 
   const val AUTO_SHOOT_TOL = 30.0
