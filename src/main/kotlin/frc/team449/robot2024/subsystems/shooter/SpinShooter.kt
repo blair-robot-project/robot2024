@@ -15,12 +15,15 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.RobotConstants
+import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
 import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
 import kotlin.Pair
+import kotlin.jvm.optionals.getOrNull
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sign
@@ -199,20 +202,61 @@ open class SpinShooter(
     return cmd
   }
 
-//  fun shootAnywhere(): Command {
-//    val cmd = this.run {
-//      val distance = FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)
-//
-//      val rightSpeed = SpinShooterConstants.SHOOTING_MAP.get(distance).get(0, 0)
-//      val leftSpeed = SpinShooterConstants.SHOOTING_MAP.get(distance).get(1, 0)
-//
-//      desiredVels = Pair(leftSpeed, rightSpeed)
-//
-//      shootPiece(rightSpeed, leftSpeed)
-//    }
-//    cmd.name = "shooting anywhere"
-//    return cmd
-//  }
+  fun shootAnywhere(): Command {
+    val cmd = this.run {
+      shootPiece(
+        SpinShooterConstants.ANYWHERE_LEFT_SPEED,
+        SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+      )
+    }
+    cmd.name = "shooting anywhere speed"
+    return cmd
+  }
+
+  fun autoAim(): Command {
+    val cmd = FunctionalCommand(
+      { },
+      {
+        shootPiece(
+          SpinShooterConstants.ANYWHERE_LEFT_SPEED,
+          SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+        )
+
+        robot.pivot.moveToAngle(
+          SpinShooterConstants.SHOOTING_MAP.get(
+            abs(
+              FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)
+            )
+          )
+        )
+
+        val fieldToRobot = robot.drive.pose.translation
+        val robotToPoint = FieldConstants.SPEAKER_POSE - fieldToRobot
+
+        robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
+
+        if (robot.shooter.atSetpoint() &&
+          robot.driveCommand.atGoal &&
+          robot.pivot.inTolerance() &&
+          robot.mechController.hid.leftBumper
+        ) {
+          robot.feeder.intakeVoltage()
+          robot.undertaker.intakeVoltage()
+        }
+      },
+      { },
+      {
+        abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)) > SpinShooterConstants.MAX_RANGE ||
+          !robot.driveController.hid.leftBumper
+      },
+      this,
+      robot.pivot,
+      robot.feeder,
+      robot.undertaker
+    )
+    cmd.name = "auto aiming"
+    return cmd
+  }
 
   fun atSetpoint(): Boolean {
     return abs(leftVelocity.get() - desiredVels.first) < SpinShooterConstants.IN_TOLERANCE &&
@@ -325,6 +369,7 @@ open class SpinShooter(
     builder.addDoubleProperty("3.2 Right Vel Error Pred", { rightObserver.getXhat(0) - desiredVels.second }, null)
     builder.addDoubleProperty("3.3 Left Vel Error", { leftVelocity.get() - desiredVels.first }, null)
     builder.addDoubleProperty("3.4 Right Vel Error", { rightVelocity.get() - desiredVels.second }, null)
+    builder.addBooleanProperty("3.5 In tolerance", ::atSetpoint, null)
     builder.publishConstString("4.0", "Encoder Positions")
     builder.addDoubleProperty("4.1 Left Enc Pos", { leftMotor.position }, null)
     builder.addDoubleProperty("4.2 Left Enc Pos", { rightMotor.position }, null)

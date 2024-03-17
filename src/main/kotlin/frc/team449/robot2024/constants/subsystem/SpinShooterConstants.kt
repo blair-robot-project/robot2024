@@ -15,6 +15,8 @@ object SpinShooterConstants {
 
   val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3850.0)
   val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3850.0)
+  val ANYWHERE_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4250.0)
+  val ANYWHERE_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5750.0)
   val AUTO_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4750.0)
   val AUTO_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3650.0)
   val AMP_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(2000.0)
@@ -40,7 +42,7 @@ object SpinShooterConstants {
   /** In meters from the ground */
   const val SHOOTER_HEIGHT = 0.25
 
-  const val IN_TOLERANCE = 25.0
+  const val IN_TOLERANCE = 6.5
 
   /** These constants are PER SIDE of the shooter */
   const val NUM_MOTORS = 1
@@ -57,23 +59,19 @@ object SpinShooterConstants {
   /** Encoder stuff */
   const val INTERNAL_ENC_DEPTH = 4
   const val INTERNAL_MEASUREMENT_PD = 24
-  const val LEFT_CHANNEL_A = 1
-  const val LEFT_CHANNEL_B = 2
-
-  const val RIGHT_CHANNEL_A = 3
-  const val RIGHT_CHANNEL_B = 4
-  const val CPR = 2048
   const val UPR = 2 * PI
   const val GEARING = 2.0 / 1.0
-  const val LEFT_ENCODER_INVERTED = false
-  const val RIGHT_ENCODER_INVERTED = false
-  const val SAMPLES_TO_AVERAGE = 127
 
   init {
     /**
      * Data is entered as follows:
      * SHOOTING_MAP.put(distanceToSpeaker, pivotAngle)
      */
-    SHOOTING_MAP.put(1.0, 1.0)
+    SHOOTING_MAP.put(1.25, Units.degreesToRadians(0.0))
+    SHOOTING_MAP.put(1.5, Units.degreesToRadians(4.0))
+    SHOOTING_MAP.put(1.75, Units.degreesToRadians(10.0))
+    SHOOTING_MAP.put(2.25, Units.degreesToRadians(17.5))
+    SHOOTING_MAP.put(3.0, Units.degreesToRadians(21.0))
+    SHOOTING_MAP.put(7.0, Units.degreesToRadians(31.0))
   }
 }

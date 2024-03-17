@@ -8,7 +8,6 @@ import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.Voltage
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
@@ -16,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
 import frc.team449.control.holonomic.SwerveSim
 import frc.team449.robot2024.Robot
-import frc.team449.robot2024.commands.AutoAim
 import frc.team449.robot2024.commands.driveAlign.OrbitAlign
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
@@ -56,29 +54,7 @@ class ControllerBindings(
           robot.shooter.setVoltage(voltage.`in`(Volts))
         }
       },
-      { log: SysIdRoutineLog ->
-        run {
-          log.motor("shooter")
-            .voltage(
-              m_appliedVoltage.mut_replace(
-                robot.shooter.motor.get() * robot.powerDistribution.voltage,
-                Volts
-              )
-            )
-            .angularPosition(
-              m_angle.mut_replace(
-                robot.shooter.motor.position,
-                Radians
-              )
-            )
-            .angularVelocity(
-              m_velocity.mut_replace(
-                robot.shooter.velocity.get(),
-                RadiansPerSecond
-              )
-            )
-        }
-      },
+      null,
       robot.shooter,
       "shooter"
     )
@@ -155,11 +131,14 @@ class ControllerBindings(
       robot.pivot.moveStow()
     )
 
-    mechanismController.leftBumper().onTrue(
-      SequentialCommandGroup(
-        slowIntake(),
-        outtakeToNotePosition(),
-        robot.shooter.scoreAmp(),
+    driveController.leftBumper().onTrue(
+      robot.shooter.autoAim()
+    ).onFalse(
+      ParallelCommandGroup(
+        robot.undertaker.stop(),
+        robot.shooter.rampStop(),
+        robot.feeder.stop(),
+        robot.pivot.moveStow()
       )
     )
 
@@ -216,19 +195,27 @@ class ControllerBindings(
     )
 
     mechanismController.start().onTrue(
-      ParallelCommandGroup(
-        robot.feeder.outtake(),
-        robot.shooter.duringIntake()
+      SequentialCommandGroup(
+        slowIntake(),
+        outtakeToNotePosition(),
+        ParallelCommandGroup(
+          robot.shooter.shootAnywhere(),
+          robot.undertaker.slowIntake().andThen(
+            WaitCommand(0.25),
+            robot.pivot.readyAnywhere()
+          )
+        )
       )
-    ).onFalse(
-      stopAll()
     )
 
     mechanismController.rightBumper().onTrue(
       SequentialCommandGroup(
         slowIntake(),
         outtakeToNotePosition(),
-        robot.shooter.shootSubwoofer(),
+        ParallelCommandGroup(
+          robot.shooter.shootSubwoofer(),
+          robot.pivot.moveStow()
+        )
       )
     )
 
@@ -242,10 +229,6 @@ class ControllerBindings(
       )
     ).onFalse(
       stopAll()
-    )
-
-    driveController.y().onTrue(
-      AutoAim(robot)
     )
 
 //    /** Characterization */

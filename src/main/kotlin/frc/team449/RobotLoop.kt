@@ -111,12 +111,6 @@ class RobotLoop : TimedRobot(), Logged {
     (robot.light.currentCommand ?: InstantCommand()).cancel()
 
     robot.drive.defaultCommand = robot.driveCommand
-
-    if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
-      FieldConstants.SPEAKER_POSE = FieldConstants.RED_SPEAKER_POSE
-    } else if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
-      FieldConstants.SPEAKER_POSE = FieldConstants.BLUE_SPEAKER_POSE
-    }
   }
 
   override fun teleopPeriodic() {

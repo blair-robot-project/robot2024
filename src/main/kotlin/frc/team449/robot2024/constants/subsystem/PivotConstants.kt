@@ -16,7 +16,7 @@ object PivotConstants {
   /** Encoder stuff */
   const val ENC_CHANNEL = 0
   const val GEARING = 1.0 / 75.0
-  const val UPR = 2 * PI / 1.5
+  const val UPR = 2.0 * PI * (25.0 / 36.0)
   const val OFFSET = -0.2125 + (0.150882 / UPR) + (0.829237 / UPR) - (0.012295 / UPR) +
     (0.020301 / UPR) + (0.339 / UPR)
   const val ENC_INVERTED = true
@@ -43,11 +43,12 @@ object PivotConstants {
   val ENCODER_POS_DEVIATION = Units.degreesToRadians(0.25)
 
   /** LQR Position and Velocity tolerances */
-  val POS_TOLERANCE = Units.degreesToRadians(3.0)
-  val VEL_TOLERANCE = Units.degreesToRadians(10.0)
+  val POS_TOLERANCE = Units.degreesToRadians(2.0)
+  val VEL_TOLERANCE = Units.degreesToRadians(15.0)
   const val CONTROL_EFFORT_VOLTS = 12.0
 
-  val MAX_VEL_TOL = Units.degreesToRadians(30.0)
+  val MAX_POS_ERROR = 2.5
+  val MAX_VEL_ERROR = Units.degreesToRadians(30.0)
 
   const val MAX_VOLTAGE = 12.0
 
@@ -61,7 +62,8 @@ object PivotConstants {
   val MIN_ANGLE = Units.degreesToRadians(0.0)
   val MAX_ANGLE = Units.degreesToRadians(105.0)
   val AMP_ANGLE = Units.degreesToRadians(95.0)
-  val CLIMB_ANGLE = Units.degreesToRadians(55.0)
+  val ANYWHERE_ANGLE = Units.degreesToRadians(20.0)
+  val CLIMB_ANGLE = Units.degreesToRadians(65.0)
   val STOW_ANGLE = Units.degreesToRadians(-2.0)
 
   // IS THIS CORRECT???

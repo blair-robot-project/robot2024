@@ -133,6 +133,12 @@ open class Pivot(
     }
   }
 
+  fun readyAnywhere(): Command {
+    return this.run {
+      moveToAngle(PivotConstants.ANYWHERE_ANGLE)
+    }
+  }
+
   fun moveClimb(): Command {
     return this.run {
       moveToAngleSlow(PivotConstants.CLIMB_ANGLE)
@@ -152,8 +158,8 @@ open class Pivot(
   }
 
   fun inTolerance(): Boolean {
-    return abs(positionSupplier.get() - lastProfileReference.position) < PivotConstants.POS_TOLERANCE &&
-      abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_TOL
+    return abs(positionSupplier.get() - lastProfileReference.position) < PivotConstants.MAX_POS_ERROR &&
+      abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_ERROR
   }
 
   fun manualUp(): Command {
@@ -234,6 +240,7 @@ open class Pivot(
     builder.addDoubleProperty("2.5 Error", { lastProfileReference.position - positionSupplier.get() }, null)
     builder.addDoubleProperty("2.6 Absolute Position", { motor.position }, null)
     builder.addDoubleProperty("2.7 Absolute Velocity", { motor.velocity }, null)
+    builder.addBooleanProperty("2.8 In tolerance", ::inTolerance, null)
     builder.publishConstString("3.0", "State Space Stuff")
     builder.addDoubleProperty("3.1 Predicted Position", { observer.getXhat(0) }, null)
     builder.addDoubleProperty("3.2 Predicted Velocity", { observer.getXhat(1) }, null)

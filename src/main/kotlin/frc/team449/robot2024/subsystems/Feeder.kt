@@ -18,6 +18,10 @@ class Feeder(
     }
   }
 
+  fun intakeVoltage() {
+    motor.setVoltage(FeederConstants.INTAKE_VOLTAGE)
+  }
+
   fun autoShootIntake(): Command {
     return this.runOnce {
       motor.setVoltage(FeederConstants.AUTO_SHOOT_INTAKE_VOLTAGE)

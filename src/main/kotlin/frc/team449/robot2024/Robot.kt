@@ -12,7 +12,7 @@ import frc.team449.robot2024.subsystems.Climber.Companion.createClimber
 import frc.team449.robot2024.subsystems.Feeder.Companion.createFeeder
 import frc.team449.robot2024.subsystems.Undertaker.Companion.createUndertaker
 import frc.team449.robot2024.subsystems.pivot.Pivot.Companion.createPivot
-import frc.team449.robot2024.subsystems.shooter.Shooter.Companion.createShooter
+import frc.team449.robot2024.subsystems.shooter.SpinShooter.Companion.createSpinShooter
 import frc.team449.system.AHRS
 import frc.team449.system.light.Light.Companion.createLight
 import monologue.Annotations.Log
@@ -49,7 +49,7 @@ class Robot : RobotBase(), Logged {
   val pivot = createPivot(this)
 
   @Log.NT
-  val shooter = createShooter()
+  val shooter = createSpinShooter(this)
 
   @Log.NT
   val feeder = createFeeder()
