@@ -36,7 +36,7 @@ class SwerveOrthogonalCommand(
   private val allianceCompensation = { if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) PI else 0.0 }
   private val directionCompensation = { if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) -1.0 else 1.0 }
 
-  private var atGoal = true
+  var atGoal = true
 
   private var rotRamp = SlewRateLimiter(RobotConstants.ROT_RATE_LIMIT)
 
@@ -196,5 +196,8 @@ class SwerveOrthogonalCommand(
 
     builder.publishConstString("5.0", "Given Speeds")
     builder.addDoubleArrayProperty("Chassis Speed", { desiredVel }, null)
+
+    builder.publishConstString("6.0", "Rotation Controller")
+    builder.addBooleanProperty("6.1 Controller At Goal", { atGoal }, null)
   }
 }
