@@ -101,8 +101,9 @@ class VisionEstimator(
         )
       )
     } else {
-      println("getting into single tag")
-      lowestAmbiguityStrategy(result)
+      Optional.empty<EstimatedRobotPose>()
+//      println("getting into single tag")
+//      lowestAmbiguityStrategy(result)
     }
   }
 
