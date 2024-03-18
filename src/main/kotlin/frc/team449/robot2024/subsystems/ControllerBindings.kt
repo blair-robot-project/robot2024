@@ -47,7 +47,7 @@ class ControllerBindings(
     SysIdRoutine.Config(
       Volts.of(0.20).per(Seconds.of(1.0)),
       Volts.of(3.0),
-      Seconds.of(20.0)
+      Seconds.of(20.0),
     ),
     Mechanism(
       { voltage: Measure<Voltage> ->

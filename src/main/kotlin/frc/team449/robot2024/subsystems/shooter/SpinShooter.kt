@@ -1,5 +1,9 @@
 package frc.team449.robot2024.subsystems.shooter
 
+import com.ctre.phoenix6.BaseStatusSignal
+import com.ctre.phoenix6.SignalLogger
+import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.hardware.TalonFX
 import edu.wpi.first.math.*
 import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
@@ -9,17 +13,19 @@ import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.math.system.LinearSystem
 import edu.wpi.first.math.system.plant.LinearSystemId
+import edu.wpi.first.units.Measure
+import edu.wpi.first.units.Units
+import edu.wpi.first.units.Voltage
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
-import frc.team449.system.encoder.NEOEncoder
-import frc.team449.system.motor.WrappedMotor
-import frc.team449.system.motor.createSparkMax
+import frc.team449.system.motor.createTalon
 import java.util.function.Supplier
 import kotlin.Pair
 import kotlin.math.abs
@@ -27,8 +33,8 @@ import kotlin.math.pow
 import kotlin.math.sign
 
 open class SpinShooter(
-  val rightMotor: WrappedMotor,
-  val leftMotor: WrappedMotor,
+  val rightMotor: TalonFX,
+  val leftMotor: TalonFX,
   private val leftController: LinearQuadraticRegulator<N1, N1, N1>,
   private val rightController: LinearQuadraticRegulator<N1, N1, N1>,
   private val leftObserver: KalmanFilter<N2, N1, N1>,
@@ -42,13 +48,49 @@ open class SpinShooter(
   private var desiredVels = Pair(0.0, 0.0)
 
   open val rightVelocity: Supplier<Double> =
-    Supplier { rightMotor.velocity }
+    Supplier { BaseStatusSignal.getLatencyCompensatedValue(rightMotor.velocity, rightMotor.acceleration) }
 
   open val leftVelocity: Supplier<Double> =
-    Supplier { leftMotor.velocity }
+    Supplier { BaseStatusSignal.getLatencyCompensatedValue(leftMotor.velocity, rightMotor.acceleration) }
 
   private val leftRateLimiter = SlewRateLimiter(SpinShooterConstants.BRAKE_RATE_LIMIT)
   private val rightRateLimiter = SlewRateLimiter(SpinShooterConstants.BRAKE_RATE_LIMIT)
+
+  private val leftSysIDCommand = SysIdRoutine(
+    SysIdRoutine.Config(
+      Units.Volts.of(0.20).per(Units.Seconds.of(1.0)),
+      Units.Volts.of(3.0),
+      Units.Seconds.of(20.0)
+    ) { state -> SignalLogger.writeString("leftMotorState", state.toString()) },
+    SysIdRoutine.Mechanism(
+      { voltage: Measure<Voltage> ->
+        run {
+          setLeftVoltage(voltage.`in`(Units.Volts))
+        }
+      },
+      null,
+      this,
+      "shooter"
+    )
+  )
+
+  private val rightSysIDCommand = SysIdRoutine(
+    SysIdRoutine.Config(
+      Units.Volts.of(0.20).per(Units.Seconds.of(1.0)),
+      Units.Volts.of(3.0),
+      Units.Seconds.of(20.0)
+    ) { state -> SignalLogger.writeString("rightMotorState", state.toString()) },
+    SysIdRoutine.Mechanism(
+      { voltage: Measure<Voltage> ->
+        run {
+          setRightVoltage(voltage.`in`(Units.Volts))
+        }
+      },
+      null,
+      this,
+      "shooter"
+    )
+  )
 
   init {
     leftController.reset()
@@ -314,8 +356,8 @@ open class SpinShooter(
 
   override fun initSendable(builder: SendableBuilder) {
     builder.publishConstString("1.0", "Motor Voltages")
-    builder.addDoubleProperty("1.1 Last Right Voltage", { rightMotor.lastVoltage }, null)
-    builder.addDoubleProperty("1.2 Last Left Voltage", { leftMotor.lastVoltage }, null)
+    builder.addDoubleProperty("1.1 Last Right Voltage", { rightMotor.motorVoltage.value }, null)
+    builder.addDoubleProperty("1.2 Last Left Voltage", { leftMotor.motorVoltage.value }, null)
     builder.publishConstString("2.0", "Current and Desired Velocities")
     builder.addDoubleProperty("2.1 Left Current Speed", { leftVelocity.get() }, null)
     builder.addDoubleProperty("2.2 Right Current Speed", { rightVelocity.get() }, null)
@@ -327,8 +369,8 @@ open class SpinShooter(
     builder.addDoubleProperty("3.3 Left Vel Error", { leftVelocity.get() - desiredVels.first }, null)
     builder.addDoubleProperty("3.4 Right Vel Error", { rightVelocity.get() - desiredVels.second }, null)
     builder.publishConstString("4.0", "Encoder Positions")
-    builder.addDoubleProperty("4.1 Left Enc Pos", { leftMotor.position }, null)
-    builder.addDoubleProperty("4.2 Left Enc Pos", { rightMotor.position }, null)
+    builder.addDoubleProperty("4.1 Left Enc Pos", { leftMotor.position.value }, null)
+    builder.addDoubleProperty("4.2 Left Enc Pos", { rightMotor.position.value }, null)
     builder.publishConstString("5.0", "Input Err Estimation")
     builder.addDoubleProperty("5.1 Left Inpt Err Voltage", { -leftObserver.getXhat(1) }, null)
     builder.addDoubleProperty("5.2 Right Inpt Err Voltage", { -rightObserver.getXhat(1) }, null)
@@ -336,32 +378,22 @@ open class SpinShooter(
 
   companion object {
     fun createSpinShooter(robot: Robot): SpinShooter {
-      val rightMotor = createSparkMax(
-        "Shooter Right Motor",
+      val rcfg = TalonFXConfiguration()
+      rcfg.MotorOutput.NeutralMode = SpinShooterConstants.BRAKE_MODE
+      rcfg.MotorOutput.Inverted = SpinShooterConstants.RIGHT_MOTOR_INVERTED
+      rcfg.CurrentLimits.SupplyCurrentLimit = SpinShooterConstants.CURRENT_LIMIT
+      val rightMotor = createTalon(
         SpinShooterConstants.RIGHT_MOTOR_ID,
-        encCreator = NEOEncoder.creator(
-          SpinShooterConstants.UPR,
-          SpinShooterConstants.GEARING,
-          measurementPeriod = SpinShooterConstants.INTERNAL_MEASUREMENT_PD,
-          depth = SpinShooterConstants.INTERNAL_ENC_DEPTH
-        ),
-        inverted = SpinShooterConstants.RIGHT_MOTOR_INVERTED,
-        currentLimit = SpinShooterConstants.CURRENT_LIMIT,
-        enableBrakeMode = SpinShooterConstants.BRAKE_MODE
+        rcfg
       )
 
-      val leftMotor = createSparkMax(
-        "Shooter Right Motor",
+      val lcfg = TalonFXConfiguration()
+      lcfg.MotorOutput.NeutralMode = SpinShooterConstants.BRAKE_MODE
+      lcfg.MotorOutput.Inverted = SpinShooterConstants.RIGHT_MOTOR_INVERTED
+      lcfg.CurrentLimits.SupplyCurrentLimit = SpinShooterConstants.CURRENT_LIMIT
+      val leftMotor = createTalon(
         SpinShooterConstants.LEFT_MOTOR_ID,
-        encCreator = NEOEncoder.creator(
-          SpinShooterConstants.UPR,
-          SpinShooterConstants.GEARING,
-          measurementPeriod = SpinShooterConstants.INTERNAL_MEASUREMENT_PD,
-          depth = SpinShooterConstants.INTERNAL_ENC_DEPTH
-        ),
-        inverted = SpinShooterConstants.LEFT_MOTOR_INVERTED,
-        currentLimit = SpinShooterConstants.CURRENT_LIMIT,
-        enableBrakeMode = SpinShooterConstants.BRAKE_MODE
+        lcfg
       )
 
       val leftPlant = LinearSystemId.identifyVelocitySystem(

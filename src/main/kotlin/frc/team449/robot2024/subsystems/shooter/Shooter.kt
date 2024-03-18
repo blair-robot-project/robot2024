@@ -1,6 +1,9 @@
 package frc.team449.robot2024.subsystems.shooter
 
 
+import com.ctre.phoenix6.BaseStatusSignal
+import com.ctre.phoenix6.SignalLogger
+import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.hardware.TalonFX
 import edu.wpi.first.math.*
 import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
@@ -11,10 +14,15 @@ import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.math.system.LinearSystem
 import edu.wpi.first.math.system.plant.LinearSystemId
+import edu.wpi.first.units.Measure
+import edu.wpi.first.units.Units
+import edu.wpi.first.units.Units.Volts
+import edu.wpi.first.units.Voltage
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
 import frc.team449.system.motor.createTalon
@@ -35,9 +43,25 @@ open class Shooter(
   private var desiredVel = 0.0
 
   open val velocity: Supplier<Double> =
-    Supplier { motor.velocity.value }
-
+    Supplier {BaseStatusSignal.getLatencyCompensatedValue(motor.velocity.refresh(), motor.acceleration.refresh())}
   private val rateLimiter = SlewRateLimiter(ShooterConstants.BRAKE_RATE_LIMIT)
+  private val sysIDCommand = SysIdRoutine(
+    SysIdRoutine.Config(
+      Volts.of(0.20).per(Units.Seconds.of(1.0)),
+      Volts.of(3.0),
+      Units.Seconds.of(20.0)
+    ) { state -> SignalLogger.writeString("motorState", state.toString()) },
+    SysIdRoutine.Mechanism(
+      { voltage: Measure<Voltage> ->
+        run {
+          setVoltage(voltage.`in`(Volts))
+        }
+      },
+      null,
+      this,
+      "shooter"
+    )
+  )
 
   init {
     controller.reset()
@@ -48,6 +72,10 @@ open class Shooter(
       )
     )
 
+    name = "Shooter"
+    motor.velocity.setUpdateFrequency(250.0)
+    motor.acceleration.setUpdateFrequency(250.0)
+    motor.optimizeBusUtilization()
     this.defaultCommand = coast()
   }
 
@@ -230,12 +258,15 @@ open class Shooter(
 
   companion object {
     fun createShooter(): Shooter {
+      val cfg = TalonFXConfiguration()
+      cfg.MotorOutput.NeutralMode = ShooterConstants.BRAKE_MODE
+      cfg.MotorOutput.Inverted = ShooterConstants.RIGHT_MOTOR_INVERTED
+      cfg.CurrentLimits.SupplyCurrentLimit = ShooterConstants.CURRENT_LIMIT
       val motor = createTalon(
         ShooterConstants.RIGHT_MOTOR_ID,
-        inverted = ShooterConstants.RIGHT_MOTOR_INVERTED,
-        currentLimit = ShooterConstants.CURRENT_LIMIT,
+        cfg,
         followerTalons = listOf(
-          Pair(ShooterConstants.LEFT_MOTOR_ID, ShooterConstants.LEFT_MOTOR_INVERTED)
+          Pair(ShooterConstants.LEFT_MOTOR_ID, ShooterConstants.LEFT_MOTOR_OPPOSITE)
         )
       )
 

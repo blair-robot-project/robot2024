@@ -1,5 +1,7 @@
 package frc.team449.robot2024.constants.subsystem
 
+import com.ctre.phoenix6.signals.InvertedValue
+import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.math.InterpolatingMatrixTreeMap
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.Nat
@@ -11,11 +13,11 @@ import kotlin.math.PI
 object SpinShooterConstants {
   const val EFFICIENCY = 0.8
   const val RIGHT_MOTOR_ID = 45
-  const val RIGHT_MOTOR_INVERTED = true
+  val RIGHT_MOTOR_INVERTED = InvertedValue.CounterClockwise_Positive
   const val LEFT_MOTOR_ID = 46
-  const val LEFT_MOTOR_INVERTED = false
-  const val CURRENT_LIMIT = 50
-  const val BRAKE_MODE = false
+  val LEFT_MOTOR_INVERTED = InvertedValue.Clockwise_Positive
+  const val CURRENT_LIMIT = 50.0
+  val BRAKE_MODE = NeutralModeValue.Brake
 
   val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3850.0)
   val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3850.0)

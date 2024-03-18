@@ -1,5 +1,6 @@
 package frc.team449.robot2024.subsystems.shooter
 
+import com.ctre.phoenix6.hardware.TalonFX
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
@@ -14,12 +15,11 @@ import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
-import frc.team449.system.motor.WrappedMotor
 import java.util.function.Supplier
 
 class SpinShooterSim(
-  rightMotor: WrappedMotor,
-  leftMotor: WrappedMotor,
+  rightMotor: TalonFX,
+  leftMotor: TalonFX,
   leftController: LinearQuadraticRegulator<N1, N1, N1>,
   rightController: LinearQuadraticRegulator<N1, N1, N1>,
   leftObserver: KalmanFilter<N2, N1, N1>,
@@ -66,8 +66,8 @@ class SpinShooterSim(
   private var currentDraw = 0.0
 
   override fun periodic() {
-    leftFlywheelSim.setInputVoltage(MathUtil.clamp(leftMotor.lastVoltage, -12.0, 12.0))
-    rightFlywheelSim.setInputVoltage(MathUtil.clamp(rightMotor.lastVoltage, -12.0, 12.0))
+    leftFlywheelSim.setInputVoltage(MathUtil.clamp(leftMotor.motorVoltage.value, -12.0, 12.0))
+    rightFlywheelSim.setInputVoltage(MathUtil.clamp(rightMotor.motorVoltage.value, -12.0, 12.0))
 
     leftFlywheelSim.update(RobotConstants.LOOP_TIME)
     rightFlywheelSim.update(RobotConstants.LOOP_TIME)

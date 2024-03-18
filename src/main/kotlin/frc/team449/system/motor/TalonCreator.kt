@@ -3,14 +3,9 @@ package frc.team449.system.motor
  import com.ctre.phoenix.motorcontrol.*
 import com.ctre.phoenix.motorcontrol.can.BaseTalon
 import com.ctre.phoenix.motorcontrol.can.VictorSPX
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs
-import com.ctre.phoenix6.configs.MotorOutputConfigs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
-import com.ctre.phoenix6.configs.VoltageConfigs
- import com.ctre.phoenix6.controls.Follower
- import com.ctre.phoenix6.hardware.TalonFX
-import com.ctre.phoenix6.signals.InvertedValue
-import com.ctre.phoenix6.signals.NeutralModeValue
+import com.ctre.phoenix6.controls.Follower
+import com.ctre.phoenix6.hardware.TalonFX
 
 /** Wrap a TalonSRX or TalonFX in a WrappedMotor object
  * @see configureSlaveTalon
@@ -18,34 +13,18 @@ import com.ctre.phoenix6.signals.NeutralModeValue
  */
  fun createTalon(
   id: Int,
+  config: TalonFXConfiguration,
   canbus: String = "",
-  enableBrakeMode: NeutralModeValue = NeutralModeValue.Brake,
-  inverted: InvertedValue = InvertedValue.Clockwise_Positive,
-  deadband: Double = 0.001,
-  currentLimit: Double = 0.0,
-  followerTalons: List<Pair<Int, InvertedValue>> = listOf()
+  followerTalons: List<Pair<Int, Boolean>> = listOf()
  ): TalonFX {
    val motor = TalonFX(id, canbus)
-   motor.configurator.apply(TalonFXConfiguration())
-
-   val motorConfigs = MotorOutputConfigs()
-   motorConfigs.Inverted = inverted
-   motorConfigs.NeutralMode = enableBrakeMode
-   motorConfigs.DutyCycleNeutralDeadband = deadband
-   motor.configurator.apply(motorConfigs)
-
-   val currentConfigs = CurrentLimitsConfigs()
-   currentConfigs.StatorCurrentLimit = currentLimit
-   currentConfigs.SupplyCurrentLimit = currentLimit
-   motor.configurator.apply(currentConfigs)
-
-   val voltageConfigs = VoltageConfigs()
-   voltageConfigs.PeakForwardVoltage = 12.0
-   voltageConfigs.PeakReverseVoltage = -12.0
-
+  config.Voltage.PeakReverseVoltage = -12.0
+  config.Voltage.PeakForwardVoltage = 12.0
+  config.MotorOutput.DutyCycleNeutralDeadband = 0.001
+   motor.configurator.apply(config)
    for (f in followerTalons) {
-     val followerTalon = createTalon(f.first, inverted = f.second)
-     followerTalon.setControl(Follower(id, true))
+     val followerTalon = createTalon(f.first, config)
+     followerTalon.setControl(Follower(id, f.second))
    }
    return motor
  }
