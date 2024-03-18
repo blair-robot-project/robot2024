@@ -28,7 +28,7 @@ object PivotConstants {
   const val NUM_MOTORS = 2
 
   /** Moment of inertia in m^2 kg given from CAD with a 0.035 m^2kg cushion for unmodeled objects */
-  const val MOMENT_OF_INERTIA = 0.570869 + 0.035
+  const val MOMENT_OF_INERTIA = 0.531652973 + 0.035
 
   const val EFFICIENCY = 0.95
 
@@ -39,24 +39,27 @@ object PivotConstants {
   /** Deviations for Kalman filter in units of radians or radians / seconds */
   val MODEL_POS_DEVIATION = Units.degreesToRadians(10.0)
   val MODEL_VEL_DEVIATION = Units.degreesToRadians(20.0)
-  const val MODEL_ERROR_DEVIATION = 0.10
+  const val MODEL_INPUT_ERROR_DEVIATION = 0.875
   val ENCODER_POS_DEVIATION = Units.degreesToRadians(0.25)
+
+  val START_INPT_ERR = Units.degreesToRadians(5.0)
 
   /** LQR Position and Velocity tolerances */
   val POS_TOLERANCE = Units.degreesToRadians(2.0)
   val VEL_TOLERANCE = Units.degreesToRadians(15.0)
   const val CONTROL_EFFORT_VOLTS = 12.0
 
-  val MAX_POS_ERROR = 2.5
-  val MAX_VEL_ERROR = Units.degreesToRadians(30.0)
+  val MAX_POS_ERROR = 1.75
+  val MAX_VEL_ERROR = Units.degreesToRadians(25.0)
 
   const val MAX_VOLTAGE = 12.0
 
   /** Profile Constraints */
   val MAX_VELOCITY = MotorConstants.FREE_SPEED * GEARING
 
-  // Max at 40A should be 10.567679154992222
-  const val MAX_ACCEL = 8.0
+  // Max at 35A should be 178.15455320820428 (at stall)
+  val MAX_ACCEL = 65.0
+
   const val SLOW_ACCEL = 3.0
 
   val MIN_ANGLE = Units.degreesToRadians(0.0)

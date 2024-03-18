@@ -88,6 +88,8 @@ class RobotLoop : TimedRobot(), Logged {
     this.autoCommand = routineMap[routineChooser.selected]
     CommandScheduler.getInstance().schedule(this.autoCommand)
 
+    robot.drive.enableVisionFusion = false
+
     if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
       BreatheHue(robot.light, 0).schedule()
     } else {
@@ -108,6 +110,8 @@ class RobotLoop : TimedRobot(), Logged {
       CommandScheduler.getInstance().cancel(autoCommand)
     }
 
+    robot.drive.enableVisionFusion = true
+
     (robot.light.currentCommand ?: InstantCommand()).cancel()
 
     robot.drive.defaultCommand = robot.driveCommand
@@ -118,6 +122,8 @@ class RobotLoop : TimedRobot(), Logged {
 
   override fun disabledInit() {
     robot.drive.stop()
+
+    robot.drive.enableVisionFusion = true
 
     (robot.light.currentCommand ?: InstantCommand()).cancel()
     Rainbow(robot.light).schedule()

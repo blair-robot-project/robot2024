@@ -227,6 +227,10 @@ open class Pivot(
     correctAndPredict()
 
     motor.setVoltage(getVoltage())
+
+    if (abs(lastProfileReference.position - goal) > PivotConstants.START_INPT_ERR) {
+      observer.setXhat(2, 0.0)
+    }
   }
 
   override fun initSendable(builder: SendableBuilder) {
@@ -336,7 +340,7 @@ open class Pivot(
         VecBuilder.fill(
           PivotConstants.MODEL_POS_DEVIATION,
           PivotConstants.MODEL_VEL_DEVIATION,
-          PivotConstants.MODEL_ERROR_DEVIATION
+          PivotConstants.MODEL_INPUT_ERROR_DEVIATION
         ),
         VecBuilder.fill(PivotConstants.ENCODER_POS_DEVIATION),
         RobotConstants.LOOP_TIME

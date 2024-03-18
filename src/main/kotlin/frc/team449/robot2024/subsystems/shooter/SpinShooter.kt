@@ -9,6 +9,7 @@ import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.math.system.LinearSystem
 import edu.wpi.first.math.system.plant.LinearSystemId
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.*
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
+import frc.team449.robot2024.constants.subsystem.PivotConstants
 import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
 import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.WrappedMotor
@@ -222,13 +224,11 @@ open class SpinShooter(
           SpinShooterConstants.ANYWHERE_RIGHT_SPEED
         )
 
-        robot.pivot.moveToAngle(
-          SpinShooterConstants.SHOOTING_MAP.get(
-            abs(
-              FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)
-            )
-          )
-        )
+        val distance = Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)))
+
+        val angle = if (distance <= 57.0) 0.0 else Units.degreesToRadians(SpinShooterConstants.equation(distance))
+
+        robot.pivot.moveToAngle(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
 
         val fieldToRobot = robot.drive.pose.translation
         val robotToPoint = FieldConstants.SPEAKER_POSE - fieldToRobot
@@ -376,6 +376,8 @@ open class SpinShooter(
     builder.publishConstString("5.0", "Input Err Estimation")
     builder.addDoubleProperty("5.1 Left Inpt Err Voltage", { -leftObserver.getXhat(1) }, null)
     builder.addDoubleProperty("5.2 Right Inpt Err Voltage", { -rightObserver.getXhat(1) }, null)
+    builder.publishConstString("6.0", "Shoot from Anywhere")
+    builder.addDoubleProperty("6.1 Speaker Distance (meters)", { abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)) }, null)
   }
 
   companion object {

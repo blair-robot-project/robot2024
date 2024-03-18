@@ -57,6 +57,8 @@ open class SwerveDrive(
   protected val usedVisionSights = LongArray(cameras.size)
   protected val rejectedVisionSights = LongArray(cameras.size)
 
+  var enableVisionFusion = true
+
   /** The kinematics that convert [ChassisSpeeds] into multiple [SwerveModuleState] objects. */
   protected val kinematics = SwerveDriveKinematics(
     *this.modules.map { it.location }.toTypedArray()
@@ -242,11 +244,13 @@ open class SwerveDrive(
           numTargets[index] >= 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_MULTI_TAG + (numTargets[index] - 2) * VisionConstants.NUM_TAG_FACTOR &&
           heightError[index] < VisionConstants.MAX_HEIGHT_ERR_METERS
         ) {
-          poseEstimator.addVisionMeasurement(
-            estVisionPose,
-            presentResult.timestampSeconds,
-            camera.getEstimationStdDevs(numTargets[index].toInt(), tagDistance[index])
-          )
+          if (enableVisionFusion) {
+            poseEstimator.addVisionMeasurement(
+              estVisionPose,
+              presentResult.timestampSeconds,
+              camera.getEstimationStdDevs(numTargets[index].toInt(), tagDistance[index])
+            )
+          }
           usedVision[index] = true
           usedVisionSights[index] += 1.toLong()
         } else {
@@ -281,6 +285,7 @@ open class SwerveDrive(
       builder.addDoubleArrayProperty("2.8${1 + index} Vision Pose Cam $index", { visionPose.slice(IntRange(0 + 3 * index, 2 + 3 * index)).toDoubleArray() }, null)
       println(index)
     }
+    builder.addBooleanProperty("2.9 Enabled Vision Fusion", { enableVisionFusion }, null)
 
     builder.publishConstString("3.0", "Driving & Steering (Std Order FL, FR, BL, BR)")
     builder.addDoubleArrayProperty(

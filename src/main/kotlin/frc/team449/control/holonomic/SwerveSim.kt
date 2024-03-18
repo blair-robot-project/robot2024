@@ -102,11 +102,13 @@ class SwerveSim(
           numTargets[index] >= 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_MULTI_TAG + (numTargets[index] - 2) * VisionConstants.NUM_TAG_FACTOR &&
           heightError[index] < VisionConstants.MAX_HEIGHT_ERR_METERS
         ) {
-          poseEstimator.addVisionMeasurement(
-            estVisionPose,
-            presentResult.timestampSeconds,
-            camera.getEstimationStdDevs(numTargets[index].toInt(), tagDistance[index])
-          )
+          if (enableVisionFusion) {
+            poseEstimator.addVisionMeasurement(
+              estVisionPose,
+              presentResult.timestampSeconds,
+              camera.getEstimationStdDevs(numTargets[index].toInt(), tagDistance[index])
+            )
+          }
           usedVision[index] = true
           usedVisionSights[index] += 1.toLong()
         } else {

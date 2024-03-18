@@ -3,6 +3,7 @@ package frc.team449.robot2024.constants.subsystem
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap
 import edu.wpi.first.math.util.Units
 import kotlin.math.PI
+import kotlin.math.pow
 
 object SpinShooterConstants {
   const val EFFICIENCY = 0.8
@@ -15,8 +16,8 @@ object SpinShooterConstants {
 
   val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3850.0)
   val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3850.0)
-  val ANYWHERE_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4250.0)
-  val ANYWHERE_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5750.0)
+  val ANYWHERE_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(5000.0)
+  val ANYWHERE_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(6500.0)
   val AUTO_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4750.0)
   val AUTO_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3650.0)
   val AMP_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(2250.0)
@@ -62,16 +63,18 @@ object SpinShooterConstants {
   const val UPR = 2 * PI
   const val GEARING = 2.0 / 1.0
 
+  val equation = { x: Double -> -78.7 + 2.18 * x - 0.0176 * x.pow(2) + 6.82e-5 * x.pow(3) - 1e-7 * x.pow(4) }
+
   init {
     /**
      * Data is entered as follows:
      * SHOOTING_MAP.put(distanceToSpeaker, pivotAngle)
      */
-    SHOOTING_MAP.put(1.25, Units.degreesToRadians(0.0))
-    SHOOTING_MAP.put(1.5, Units.degreesToRadians(4.0))
-    SHOOTING_MAP.put(1.75, Units.degreesToRadians(10.0))
-    SHOOTING_MAP.put(2.25, Units.degreesToRadians(17.5))
-    SHOOTING_MAP.put(3.0, Units.degreesToRadians(21.0))
-    SHOOTING_MAP.put(7.0, Units.degreesToRadians(31.0))
+    SHOOTING_MAP.put(Units.inchesToMeters(56.72329), Units.degreesToRadians(0.0))
+    SHOOTING_MAP.put(Units.inchesToMeters(63.561309), Units.degreesToRadians(4.748836))
+    SHOOTING_MAP.put(Units.inchesToMeters(70.185659), Units.degreesToRadians(8.880701))
+    SHOOTING_MAP.put(Units.inchesToMeters(86.369472), Units.degreesToRadians(17.206415))
+    SHOOTING_MAP.put(Units.inchesToMeters(87.468116), Units.degreesToRadians(17.690476))
+    SHOOTING_MAP.put(Units.inchesToMeters(128.656962), Units.degreesToRadians(30.606007))
   }
 }
