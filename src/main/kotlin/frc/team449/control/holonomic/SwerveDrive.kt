@@ -321,6 +321,19 @@ open class SwerveDrive(
       null
     )
 
+    builder.addDoubleArrayProperty(
+      "3.3 Steering Rotation",
+      {
+        doubleArrayOf(
+          modules[0].state.angle.rotations,
+          modules[1].state.angle.rotations,
+          modules[2].state.angle.rotations,
+          modules[3].state.angle.rotations,
+        )
+      },
+      null
+    )
+
     builder.publishConstString("5.0", "Motor Stats (Standard Order, FL, FR, BL, BR)")
     builder.addDoubleArrayProperty(
       "5.11 Driving Motor Voltage",
