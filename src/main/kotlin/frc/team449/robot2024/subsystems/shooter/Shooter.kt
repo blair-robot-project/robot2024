@@ -1,6 +1,5 @@
 package frc.team449.robot2024.subsystems.shooter
 
-
 import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.SignalLogger
 import com.ctre.phoenix6.configs.TalonFXConfiguration
@@ -43,7 +42,7 @@ open class Shooter(
   private var desiredVel = 0.0
 
   open val velocity: Supplier<Double> =
-    Supplier {BaseStatusSignal.getLatencyCompensatedValue(motor.velocity.refresh(), motor.acceleration.refresh())}
+    Supplier { BaseStatusSignal.getLatencyCompensatedValue(motor.velocity.refresh(), motor.acceleration.refresh()) }
   private val rateLimiter = SlewRateLimiter(ShooterConstants.BRAKE_RATE_LIMIT)
   private val sysIDCommand = SysIdRoutine(
     SysIdRoutine.Config(
