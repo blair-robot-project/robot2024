@@ -11,6 +11,8 @@ import edu.wpi.first.math.util.Units
 import kotlin.math.PI
 
 object SpinShooterConstants {
+  // TODO: Update pretty much all of these
+
   const val EFFICIENCY = 0.8
   const val RIGHT_MOTOR_ID = 45
   val RIGHT_MOTOR_INVERTED = InvertedValue.CounterClockwise_Positive

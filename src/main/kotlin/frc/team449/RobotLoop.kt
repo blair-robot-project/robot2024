@@ -1,5 +1,6 @@
 package frc.team449
 
+import com.ctre.phoenix6.SignalLogger
 import edu.wpi.first.hal.FRCNetComm
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.wpilibj.*
@@ -51,6 +52,9 @@ class RobotLoop : TimedRobot(), Logged {
 //      instance.stopServer()
 //      instance.startClient4("localhost")
     }
+
+    SignalLogger.setPath("/media/sda1/logs/")
+    SignalLogger.start()
 
     PivotCalibration(robot.pivot).ignoringDisable(true).schedule()
 
