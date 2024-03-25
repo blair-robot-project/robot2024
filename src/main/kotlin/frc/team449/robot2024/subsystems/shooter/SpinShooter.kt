@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
 import edu.wpi.first.math.estimator.KalmanFilter
 import edu.wpi.first.math.filter.SlewRateLimiter
+import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.math.system.LinearSystem
@@ -193,17 +194,6 @@ open class SpinShooter(
     return cmd
   }
 
-  fun shootAuto(): Command {
-    val cmd = this.run {
-      shootPiece(
-        SpinShooterConstants.AUTO_RIGHT_SPEED,
-        SpinShooterConstants.AUTO_LEFT_SPEED
-      )
-    }
-    cmd.name = "shooting subwoofer auto side"
-    return cmd
-  }
-
   fun shootAnywhere(): Command {
     val cmd = this.run {
       shootPiece(
@@ -212,6 +202,96 @@ open class SpinShooter(
       )
     }
     cmd.name = "shooting anywhere speed"
+    return cmd
+  }
+
+  fun podiumShot(): Command {
+    val cmd = FunctionalCommand(
+      { },
+      {
+        shootPiece(
+          SpinShooterConstants.ANYWHERE_LEFT_SPEED,
+          SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+        )
+
+        val distance = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
+          Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(Translation2d(FieldConstants.fieldLength - 14.144, 4.211))))
+        } else {
+          Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(Translation2d(14.144, 4.211))))
+        }
+
+        val angle = Units.degreesToRadians(SpinShooterConstants.equation(distance) + 0.45)
+
+        robot.pivot.moveToAngleSlow(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
+
+        val fieldToRobot = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
+          Translation2d(FieldConstants.fieldLength - 14.144, 4.211)
+        } else {
+          Translation2d(14.144, 4.211)
+        }
+
+        val robotToPoint = FieldConstants.SPEAKER_POSE - fieldToRobot
+
+        robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
+
+        if (robot.shooter.atSetpoint() &&
+          robot.driveCommand.atGoal &&
+          robot.pivot.inTolerance() &&
+          robot.mechController.hid.leftBumper
+        ) {
+          robot.feeder.intakeVoltage()
+          robot.undertaker.intakeVoltage()
+        }
+      },
+      { },
+      { !robot.driveController.hid.yButton },
+      this,
+      robot.pivot,
+      robot.feeder,
+      robot.undertaker
+    )
+    cmd.name = "auto aiming podium"
+    return cmd
+  }
+
+  fun autoLineShot(): Command {
+    val cmd = FunctionalCommand(
+      { },
+      {
+        shootPiece(
+          SpinShooterConstants.ANYWHERE_LEFT_SPEED,
+          SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+        )
+
+        val distance = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
+          Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(Translation2d(2.49, Units.inchesToMeters(218.42)))))
+        } else {
+          Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(Translation2d(FieldConstants.fieldLength - 2.49, Units.inchesToMeters(218.42)))))
+        }
+
+        val angle = Units.degreesToRadians(SpinShooterConstants.equation(distance))
+
+        robot.pivot.moveToAngleSlow(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
+
+        robot.driveCommand.snapToAngle(0.0)
+
+        if (robot.shooter.atSetpoint() &&
+          robot.driveCommand.atGoal &&
+          robot.pivot.inTolerance() &&
+          robot.mechController.hid.leftBumper
+        ) {
+          robot.feeder.intakeVoltage()
+          robot.undertaker.intakeVoltage()
+        }
+      },
+      { },
+      { !robot.driveController.hid.bButton },
+      this,
+      robot.pivot,
+      robot.feeder,
+      robot.undertaker
+    )
+    cmd.name = "auto aiming auto line"
     return cmd
   }
 
@@ -228,7 +308,7 @@ open class SpinShooter(
 
         val angle = if (distance <= 57.0) 0.0 else Units.degreesToRadians(SpinShooterConstants.equation(distance))
 
-        robot.pivot.moveToAngle(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
+        robot.pivot.moveToAngleSlow(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
 
         val fieldToRobot = robot.drive.pose.translation
         val robotToPoint = FieldConstants.SPEAKER_POSE - fieldToRobot
@@ -260,9 +340,7 @@ open class SpinShooter(
 
   fun atSetpoint(): Boolean {
     return abs(leftVelocity.get() - desiredVels.first) < SpinShooterConstants.IN_TOLERANCE &&
-      abs(rightVelocity.get() - desiredVels.second) < SpinShooterConstants.IN_TOLERANCE &&
-      desiredVels.first != 0.0 &&
-      desiredVels.second != 0.0
+      abs(rightVelocity.get() - desiredVels.second) < SpinShooterConstants.IN_TOLERANCE
   }
 
   fun atAutoSetpoint(): Boolean {
@@ -270,6 +348,11 @@ open class SpinShooter(
       abs(rightVelocity.get() - desiredVels.second) < SpinShooterConstants.AUTO_SHOOT_TOL &&
       desiredVels.first != 0.0 &&
       desiredVels.second != 0.0
+  }
+
+  fun atAmpSetpoint(): Boolean {
+    return abs(leftVelocity.get() - SpinShooterConstants.AMP_SPEED) < SpinShooterConstants.AMP_TOLERANCE &&
+      abs(rightVelocity.get() - SpinShooterConstants.AMP_SPEED) < SpinShooterConstants.AMP_TOLERANCE
   }
 
   fun scoreAmp(): Command {
@@ -297,6 +380,14 @@ open class SpinShooter(
       correct()
       predict()
 
+      if (abs(rightVelocity.get() - rightSpeed) > SpinShooterConstants.START_INPT_ERR) {
+        rightObserver.setXhat(1, 0.0)
+      }
+
+      if (abs(leftVelocity.get() - leftSpeed) > SpinShooterConstants.START_INPT_ERR) {
+        leftObserver.setXhat(1, 0.0)
+      }
+
       val voltages = getVoltages()
 
       rightMotor.setVoltage(voltages.second)
@@ -309,6 +400,9 @@ open class SpinShooter(
       desiredVels = Pair(0.0, 0.0)
 
       correct()
+
+      leftObserver.setXhat(1, 0.0)
+      rightObserver.setXhat(1, 0.0)
 
       leftMotor.setVoltage(0.0)
       rightMotor.setVoltage(0.0)
@@ -324,8 +418,8 @@ open class SpinShooter(
     cmd.name = "force stop"
     return ParallelDeadlineGroup(
       WaitUntilCommand {
-        abs(leftVelocity.get() - desiredVels.first) < SpinShooterConstants.IN_TOLERANCE &&
-          abs(rightVelocity.get() - desiredVels.second) < SpinShooterConstants.IN_TOLERANCE
+        abs(leftVelocity.get() - desiredVels.first) < SpinShooterConstants.MIN_COAST_VEL &&
+          abs(rightVelocity.get() - desiredVels.second) < SpinShooterConstants.MIN_COAST_VEL
       },
       cmd
     ).andThen(
@@ -345,10 +439,10 @@ open class SpinShooter(
           leftRateLimiter.calculate(0.0)
         )
       }.until {
-        abs(leftVelocity.get()) < SpinShooterConstants.MIN_RAMP_VEL &&
-          abs(rightVelocity.get()) < SpinShooterConstants.MIN_RAMP_VEL
+        abs(leftVelocity.get()) < SpinShooterConstants.MIN_COAST_VEL &&
+          abs(rightVelocity.get()) < SpinShooterConstants.MIN_COAST_VEL
       }.andThen(
-        forceStop()
+        coast()
       )
     )
     cmd.name = "active stop"
@@ -393,6 +487,7 @@ open class SpinShooter(
         ),
         inverted = SpinShooterConstants.RIGHT_MOTOR_INVERTED,
         currentLimit = SpinShooterConstants.CURRENT_LIMIT,
+        secondaryCurrentLimit = SpinShooterConstants.SECONDARY_CURRENT_LIMIT,
         enableBrakeMode = SpinShooterConstants.BRAKE_MODE
       )
 
@@ -407,6 +502,7 @@ open class SpinShooter(
         ),
         inverted = SpinShooterConstants.LEFT_MOTOR_INVERTED,
         currentLimit = SpinShooterConstants.CURRENT_LIMIT,
+        secondaryCurrentLimit = SpinShooterConstants.SECONDARY_CURRENT_LIMIT,
         enableBrakeMode = SpinShooterConstants.BRAKE_MODE
       )
 
@@ -426,8 +522,8 @@ open class SpinShooter(
       )
 
       val rightPlantSim = LinearSystemId.identifyVelocitySystem(
-        SpinShooterConstants.RIGHT_KV,
-        SpinShooterConstants.RIGHT_KA
+        SpinShooterConstants.RIGHT_KV - 0.0075,
+        SpinShooterConstants.RIGHT_KA - 0.0015
       )
 
       val leftObserver = KalmanFilter(
@@ -505,6 +601,9 @@ open class SpinShooter(
         VecBuilder.fill(SpinShooterConstants.LQR_MAX_VOLTS),
         RobotConstants.LOOP_TIME
       )
+
+      leftController.latencyCompensate(leftPlant, RobotConstants.LOOP_TIME, SpinShooterConstants.ENCODER_DELAY)
+      rightController.latencyCompensate(rightPlant, RobotConstants.LOOP_TIME, SpinShooterConstants.ENCODER_DELAY)
 
       val leftFeedforward = LinearPlantInversionFeedforward(
         leftPlant,

@@ -7,13 +7,12 @@ import edu.wpi.first.units.MutableMeasure.mutable
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.Voltage
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
-import frc.team449.control.holonomic.SwerveSim
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.commands.driveAlign.OrbitAlign
 import frc.team449.robot2024.constants.RobotConstants
@@ -44,8 +43,8 @@ class ControllerBindings(
 
   val shooterRoutine = SysIdRoutine(
     SysIdRoutine.Config(
-      Volts.of(0.7).per(Seconds.of(1.0)),
-      Volts.of(7.0),
+      Volts.of(0.5).per(Seconds.of(1.0)),
+      Volts.of(3.0),
       Seconds.of(10.0)
     ),
     Mechanism(
@@ -74,14 +73,38 @@ class ControllerBindings(
     )
   }
 
+  private fun stopIntake(): Command {
+    return ParallelCommandGroup(
+      robot.undertaker.stop(),
+      robot.feeder.stop()
+    )
+  }
+
   private fun robotBindings() {
+    Trigger { robot.infrared.get() }.onFalse(
+      SequentialCommandGroup(
+        InstantCommand({
+          robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.1)
+          robot.mechController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.3)
+        }),
+        WaitCommand(0.5804),
+        InstantCommand({
+          robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)
+          robot.mechController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)
+        }),
+      )
+    )
+
     mechanismController.y().onTrue(
-      ParallelCommandGroup(
-        robot.undertaker.slowIntake().andThen(
-          WaitCommand(0.25),
-          robot.pivot.moveAmp()
-        ),
-        robot.shooter.scoreAmp()
+      SequentialCommandGroup(
+        checkNoteInLocation(),
+        ParallelCommandGroup(
+          robot.undertaker.slowIntake().andThen(
+            WaitCommand(0.25),
+            robot.pivot.moveAmp()
+          ),
+          robot.shooter.scoreAmp()
+        )
       )
     )
 
@@ -104,15 +127,7 @@ class ControllerBindings(
     )
 
     robot.mechController.povRight().onTrue(
-      robot.climber.extend()
-    ).onFalse(
-      robot.climber.stop()
-    )
-
-    robot.mechController.povLeft().onTrue(
-      robot.climber.retract()
-    ).onFalse(
-      robot.climber.stop()
+      robot.pivot.moveAmp()
     )
 
     robot.mechController.povUp().onTrue(
@@ -131,8 +146,25 @@ class ControllerBindings(
       robot.pivot.moveStow()
     )
 
-    driveController.leftBumper().onTrue(
-      robot.shooter.autoAim()
+    driveController.y().onTrue(
+      SequentialCommandGroup(
+        checkNoteInLocation(),
+        robot.shooter.podiumShot()
+      )
+    ).onFalse(
+      ParallelCommandGroup(
+        robot.undertaker.stop(),
+        robot.shooter.rampStop(),
+        robot.feeder.stop(),
+        robot.pivot.moveStow()
+      )
+    )
+
+    driveController.b().onTrue(
+      SequentialCommandGroup(
+        checkNoteInLocation(),
+        robot.shooter.autoLineShot()
+      )
     ).onFalse(
       ParallelCommandGroup(
         robot.undertaker.stop(),
@@ -144,10 +176,12 @@ class ControllerBindings(
 
     mechanismController.leftTrigger().onTrue(
       SequentialCommandGroup(
-        WaitUntilCommand { robot.shooter.atSetpoint() },
+        checkNoteInLocation(),
+        WaitUntilCommand { robot.shooter.atAmpSetpoint() && robot.pivot.inAmpTolerance() },
         robot.feeder.intake(),
       ).alongWith(
-        robot.shooter.scoreAmp()
+        robot.shooter.scoreAmp(),
+        robot.pivot.moveAmp()
       )
     ).onFalse(
       stopAll()
@@ -156,7 +190,6 @@ class ControllerBindings(
     driveController.leftTrigger().onTrue(
       ParallelCommandGroup(
         robot.feeder.outtake(),
-        robot.shooter.duringIntake(),
         robot.undertaker.outtake()
       )
     ).onFalse(
@@ -177,9 +210,12 @@ class ControllerBindings(
       )
     ).onFalse(
       SequentialCommandGroup(
-        checkNoteInLocation(),
-        stopAll()
+        slowIntake(),
+        outtakeToNotePosition()
       )
+        .repeatedly()
+        .withTimeout(FeederConstants.CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS)
+        .andThen(checkNoteInLocation())
     )
 
     mechanismController.x().onTrue(
@@ -191,19 +227,15 @@ class ControllerBindings(
         slowIntake(),
         outtakeToNotePosition()
       )
-        .withTimeout(FeederConstants.CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS)
     )
 
     mechanismController.start().onTrue(
       SequentialCommandGroup(
         slowIntake(),
         outtakeToNotePosition(),
+        checkNoteInLocation(),
         ParallelCommandGroup(
           robot.shooter.shootAnywhere(),
-          robot.undertaker.slowIntake().andThen(
-            WaitCommand(0.25),
-            robot.pivot.readyAnywhere()
-          )
         )
       )
     )
@@ -212,6 +244,7 @@ class ControllerBindings(
       SequentialCommandGroup(
         slowIntake(),
         outtakeToNotePosition(),
+        checkNoteInLocation(),
         ParallelCommandGroup(
           robot.shooter.shootSubwoofer(),
           robot.pivot.moveStow()
@@ -221,6 +254,7 @@ class ControllerBindings(
 
     mechanismController.rightTrigger().onTrue(
       SequentialCommandGroup(
+        checkNoteInLocation(),
         WaitUntilCommand { robot.shooter.atSetpoint() },
         robot.feeder.intake(),
         robot.undertaker.intake()
@@ -251,25 +285,6 @@ class ControllerBindings(
 //    driveController.povLeft().onTrue(
 //      shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
 //    )
-
-/** Shooting from anywhere */
-//    mechanismController.b().onTrue(
-//      ParallelCommandGroup(
-//        orbitCmd,
-//        robot.shooter.shootAnywhere(),
-//        robot.pivot.pivotShootAnywhere(),
-//        SequentialCommandGroup(
-//          WaitUntilCommand {
-//            orbitCmd.atSetpoint() &&
-//              robot.shooter.atSetpoint() &&
-//              robot.pivot.atSetpoint()
-//          },
-//          PrintCommand("GOING TO SHOOT!!!"),
-//          robot.undertaker.intake(),
-//          robot.feeder.intake()
-//        )
-//      )
-//    )
   }
 
   private fun intakePiece(): Command {
@@ -282,7 +297,7 @@ class ControllerBindings(
 
   private fun checkNoteInLocation(): Command {
     return ConditionalCommand(
-      InstantCommand(),
+      stopIntake(),
       SequentialCommandGroup(
         slowIntake(),
         outtakeToNotePosition()
@@ -310,9 +325,9 @@ class ControllerBindings(
         robot.undertaker.stop(),
         robot.feeder.outtake(),
         WaitUntilCommand { robot.closeToShooterInfrared.get() },
-        stopAll()
+        stopIntake()
       ),
-      stopAll()
+      stopIntake()
     ) { !robot.closeToShooterInfrared.get() }
 
     cmd.name = "outtake to note pos"
@@ -340,15 +355,15 @@ class ControllerBindings(
     )
 
     // introduce "noise" to the simulated pose
-    driveController.b().onTrue(
-      ConditionalCommand(
-        InstantCommand({
-          robot.drive as SwerveSim
-          robot.drive.resetPos()
-        }),
-        InstantCommand()
-      ) { RobotBase.isSimulation() }
-    )
+//    driveController.b().onTrue(
+//      ConditionalCommand(
+//        InstantCommand({
+//          robot.drive as SwerveSim
+//          robot.drive.resetPos()
+//        }),
+//        InstantCommand()
+//      ) { RobotBase.isSimulation() }
+//    )
   }
 
   fun bindButtons() {

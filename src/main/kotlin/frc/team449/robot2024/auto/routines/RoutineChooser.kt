@@ -15,10 +15,12 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
       "Blue4PieceStage" to FourPieceSubwooferStage(robot, false).createCommand(),
       "Red3PieceMid" to Experimental3PieceMid(robot, true).createCommand(),
       "Blue3PieceMid" to Experimental3PieceMid(robot, false).createCommand(),
-      "RedSubwoofer5Piece" to FivePieceSubwoofer(robot, true).createCommand(),
-      "BlueSubwoofer5Piece" to FivePieceSubwoofer(robot, false).createCommand(),
+      "RedSubwoofer5Piece" to FivePieceSubwooferMiddy(robot, true).createCommand(),
+      "BlueSubwoofer5Piece" to FivePieceSubwooferMiddy(robot, false).createCommand(),
       "RedSubwoofer5PieceFar" to FivePieceSubwooferFarFirst(robot, true).createCommand(),
       "BlueSubwoofer5PieceFar" to FivePieceSubwooferFarFirst(robot, false).createCommand(),
+      "RedSubwoofer5PieceFarthy" to FivePieceSubwooferFarthy(robot, true).createCommand(),
+      "BlueSubwoofer5PieceFarthy" to FivePieceSubwooferFarthy(robot, false).createCommand(),
     )
   }
 
@@ -41,8 +43,13 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
     )
 
     this.addOption(
-      "5 Piece Subwoofer",
+      "5 Piece Subwoofer MIDDY",
       if (isRed) "RedSubwoofer5Piece" else "BlueSubwoofer5Piece"
+    )
+
+    this.addOption(
+      "5 Piece Subwoofer FARTHY",
+      if (isRed) "RedSubwoofer5PieceFarthy" else "BlueSubwoofer5PieceFarthy"
     )
 
     this.addOption(

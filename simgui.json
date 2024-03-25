@@ -5,6 +5,11 @@
         "columns": 2,
         "order": 1
       }
+    },
+    "Other Devices": {
+      "window": {
+        "visible": false
+      }
     }
   },
   "NTProvider": {
@@ -124,6 +129,11 @@
         "top": 79,
         "width": 16.541748046875
       },
+      "/SmartDashboard/Routine Chooser": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/VisionSystemSim-main/Sim Field": {
         "EstimatedRobot": {
           "arrows": false,
@@ -219,9 +229,6 @@
       "Monologuing": {
         "open": true,
         "robot": {
-          "closeToShooterInfrared": {
-            "open": true
-          },
           "drive": {
             "boolean[]##v_/Monologuing/robot/drive/2.1 Used Last Vision Estimate?": {
               "open": true
@@ -230,6 +237,9 @@
               "open": true
             },
             "double[]##v_/Monologuing/robot/drive/1.1 Estimated Pose": {
+              "open": true
+            },
+            "double[]##v_/Monologuing/robot/drive/1.2 Current Chassis Speeds": {
               "open": true
             },
             "double[]##v_/Monologuing/robot/drive/1.2 Vision Pose": {
@@ -307,7 +317,8 @@
               "open": true
             }
           },
-          "undertaker": {
+          "open": true,
+          "shooter": {
             "open": true
           }
         }
@@ -343,14 +354,14 @@
         "arducam": {
           "open": true
         },
+        "back_left": {
+          "open": true
+        },
         "open": true
       }
     }
   },
   "NetworkTables Info": {
-    "Connections": {
-      "open": true
-    },
     "Server": {
       "open": true
     },
@@ -366,7 +377,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 647,
+          "height": 599,
           "series": [
             {
               "color": [
@@ -464,6 +475,30 @@
       "window": {
         "visible": false
       }
+    },
+    "Plot <2>": {
+      "plots": [
+        {
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 290,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/Monologuing/robot/pivot/2.1 Current Position"
+            }
+          ]
+        }
+      ]
     }
   }
 }

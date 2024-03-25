@@ -53,7 +53,10 @@ open class Pivot(
   open val velocitySupplier: Supplier<Double> =
     Supplier { encoder.velocity }
 
-  private var lastProfileReference = TrapezoidProfile.State(0.0, 0.0)
+  private var lastProfileReference = TrapezoidProfile.State(
+    PivotConstants.STOW_ANGLE,
+    0.0
+  )
 
   init {
     controller.reset()
@@ -133,12 +136,6 @@ open class Pivot(
     }
   }
 
-  fun readyAnywhere(): Command {
-    return this.run {
-      moveToAngle(PivotConstants.ANYWHERE_ANGLE)
-    }
-  }
-
   fun moveClimb(): Command {
     return this.run {
       moveToAngleSlow(PivotConstants.CLIMB_ANGLE)
@@ -159,6 +156,11 @@ open class Pivot(
 
   fun inTolerance(): Boolean {
     return abs(positionSupplier.get() - lastProfileReference.position) < PivotConstants.MAX_POS_ERROR &&
+      abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_ERROR
+  }
+
+  fun inAmpTolerance(): Boolean {
+    return abs(positionSupplier.get() - PivotConstants.AMP_ANGLE) < PivotConstants.AMP_TOL &&
       abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_ERROR
   }
 
@@ -192,13 +194,9 @@ open class Pivot(
 
   fun moveStow(): Command {
     return this.run {
-      moveToAngle(PivotConstants.STOW_ANGLE)
+      moveToAngleSlow(PivotConstants.STOW_ANGLE)
       observer.setXhat(2, 0.0)
     }
-  }
-
-  fun atSetpoint(): Boolean {
-    return lastProfileReference.position - positionSupplier.get() < PivotConstants.POS_TOLERANCE
   }
 
   fun pivotShootAnywhere(): Command {

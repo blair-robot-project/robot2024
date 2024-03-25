@@ -28,7 +28,7 @@ object VisionConstants {
     8.1026
   )
 
-  /** WPILib's AprilTagFieldLayout for the 2023 Charged Up Game */
+  /** WPILib's AprilTagFieldLayout for the 2024 Crescendo Game */
   val TAG_LAYOUT: AprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(
     AprilTagFields.k2024Crescendo.m_resourceFile
   )
@@ -49,11 +49,11 @@ object VisionConstants {
   )
 
   /** Filtering Constants */
-  const val MAX_AMBIGUITY = 0.325
+  const val MAX_AMBIGUITY = 0.25
   const val MAX_DISTANCE_SINGLE_TAG = 4.5
   const val MAX_DISTANCE_MULTI_TAG = 6.0
   val SINGLE_TAG_HEADING_MAX_DEV_RAD = Units.radiansToDegrees(5.0)
-  var MAX_HEIGHT_ERR_METERS = 0.75
+  var MAX_HEIGHT_ERR_METERS = 0.25
   const val NUM_TAG_FACTOR = 2.0
 
   /** Std Dev Calculation Constants */
@@ -68,30 +68,30 @@ object VisionConstants {
   const val SIM_FPS = 13.0
   const val SIM_CAMERA_HEIGHT_PX = 720
   const val SIM_CAMERA_WIDTH_PX = 1280
-  const val SIM_FOV_DEG = 75.0
-  const val SIM_CALIB_AVG_ERR_PX = 0.35
-  const val SIM_CALIB_ERR_STDDEV_PX = 0.10
+  const val SIM_FOV_DEG = 90.0
+  const val SIM_CALIB_AVG_ERR_PX = 0.85
+  const val SIM_CALIB_ERR_STDDEV_PX = 0.40
   const val SIM_AVG_LATENCY = 50.0
   const val SIM_STDDEV_LATENCY = 10.0
   const val ENABLE_WIREFRAME = true
 
   /** List of cameras that we want to use */
   val ESTIMATORS: ArrayList<VisionSubsystem> = arrayListOf(
-    VisionSubsystem(
-      "back_left",
-      TAG_LAYOUT,
-      backLeft,
-      VISION_SIM
-    ),
-    VisionSubsystem(
-      "back_right",
-      TAG_LAYOUT,
-      backRight,
-      VISION_SIM
-    )
+//    VisionSubsystem(
+//      "back_left",
+//      TAG_LAYOUT,
+//      backLeft,
+//      VISION_SIM
+//    ),
+//    VisionSubsystem(
+//      "back_right",
+//      TAG_LAYOUT,
+//      backRight,
+//      VISION_SIM
+//    )
   )
 
   val ENCODER_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .125, .125, .0125)
-  val SINGLE_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .225, .225, 1e+9)
+  val SINGLE_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .375, .375, 1e+9)
   val MULTI_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .175, .175, .80)
 }

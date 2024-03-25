@@ -121,11 +121,15 @@ class SwerveOrthogonalCommand(
     prevX = xClamped
     prevY = yClamped
 
-    if (controller.bButtonPressed) {
-      snapToAngle(-PI / 3)
-    } else if (controller.xButtonPressed) {
-      snapToAngle(PI / 3)
-    } else if (controller.aButtonPressed) {
+//    if (controller.bButtonPressed) {
+//      snapToAngle(-PI / 3)
+//    } else if (controller.xButtonPressed) {
+//      snapToAngle(PI / 3)
+//    } else if (controller.aButtonPressed) {
+//      snapToAngle(0.0)
+//    }
+
+    if (controller.aButtonPressed) {
       snapToAngle(0.0)
     }
 

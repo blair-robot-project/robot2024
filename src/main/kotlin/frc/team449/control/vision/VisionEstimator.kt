@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.*
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.math.numbers.N5
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj.DriverStation
 import frc.team449.robot2024.constants.vision.VisionConstants
 import org.photonvision.EstimatedRobotPose
@@ -30,7 +31,7 @@ class VisionEstimator(
   private val tagLayout: AprilTagFieldLayout,
   val camera: PhotonCamera,
   private val robotToCam: Transform3d
-) : PhotonPoseEstimator(tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, robotToCam) {
+) : PhotonPoseEstimator(tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_RIO, camera, robotToCam) {
   private val reportedErrors: HashSet<Int> = HashSet()
   private var driveHeading: Rotation2d? = null
   private var lastPose: Pose3d? = null
@@ -62,7 +63,7 @@ class VisionEstimator(
     return if (!cameraResult.hasTargets()) {
       Optional.empty()
     } else {
-      multiTagOnCoprocStrategy(cameraResult)
+      lowestAmbiguityStrategy(cameraResult)
     }
   }
 
@@ -92,9 +93,17 @@ class VisionEstimator(
         .relativeTo(tagLayout.origin)
         .plus(robotToCam.inverse()) // field-to-robot
 
+      val visionPose = checkBest(lastPose, best, alternate) ?: best
+
+      val difference = MathUtil.angleModulus(abs(MathUtil.angleModulus(visionPose.toPose2d().rotation.radians) - MathUtil.angleModulus(driveHeading!!.radians)))
+
+      if (MathUtil.angleModulus(difference + PI) - PI > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_RAD) {
+        return Optional.empty()
+      }
+
       Optional.of(
         EstimatedRobotPose(
-          checkBest(lastPose, best, alternate) ?: best,
+          visionPose,
           result.timestampSeconds,
           result.getTargets(),
           PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
@@ -103,7 +112,7 @@ class VisionEstimator(
     } else {
       Optional.empty<EstimatedRobotPose>()
 //      println("getting into single tag")
-//      lowestAmbiguityStrategy(result)
+      lowestAmbiguityStrategy(result)
     }
   }
 
@@ -209,48 +218,23 @@ class VisionEstimator(
       )
       .transformBy(robotToCam.inverse())
 
-    println(driveHeading!!.radians)
-
-    val altPose = targetPosition
-      .get()
-      .transformBy(
-        lowestAmbiguityTarget.alternateCameraToTarget.inverse()
+    if (abs(
+        MathUtil.angleModulus(
+            MathUtil.angleModulus(bestPose.rotation.z) -
+              MathUtil.angleModulus(driveHeading!!.radians)
+          )
       )
-      .transformBy(robotToCam.inverse())
-
-    val usedPose = checkBest(lastPose, bestPose, altPose) ?: bestPose
-
-    if (usedPose == bestPose) {
-      if (abs(
-          MathUtil.angleModulus(
-              MathUtil.angleModulus(bestPose.rotation.z) -
-                MathUtil.angleModulus(driveHeading!!.radians)
-            )
-        )
-      > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_RAD
-      ) {
-        DriverStation.reportWarning("Best Single Tag Heading over Max Deviation, deviated by ${abs(bestPose.rotation.z * (180 / (2 * PI)) - driveHeading!!.degrees)}", false)
-        return Optional.empty()
-      }
-    } else {
-      if (abs(
-          MathUtil.angleModulus(
-              MathUtil.angleModulus(altPose.rotation.z) -
-                MathUtil.angleModulus(driveHeading!!.radians)
-            )
-        )
-      > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_RAD
-      ) {
-        DriverStation.reportWarning("Alt Single Tag Heading over Max Deviation, deviated by ${abs(altPose.rotation.z * (180 / (2 * PI)) - driveHeading!!.degrees)}", false)
-        return Optional.empty()
-      }
+    > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_RAD
+    ) {
+      DriverStation.reportWarning("Best Single Tag Heading over Max Deviation, deviated by ${Units.radiansToDegrees(abs(bestPose.rotation.z - driveHeading!!.radians))}", false)
+      return Optional.empty()
     }
 
     return Optional.of(
       EstimatedRobotPose(
-        checkBest(lastPose, bestPose, altPose) ?: bestPose,
+        bestPose,
         result.timestampSeconds,
-        mutableListOf(lowestAmbiguityTarget),
+        result.getTargets(),
         PoseStrategy.LOWEST_AMBIGUITY
       )
     )
