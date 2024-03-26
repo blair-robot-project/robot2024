@@ -371,7 +371,7 @@ open class SpinShooter(
     return cmd
   }
 
-  private fun shootPiece(rightSpeed: Double, leftSpeed: Double) {
+  fun shootPiece(rightSpeed: Double, leftSpeed: Double) {
     if (DriverStation.isDisabled()) {
       correct()
     } else {
@@ -522,8 +522,8 @@ open class SpinShooter(
       )
 
       val rightPlantSim = LinearSystemId.identifyVelocitySystem(
-        SpinShooterConstants.RIGHT_KV - 0.0075,
-        SpinShooterConstants.RIGHT_KA - 0.0015
+        SpinShooterConstants.RIGHT_KV,
+        SpinShooterConstants.RIGHT_KA
       )
 
       val leftObserver = KalmanFilter(

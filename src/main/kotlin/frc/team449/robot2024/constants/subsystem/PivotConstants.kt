@@ -67,7 +67,7 @@ object PivotConstants {
   val MIN_ANGLE = Units.degreesToRadians(0.0)
   val MAX_ANGLE = Units.degreesToRadians(105.0)
   val AMP_ANGLE = Units.degreesToRadians(89.0) // 95.0 at blacksburg
-  val CLIMB_ANGLE = Units.degreesToRadians(65.0)
+  val CLIMB_ANGLE = Units.degreesToRadians(60.0)
   val STOW_ANGLE = Units.degreesToRadians(-2.0)
 
   // IS THIS CORRECT???

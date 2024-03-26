@@ -53,7 +53,7 @@ open class Pivot(
   open val velocitySupplier: Supplier<Double> =
     Supplier { encoder.velocity }
 
-  private var lastProfileReference = TrapezoidProfile.State(
+  var lastProfileReference = TrapezoidProfile.State(
     PivotConstants.STOW_ANGLE,
     0.0
   )
@@ -139,6 +139,12 @@ open class Pivot(
   fun moveClimb(): Command {
     return this.run {
       moveToAngleSlow(PivotConstants.CLIMB_ANGLE)
+    }
+  }
+
+  fun moveAngleCmd(angle: Double): Command {
+    return this.run {
+      moveToAngleSlow(angle)
     }
   }
 
