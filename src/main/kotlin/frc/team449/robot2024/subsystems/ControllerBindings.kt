@@ -126,8 +126,27 @@ class ControllerBindings(
       robot.climber.stop()
     )
 
+    mechanismController.povLeft().onTrue(
+      SequentialCommandGroup(
+        checkNoteInLocation(),
+        ParallelCommandGroup(
+          robot.undertaker.slowIntake().andThen(
+            WaitCommand(0.25),
+            robot.pivot.movePass()
+          ),
+          robot.shooter.shootAnywhere()
+        )
+      )
+    )
+
     robot.mechController.povRight().onTrue(
-      robot.pivot.moveAmp()
+      robot.pivot.moveAmp().alongWith(
+        SequentialCommandGroup(
+          WaitUntilCommand { robot.pivot.inAmpTolerance() },
+          robot.climber.extend().withTimeout(1.55),
+          robot.climber.stop()
+        )
+      )
     )
 
     robot.mechController.povUp().onTrue(
@@ -219,7 +238,16 @@ class ControllerBindings(
     )
 
     mechanismController.x().onTrue(
-      robot.pivot.moveClimb()
+      SequentialCommandGroup(
+        checkNoteInLocation(),
+        WaitUntilCommand { robot.shooter.atSetpoint() },
+        robot.feeder.intake(),
+        robot.undertaker.intake()
+      ).alongWith(
+        robot.shooter.shootAnywhere()
+      )
+    ).onFalse(
+      stopAll()
     )
 
     mechanismController.back().onTrue(

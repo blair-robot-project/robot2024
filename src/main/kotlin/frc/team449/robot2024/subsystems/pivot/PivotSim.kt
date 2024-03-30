@@ -12,7 +12,6 @@ import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
-import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
@@ -24,11 +23,11 @@ class PivotSim(
   simmedMotor: WrappedMotor,
   encoder: QuadEncoder,
   controller: LinearQuadraticRegulator<N2, N1, N1>,
+  fastController: LinearQuadraticRegulator<N2, N1, N1>,
   feedforward: LinearPlantInversionFeedforward<N2, N1, N1>,
   observer: KalmanFilter<N3, N1, N1>,
-  profile: TrapezoidProfile,
-  robot: Robot
-) : Pivot(simmedMotor, encoder, controller, feedforward, observer, profile, robot) {
+  profile: TrapezoidProfile
+) : Pivot(simmedMotor, encoder, controller, fastController, feedforward, observer, profile) {
 
   private var currentState = Pair(0.0, 0.0)
 

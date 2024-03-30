@@ -15,12 +15,9 @@ import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
-import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
-import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
 import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.encoder.QuadEncoder
 import frc.team449.system.motor.WrappedMotor
@@ -34,10 +31,10 @@ open class Pivot(
   val motor: WrappedMotor,
   val encoder: QuadEncoder,
   private val controller: LinearQuadraticRegulator<N2, N1, N1>,
+  private val fastController: LinearQuadraticRegulator<N2, N1, N1>,
   private val feedforward: LinearPlantInversionFeedforward<N2, N1, N1>,
   private val observer: KalmanFilter<N3, N1, N1>,
-  private val profile: TrapezoidProfile,
-  private val robot: Robot
+  private val profile: TrapezoidProfile
 ) : SubsystemBase() {
 
   private val slowProfile = TrapezoidProfile(
@@ -60,6 +57,7 @@ open class Pivot(
 
   init {
     controller.reset()
+    fastController.reset()
 
     feedforward.reset(
       VecBuilder.fill(
@@ -80,13 +78,13 @@ open class Pivot(
   /** Kalman Filter correct step */
   private fun correct() {
     observer.correct(
-      VecBuilder.fill(getVoltage()),
+      VecBuilder.fill(getSlowVoltage()),
       VecBuilder.fill(positionSupplier.get())
     )
   }
 
   /** Give the LQR the next goal and do the KF predict step*/
-  private fun predict() {
+  private fun slowPredict() {
     val voltage = controller.calculate(
       VecBuilder.fill(
         observer.getXhat(0),
@@ -110,12 +108,31 @@ open class Pivot(
     observer.predict(voltage, RobotConstants.LOOP_TIME)
   }
 
-  private fun correctAndPredict() {
-    correct()
-    predict()
+  private fun fastPredict() {
+    val voltage = fastController.calculate(
+      VecBuilder.fill(
+        observer.getXhat(0),
+        observer.getXhat(1)
+      ),
+      VecBuilder.fill(
+        lastProfileReference.position,
+        lastProfileReference.velocity
+      )
+    ).plus(
+      feedforward.calculate(
+        VecBuilder.fill(
+          lastProfileReference.position,
+          lastProfileReference.velocity
+        )
+      )
+    ).plus(
+      -observer.getXhat(2)
+    )
+
+    observer.predict(voltage, RobotConstants.LOOP_TIME)
   }
 
-  private fun getVoltage(): Double {
+  private fun getSlowVoltage(): Double {
     return MathUtil.clamp(
       controller.getU(0) + feedforward.getUff(0) - observer.getXhat(2),
       -PivotConstants.MAX_VOLTAGE,
@@ -123,16 +140,24 @@ open class Pivot(
     )
   }
 
+  private fun getFastVoltage(): Double {
+    return MathUtil.clamp(
+      fastController.getU(0) + feedforward.getUff(0) - observer.getXhat(2),
+      -PivotConstants.MAX_VOLTAGE,
+      PivotConstants.MAX_VOLTAGE
+    )
+  }
+
   fun hold(): Command {
     return this.run {
-      moveToAngle(lastProfileReference.position)
+      moveToAngleSlow(lastProfileReference.position)
       observer.setXhat(2, 0.0)
     }
   }
 
   fun moveAmp(): Command {
     return this.run {
-      moveToAngle(PivotConstants.AMP_ANGLE)
+      moveToAngleFast(PivotConstants.AMP_ANGLE)
     }
   }
 
@@ -142,26 +167,25 @@ open class Pivot(
     }
   }
 
+  fun movePass(): Command {
+    return this.run {
+      moveToAngleSlow(PivotConstants.PASS_ANGLE)
+    }
+  }
+
   fun moveAngleCmd(angle: Double): Command {
     return this.run {
       moveToAngleSlow(angle)
     }
   }
 
-  fun autoAngle(): Command {
-    return this.run {
-      moveToAngle(PivotConstants.AUTO_ANGLE)
-    }.until(::inTolerance)
-  }
-
-  fun autoStow(): Command {
-    return this.run {
-      moveToAngle(PivotConstants.STOW_ANGLE)
-    }.until(::inTolerance)
-  }
-
   fun inTolerance(): Boolean {
     return abs(positionSupplier.get() - lastProfileReference.position) < PivotConstants.MAX_POS_ERROR &&
+      abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_ERROR
+  }
+
+  fun inTolerance(pos: Double): Boolean {
+    return abs(positionSupplier.get() - pos) < PivotConstants.MAX_POS_ERROR &&
       abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_ERROR
   }
 
@@ -172,9 +196,9 @@ open class Pivot(
 
   fun manualUp(): Command {
     val cmd = this.run {
-      moveToAngle(
+      moveToAngleSlow(
         MathUtil.clamp(
-          lastProfileReference.position + PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 8,
+          lastProfileReference.position + PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 3,
           PivotConstants.MIN_ANGLE,
           PivotConstants.MAX_ANGLE
         )
@@ -186,9 +210,9 @@ open class Pivot(
 
   fun manualDown(): Command {
     val cmd = this.run {
-      moveToAngle(
+      moveToAngleSlow(
         MathUtil.clamp(
-          lastProfileReference.position - PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 8,
+          lastProfileReference.position - PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 3,
           PivotConstants.MIN_ANGLE,
           PivotConstants.MAX_ANGLE
         )
@@ -205,32 +229,22 @@ open class Pivot(
     }
   }
 
-  fun pivotShootAnywhere(): Command {
-    return this.run {
-      val distance = FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)
-      val goal = SpinShooterConstants.SHOOTING_MAP.get(distance)
-
-      correctAndPredict()
-      motor.setVoltage(getVoltage())
-
-      lastProfileReference = TrapezoidProfile.State(goal, 0.0)
-    }
-  }
-
   fun moveToAngleSlow(goal: Double) {
     lastProfileReference = slowProfile.calculate(RobotConstants.LOOP_TIME, lastProfileReference, TrapezoidProfile.State(goal, 0.0))
 
-    correctAndPredict()
+    correct()
+    slowPredict()
 
-    motor.setVoltage(getVoltage())
+    motor.setVoltage(getSlowVoltage())
   }
 
-  fun moveToAngle(goal: Double) {
+  fun moveToAngleFast(goal: Double) {
     lastProfileReference = profile.calculate(RobotConstants.LOOP_TIME, lastProfileReference, TrapezoidProfile.State(goal, 0.0))
 
-    correctAndPredict()
+    correct()
+    fastPredict()
 
-    motor.setVoltage(getVoltage())
+    motor.setVoltage(getFastVoltage())
 
     if (abs(lastProfileReference.position - goal) > PivotConstants.START_INPT_ERR) {
       observer.setXhat(2, 0.0)
@@ -257,7 +271,7 @@ open class Pivot(
   }
 
   companion object {
-    fun createPivot(robot: Robot): Pivot {
+    fun createPivot(): Pivot {
       val motor = createSparkMax(
         "Pivot Motors",
         PivotConstants.MOTOR_ID,
@@ -357,6 +371,13 @@ open class Pivot(
         RobotConstants.LOOP_TIME
       )
 
+      val fastController = LinearQuadraticRegulator(
+        linearSystemIDPlant,
+        VecBuilder.fill(PivotConstants.FAST_POS_TOLERANCE, PivotConstants.FAST_VEL_TOLERANCE),
+        VecBuilder.fill(PivotConstants.CONTROL_EFFORT_VOLTS),
+        RobotConstants.LOOP_TIME
+      )
+
       val feedforward = LinearPlantInversionFeedforward(
         linearSystemIDPlant,
         RobotConstants.LOOP_TIME
@@ -370,16 +391,16 @@ open class Pivot(
       )
 
       return if (RobotBase.isReal()) {
-        Pivot(motor, encoder, controller, feedforward, observer, profile, robot)
+        Pivot(motor, encoder, controller, fastController, feedforward, observer, profile)
       } else {
         PivotSim(
           motor,
           encoder,
           controller,
+          fastController,
           feedforward,
           observer,
-          profile,
-          robot
+          profile
         )
       }
     }

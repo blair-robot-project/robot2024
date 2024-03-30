@@ -12,7 +12,7 @@ import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
 import kotlin.math.abs
 
-class SixPiece(
+class SixPiecePhyreFarthy(
   robot: Robot,
   isRed: Boolean
 ) : ChoreoRoutineStructure {
@@ -23,23 +23,24 @@ class SixPiece(
       parallelEventMap = hashMapOf(
         0 to AutoUtil.autoFarIntake(
           robot,
-          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.146901845932007, 4.836400508880615))))))
+          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.55, 5.558067321777344))))))
         ),
         1 to AutoUtil.autoFarIntake(
           robot,
-          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.55, 5.525))))))
+          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.6177337169647217, 6.778044700622559))))))
         ),
         2 to AutoUtil.autoFarIntake(
           robot,
-          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.633739948272705, 6.8354172706604))))))
+          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.8952739238739014, 5.56283712387085))))))
         ),
-        3 to AutoUtil.autoFarIntake(
+        3 to AutoUtil.autoFarIntakeCenterline(
           robot,
-          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.983095407485962, 6.08734130859375))))))
+          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.521202325820923, 5.297963619232178)))))),
+          3.45
         ),
         4 to AutoUtil.autoFarIntake(
           robot,
-          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.983095407485962, 6.08734130859375))))))
+          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.194774866104126, 4.563653469085693))))))
         )
       ),
       stopEventMap = hashMapOf(
@@ -63,9 +64,9 @@ class SixPiece(
   override val trajectory: MutableList<ChoreoTrajectory> =
     if (isRed) {
       AutoUtil.transformForRed(
-        ChoreoTrajectory.createTrajectory("6_Piece")
+        ChoreoTrajectory.createTrajectory("6_Piece_Phyre_Farthy")
       )
     } else {
-      ChoreoTrajectory.createTrajectory("6_Piece")
+      ChoreoTrajectory.createTrajectory("6_Piece_Phyre_Farthy")
     }
 }

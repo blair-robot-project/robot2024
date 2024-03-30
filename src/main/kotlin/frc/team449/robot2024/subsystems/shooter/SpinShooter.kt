@@ -220,7 +220,7 @@ open class SpinShooter(
           Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(Translation2d(14.144, 4.211))))
         }
 
-        val angle = Units.degreesToRadians(SpinShooterConstants.equation(distance) + 0.45)
+        val angle = Units.degreesToRadians(SpinShooterConstants.equation(distance) + 0.10)
 
         robot.pivot.moveToAngleSlow(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
 
@@ -351,8 +351,8 @@ open class SpinShooter(
   }
 
   fun atAmpSetpoint(): Boolean {
-    return abs(leftVelocity.get() - SpinShooterConstants.AMP_SPEED) < SpinShooterConstants.AMP_TOLERANCE &&
-      abs(rightVelocity.get() - SpinShooterConstants.AMP_SPEED) < SpinShooterConstants.AMP_TOLERANCE
+    return abs(leftVelocity.get() - desiredVels.first) < SpinShooterConstants.AMP_TOLERANCE &&
+      abs(rightVelocity.get() - desiredVels.second) < SpinShooterConstants.AMP_TOLERANCE
   }
 
   fun scoreAmp(): Command {

@@ -127,7 +127,10 @@
         "left": 150,
         "right": 2961,
         "top": 79,
-        "width": 16.541748046875
+        "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
       },
       "/SmartDashboard/Routine Chooser": {
         "window": {
@@ -181,7 +184,10 @@
           "selectable": false,
           "style": "Hidden"
         },
-        "width": 16.541748046875
+        "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
       }
     }
   },
@@ -307,7 +313,8 @@
             },
             "int[]##v_/Monologuing/robot/drive/2.7 Total Rejected Vision Sights": {
               "open": true
-            }
+            },
+            "open": true
           },
           "intake": {
             "double[]##v_/Monologuing/robot/intake/3.1 Intake 3D Position": {
@@ -479,7 +486,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 338,
+          "height": 290,
           "series": [
             {
               "color": [
@@ -492,7 +499,10 @@
             }
           ]
         }
-      ]
+      ],
+      "window": {
+        "visible": false
+      }
     }
   }
 }

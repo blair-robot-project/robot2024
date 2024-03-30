@@ -46,7 +46,7 @@ class Robot : RobotBase(), Logged {
   val undertaker = createUndertaker()
 
   @Log.NT
-  val pivot = createPivot(this)
+  val pivot = createPivot()
 
   @Log.NT
   val shooter = createSpinShooter(this)
