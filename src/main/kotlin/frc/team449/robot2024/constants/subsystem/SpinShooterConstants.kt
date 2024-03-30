@@ -17,14 +17,14 @@ object SpinShooterConstants {
 
   val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(2800.0)
   val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3450.0)
-  val ANYWHERE_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3650.0)
-  val ANYWHERE_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4650.0)
+  val ANYWHERE_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3750.0)
+  val ANYWHERE_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4700.0)
   val AMP_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(1800.0)
   val OUTTAKE_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(-200.0)
 
   const val AUTO_SHOOT_TOL = 25.0
 
-  val BRAKE_RATE_LIMIT = Units.rotationsPerMinuteToRadiansPerSecond(4000.0)
+  val BRAKE_RATE_LIMIT = Units.rotationsPerMinuteToRadiansPerSecond(5250.0)
 
   val SHOOTING_MAP = InterpolatingDoubleTreeMap()
   const val MAX_RANGE = 7.0 // m
