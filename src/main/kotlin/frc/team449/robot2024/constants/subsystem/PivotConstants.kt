@@ -76,7 +76,4 @@ object PivotConstants {
   val CLIMB_ANGLE = Units.degreesToRadians(60.0)
   val PASS_ANGLE = Units.degreesToRadians(72.5)
   val STOW_ANGLE = Units.degreesToRadians(-2.0)
-
-  // IS THIS CORRECT???
-  val AUTO_ANGLE = 0.350
 }

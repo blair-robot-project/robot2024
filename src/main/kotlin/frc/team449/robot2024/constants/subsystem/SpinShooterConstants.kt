@@ -36,12 +36,6 @@ object SpinShooterConstants {
   const val LEFT_KA = 0.0065218 // 0.0061217
   const val RIGHT_KA = 0.00714 // 0.00815
 
-  const val AMP_SCORE_VOLTAGE = 4.144
-  const val DURING_INTAKE_VOLTAGE = -1.0
-
-  /** In meters from the ground */
-  const val SHOOTER_HEIGHT = 0.25
-
   const val IN_TOLERANCE = 8.0
   const val AMP_TOLERANCE = 30.0
   const val START_INPT_ERR = 50.0

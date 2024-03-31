@@ -12,10 +12,6 @@ object ClimberConstants {
   const val RETRACT_VOLTAGE = -12.0
   const val EXTEND_VOLTAGE = 8.75
 
-  /** What is the max enc pos? */
-  const val MIN_ENC_POS = 0.0
-  const val MAX_ENC_POS = Double.MAX_VALUE
-
   const val DEFAULT_PID_RETRACT = -7.0
   const val KP = 1.0
   const val KI = 0.0
