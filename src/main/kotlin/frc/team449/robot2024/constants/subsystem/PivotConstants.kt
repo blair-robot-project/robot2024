@@ -68,6 +68,8 @@ object PivotConstants {
 
   const val SLOW_ACCEL = 0.5804 * 22.5 // this some fire, actual value is 10.157
 
+  const val PREMOVE_ACCEL = 5.0
+
   val MIN_ANGLE = Units.degreesToRadians(0.0)
   val MAX_ANGLE = Units.degreesToRadians(105.0)
   val AMP_ANGLE = Units.degreesToRadians(89.0) // 95.0 at blacksburg

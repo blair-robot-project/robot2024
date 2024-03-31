@@ -21,14 +21,16 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
 //      "BlueSubwoofer5PieceFar" to FivePieceSubwooferFarFirst(robot, false).createCommand(),
       "RedSubwoofer5PieceFarthy" to FivePieceSubwooferFarthy(robot, true).createCommand(),
       "BlueSubwoofer5PieceFarthy" to FivePieceSubwooferFarthy(robot, false).createCommand(),
-      "RedSixPiece" to SixPiece(robot, true).createCommand(),
-      "BlueSixPiece" to SixPiece(robot, false).createCommand(),
-      "RedSixPiecePhyreMiddy" to SixPiecePhyreMiddy(robot, true).createCommand(),
-      "BlueSixPiecePhyreMiddy" to SixPiecePhyreMiddy(robot, false).createCommand(),
-      "RedSixPiecePhyreFarthy" to SixPiecePhyreFarthy(robot, true).createCommand(),
-      "BlueSixPiecePhyreFarthy" to SixPiecePhyreFarthy(robot, false).createCommand(),
+//      "RedSixPiece" to SixPiece(robot, true).createCommand(),
+//      "BlueSixPiece" to SixPiece(robot, false).createCommand(),
+//      "RedSixPiecePhyreMiddy" to SixPiecePhyreMiddy(robot, true).createCommand(),
+//      "BlueSixPiecePhyreMiddy" to SixPiecePhyreMiddy(robot, false).createCommand(),
+//      "RedSixPiecePhyreFarthy" to SixPiecePhyreFarthy(robot, true).createCommand(),
+//      "BlueSixPiecePhyreFarthy" to SixPiecePhyreFarthy(robot, false).createCommand(),
       "RedFourPieceHelper" to FourPieceHelper(robot, true).createCommand(),
-      "BlueFourPieceHelper" to FourPieceHelper(robot, false).createCommand()
+      "BlueFourPieceHelper" to FourPieceHelper(robot, false).createCommand(),
+      "RedREXSynergize" to FourAndHalfREXSynergize(robot, true).createCommand(),
+      "BlueREXSynergize" to FourAndHalfREXSynergize(robot, false).createCommand()
     )
   }
 
@@ -70,24 +72,29 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
 //      if (isRed) "Red3PieceMid" else "Blue3PieceMid"
 //    )
 
-    this.addOption(
-      "6 Piece",
-      if (isRed) "RedSixPiece" else "BlueSixPiece"
-    )
-
-    this.addOption(
-      "6 Piece Phyre Farthy",
-      if (isRed) "RedSixPiecePhyreFarthy" else "BlueSixPiecePhyreFarthy"
-    )
-
-    this.addOption(
-      "6 Piece Phyre Middy",
-      if (isRed) "RedSixPiecePhyreMiddy" else "BlueSixPiecePhyreMiddy"
-    )
+//    this.addOption(
+//      "6 Piece",
+//      if (isRed) "RedSixPiece" else "BlueSixPiece"
+//    )
+//
+//    this.addOption(
+//      "6 Piece Phyre Farthy",
+//      if (isRed) "RedSixPiecePhyreFarthy" else "BlueSixPiecePhyreFarthy"
+//    )
+//
+//    this.addOption(
+//      "6 Piece Phyre Middy",
+//      if (isRed) "RedSixPiecePhyreMiddy" else "BlueSixPiecePhyreMiddy"
+//    )
 
     this.addOption(
       "4 Piece Helper Centerline",
       if (isRed) "RedFourPieceHelper" else "BlueFourPieceHelper"
+    )
+
+    this.addOption(
+      "4.5 Piece REX Synergy",
+      if (isRed) "RedREXSynergize" else "BlueREXSynergize"
     )
   }
 }

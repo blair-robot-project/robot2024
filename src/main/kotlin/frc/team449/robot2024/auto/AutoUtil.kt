@@ -165,8 +165,6 @@ object AutoUtil {
   }
 
   fun autoFarIntakeV2(robot: Robot): Command {
-    var readyShooter = false
-
     return ParallelCommandGroup(
       SequentialCommandGroup(
         robot.undertaker.intake(),
@@ -243,11 +241,9 @@ object AutoUtil {
           robot.undertaker.stop().alongWith(
             robot.feeder.stop()
           )
-        ),
-        InstantCommand({ readyShooter = true })
+        )
       ),
       SequentialCommandGroup(
-        robot.shooter.rampStop().until { readyShooter },
         robot.shooter.shootAnywhere()
       ),
       SequentialCommandGroup(
@@ -256,23 +252,156 @@ object AutoUtil {
     )
   }
 
+  fun autoFarIntakeV2Premove(robot: Robot, angle: Double): Command {
+    return ParallelCommandGroup(
+      SequentialCommandGroup(
+        robot.pivot.moveStow().until { robot.pivot.inTolerance(PivotConstants.AMP_ANGLE) }.andThen(
+          InstantCommand({ robot.pivot.setVoltage(-0.35) })
+        ),
+        robot.undertaker.intake(),
+        robot.feeder.slowIntake(),
+        WaitUntilCommand { !robot.infrared.get() },
+        ConditionalCommand(
+          SequentialCommandGroup(
+            ParallelCommandGroup(
+              robot.undertaker.slowIntake(),
+              robot.feeder.slowIntake(),
+            ),
+            WaitUntilCommand { !robot.closeToShooterInfrared.get() }
+          ),
+          InstantCommand()
+        ) { robot.closeToShooterInfrared.get() },
+        SequentialCommandGroup(
+          robot.undertaker.stop(),
+          robot.feeder.outtake(),
+          WaitUntilCommand { robot.closeToShooterInfrared.get() },
+          robot.undertaker.stop().alongWith(
+            robot.feeder.stop()
+          )
+        ),
+        ConditionalCommand(
+          SequentialCommandGroup(
+            ParallelCommandGroup(
+              robot.undertaker.slowIntake(),
+              robot.feeder.slowIntake(),
+            ),
+            WaitUntilCommand { !robot.closeToShooterInfrared.get() }
+          ),
+          InstantCommand()
+        ) { robot.closeToShooterInfrared.get() },
+        SequentialCommandGroup(
+          robot.undertaker.stop(),
+          robot.feeder.outtake(),
+          WaitUntilCommand { robot.closeToShooterInfrared.get() },
+          robot.undertaker.stop().alongWith(
+            robot.feeder.stop()
+          )
+        ),
+        ConditionalCommand(
+          SequentialCommandGroup(
+            ParallelCommandGroup(
+              robot.undertaker.slowIntake(),
+              robot.feeder.slowIntake(),
+            ),
+            WaitUntilCommand { !robot.closeToShooterInfrared.get() }
+          ),
+          InstantCommand()
+        ) { robot.closeToShooterInfrared.get() },
+        SequentialCommandGroup(
+          robot.undertaker.stop(),
+          robot.feeder.outtake(),
+          WaitUntilCommand { robot.closeToShooterInfrared.get() },
+          robot.undertaker.stop().alongWith(
+            robot.feeder.stop()
+          )
+        ),
+
+        ParallelCommandGroup(
+          SequentialCommandGroup(
+            ConditionalCommand(
+              SequentialCommandGroup(
+                ParallelCommandGroup(
+                  robot.undertaker.slowIntake(),
+                  robot.feeder.slowIntake(),
+                ),
+                WaitUntilCommand { !robot.closeToShooterInfrared.get() }
+              ),
+              InstantCommand()
+            ) { robot.closeToShooterInfrared.get() },
+            SequentialCommandGroup(
+              robot.undertaker.stop(),
+              robot.feeder.outtake(),
+              WaitUntilCommand { robot.closeToShooterInfrared.get() },
+              robot.undertaker.stop().alongWith(
+                robot.feeder.stop()
+              )
+            ),
+            ConditionalCommand(
+              SequentialCommandGroup(
+                ParallelCommandGroup(
+                  robot.undertaker.slowIntake(),
+                  robot.feeder.slowIntake(),
+                ),
+                WaitUntilCommand { !robot.closeToShooterInfrared.get() }
+              ),
+              InstantCommand()
+            ) { robot.closeToShooterInfrared.get() },
+            SequentialCommandGroup(
+              robot.undertaker.stop(),
+              robot.feeder.outtake(),
+              WaitUntilCommand { robot.closeToShooterInfrared.get() },
+              robot.undertaker.stop().alongWith(
+                robot.feeder.stop()
+              )
+            ),
+            ConditionalCommand(
+              SequentialCommandGroup(
+                ParallelCommandGroup(
+                  robot.undertaker.slowIntake(),
+                  robot.feeder.slowIntake(),
+                ),
+                WaitUntilCommand { !robot.closeToShooterInfrared.get() }
+              ),
+              InstantCommand()
+            ) { robot.closeToShooterInfrared.get() },
+            SequentialCommandGroup(
+              robot.undertaker.stop(),
+              robot.feeder.outtake(),
+              WaitUntilCommand { robot.closeToShooterInfrared.get() },
+              robot.undertaker.stop().alongWith(
+                robot.feeder.stop()
+              )
+            )
+          )
+        ),
+        robot.pivot.moveAngleCmdPremove(angle)
+      ),
+
+      SequentialCommandGroup(
+        robot.shooter.shootAnywhere()
+      )
+    )
+  }
+
   fun autoFarShootHelperV2(robot: Robot, pose: Translation2d, offset: Double = 0.0): Command {
     val cmd = SequentialCommandGroup(
       FunctionalCommand(
         {
-          val robotPose = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red)
+          val robotPose = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
             Translation2d(FieldConstants.fieldLength - pose.x, pose.y)
-          else
+          } else {
             pose
+          }
 
           val robotToPoint = FieldConstants.SPEAKER_POSE - robotPose
           RobotConstants.ORTHOGONAL_CONTROLLER.setpoint = robotToPoint.angle.radians + PI
         },
         {
-          val robotPose = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red)
+          val robotPose = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
             Translation2d(FieldConstants.fieldLength - pose.x, pose.y)
-          else
+          } else {
             pose
+          }
 
           robot.shooter.shootPiece(
             SpinShooterConstants.ANYWHERE_LEFT_SPEED,
@@ -299,10 +428,11 @@ object AutoUtil {
 
           println(
             "drive thing: " +
-              if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red)
+              if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
                 abs(MathUtil.angleModulus(robot.drive.heading.radians - robotToPoint.angle.radians + PI))
-              else
+              } else {
                 abs(MathUtil.angleModulus(robot.drive.heading.radians - robotToPoint.angle.radians + PI) - PI)
+              }
           )
 
           if (robot.shooter.atSetpoint() &&
@@ -362,10 +492,11 @@ object AutoUtil {
 
             println(
               "drive thing: " +
-                if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red)
+                if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
                   abs(MathUtil.angleModulus(robot.drive.heading.radians - robotToPoint.angle.radians + PI) - 2 * PI) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD
-                else
+                } else {
                   abs(MathUtil.angleModulus(robot.drive.heading.radians - robotToPoint.angle.radians + PI) - PI) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD
+                }
             )
 
             if (robot.shooter.atSetpoint() &&

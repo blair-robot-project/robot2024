@@ -44,6 +44,13 @@ open class Pivot(
     )
   )
 
+  private val premoveProfile = TrapezoidProfile(
+    TrapezoidProfile.Constraints(
+      PivotConstants.MAX_VELOCITY,
+      PivotConstants.PREMOVE_ACCEL
+    )
+  )
+
   open val positionSupplier: Supplier<Double> =
     Supplier { encoder.position }
 
@@ -179,6 +186,12 @@ open class Pivot(
     }
   }
 
+  fun moveAngleCmdPremove(angle: Double): Command {
+    return this.run {
+      moveToAnglePremove(angle)
+    }
+  }
+
   fun inTolerance(): Boolean {
     return abs(positionSupplier.get() - lastProfileReference.position) < PivotConstants.MAX_POS_ERROR &&
       abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_ERROR
@@ -236,6 +249,19 @@ open class Pivot(
     slowPredict()
 
     motor.setVoltage(getSlowVoltage())
+  }
+
+  fun moveToAnglePremove(goal: Double) {
+    lastProfileReference = premoveProfile.calculate(RobotConstants.LOOP_TIME, lastProfileReference, TrapezoidProfile.State(goal, 0.0))
+
+    correct()
+    slowPredict()
+
+    motor.setVoltage(getSlowVoltage())
+  }
+
+  fun setVoltage(voltage: Double) {
+    motor.setVoltage(voltage)
   }
 
   fun moveToAngleFast(goal: Double) {
