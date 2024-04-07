@@ -205,6 +205,17 @@ open class SpinShooter(
     return cmd
   }
 
+  fun shootPass(): Command {
+    val cmd = this.run {
+      shootPiece(
+        SpinShooterConstants.PASS_LEFT_SPEED,
+        SpinShooterConstants.PASS_RIGHT_SPEED
+      )
+    }
+    cmd.name = "shooting pass speed"
+    return cmd
+  }
+
   fun podiumShot(): Command {
     val cmd = FunctionalCommand(
       { },
@@ -220,7 +231,7 @@ open class SpinShooter(
           Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(Translation2d(14.144, 4.211))))
         }
 
-        val angle = Units.degreesToRadians(SpinShooterConstants.equation(distance) + 0.10)
+        val angle = Units.degreesToRadians(SpinShooterConstants.equation(distance) + 0.45)
 
         robot.pivot.moveToAngleSlow(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
 

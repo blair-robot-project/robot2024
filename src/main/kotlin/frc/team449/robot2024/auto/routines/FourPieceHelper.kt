@@ -3,7 +3,6 @@ package frc.team449.robot2024.auto.routines
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
-import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.WaitCommand
@@ -13,9 +12,7 @@ import frc.team449.control.auto.ChoreoTrajectory
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.auto.AutoUtil
 import frc.team449.robot2024.constants.field.FieldConstants
-import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
 import kotlin.math.PI
-import kotlin.math.abs
 
 class FourPieceHelper(
   robot: Robot,
@@ -28,26 +25,26 @@ class FourPieceHelper(
   val shot0Offset = -0.085 // -0.5
 
   val shot1Pose = Translation2d(3.075 + 0.25, 2.90)
-  val shot1Offset = -7.725 // -7.9
+  val shot1Offset = -8.35 // -7.825 then -7.945 then 8.1
 
   val shot2Pose = Translation2d(3.25 + 0.25, 2.95)
-  val shot2Offset = -7.175 // -7.2
+  val shot2Offset = -7.325 // -7.2 then -7.14
 
-  val shot3Pose = Translation2d(3.165, 3.225)
-  val shot3Offset = -3.725 // -4.45
+  val shot3Pose = Translation2d(3.565, 3.0)
+  val shot3Offset = -3.635 // -4.45
 
   override val routine =
     ChoreoRoutine(
       drive = robot.drive,
       parallelEventMap = hashMapOf(
         0 to AutoUtil.autoFarIntakeV2(robot),
-        1 to AutoUtil.autoFarIntakeV2Premove(
+        1 to AutoUtil.autoFarIntakeV2(
           robot,
-          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(shot2Pose)))) + shot2Offset)
+//          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(shot2Pose)))) + shot2Offset)
         ),
-        2 to AutoUtil.autoFarIntakeV2Premove(
+        2 to AutoUtil.autoFarIntakeV2(
           robot,
-          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(shot3Pose)))) + shot3Offset)
+//          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(shot3Pose)))) + shot3Offset)
         ),
       ),
       stopEventMap = hashMapOf(

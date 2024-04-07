@@ -19,6 +19,8 @@ object SpinShooterConstants {
   val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3450.0)
   val ANYWHERE_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3750.0)
   val ANYWHERE_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4700.0)
+  val PASS_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3350.0)
+  val PASS_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3900.0)
   val AMP_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(1800.0)
   val OUTTAKE_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(-200.0)
 
@@ -37,7 +39,7 @@ object SpinShooterConstants {
   const val RIGHT_KA = 0.00714 // 0.00815
 
   const val IN_TOLERANCE = 8.0
-  const val AMP_TOLERANCE = 30.0
+  const val AMP_TOLERANCE = 75.0
   const val START_INPT_ERR = 50.0
 
   /** These constants are PER SIDE of the shooter */

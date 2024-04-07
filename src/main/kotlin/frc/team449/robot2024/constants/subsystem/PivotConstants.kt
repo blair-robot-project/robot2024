@@ -19,7 +19,8 @@ object PivotConstants {
   const val UPR = 2.0 * PI * (26.0 / 36.0)
   const val OFFSET = -0.2125 + (0.150882 / UPR) + (0.829237 / UPR) - (0.012295 / UPR) +
     (0.020301 / UPR) + (0.339 / UPR) - (0.050935 / UPR) - (0.033839 / UPR) + (0.719451 / UPR) +
-    (0.078581 / UPR) - (0.008894 / UPR) - (0.017786 / UPR) - (0.0243075 / UPR)
+    (0.078581 / UPR) - (0.008894 / UPR) - (0.017786 / UPR) - (0.0243075 / UPR) -
+    (2.1740530090891848 / UPR) - (0.35254264234886784 / UPR)
   const val ENC_INVERTED = true
 
   val QUAD_ENCODER = Encoder(1, 2)
@@ -54,8 +55,9 @@ object PivotConstants {
   val FAST_POS_TOLERANCE = Units.degreesToRadians(10.0)
   val FAST_VEL_TOLERANCE = Units.degreesToRadians(45.0)
 
-  val MAX_POS_ERROR = Units.degreesToRadians(1.725)
-  val AMP_TOL = Units.degreesToRadians(17.5)
+  val MAX_POS_ERROR = Units.degreesToRadians(1.55)
+  val AMP_TOL = Units.degreesToRadians(25.0)
+  val AMP_VEL_TOL = Units.degreesToRadians(85.0)
   val MAX_VEL_ERROR = Units.degreesToRadians(40.0)
 
   const val MAX_VOLTAGE = 12.0
@@ -66,7 +68,7 @@ object PivotConstants {
   // Max at 35A should be 178.15455320820428 (at stall)
   val MAX_ACCEL = 0.1727 * 195 // this some fire, actual value is 33.6765
 
-  const val SLOW_ACCEL = 0.5804 * 22.5 // this some fire, actual value is 10.157
+  const val SLOW_ACCEL = 0.5804 * 21.75 // this some fire, actual value is 10.157
 
   const val PREMOVE_ACCEL = 5.0
 
@@ -74,6 +76,6 @@ object PivotConstants {
   val MAX_ANGLE = Units.degreesToRadians(105.0)
   val AMP_ANGLE = Units.degreesToRadians(89.0) // 95.0 at blacksburg
   val CLIMB_ANGLE = Units.degreesToRadians(60.0)
-  val PASS_ANGLE = Units.degreesToRadians(72.5)
-  val STOW_ANGLE = Units.degreesToRadians(-2.0)
+  val PASS_ANGLE = Units.degreesToRadians(62.5)
+  val STOW_ANGLE = Units.degreesToRadians(-1.0)
 }

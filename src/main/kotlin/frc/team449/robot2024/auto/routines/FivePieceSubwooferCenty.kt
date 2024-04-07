@@ -6,7 +6,7 @@ import frc.team449.control.auto.ChoreoTrajectory
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.auto.AutoUtil
 
-class FivePieceSubwooferFarthy(
+class FivePieceSubwooferCenty(
   robot: Robot,
   isRed: Boolean
 ) : ChoreoRoutineStructure {
@@ -38,9 +38,9 @@ class FivePieceSubwooferFarthy(
   override val trajectory: MutableList<ChoreoTrajectory> =
     if (isRed) {
       AutoUtil.transformForRed(
-        ChoreoTrajectory.createTrajectory("5_Piece_Sub_Farthy")
+        ChoreoTrajectory.createTrajectory("5_Piece_Sub_Centy")
       )
     } else {
-      ChoreoTrajectory.createTrajectory("5_Piece_Sub_Farthy")
+      ChoreoTrajectory.createTrajectory("5_Piece_Sub_Centy")
     }
 }

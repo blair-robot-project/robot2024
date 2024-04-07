@@ -98,13 +98,7 @@ class ControllerBindings(
     mechanismController.y().onTrue(
       SequentialCommandGroup(
         checkNoteInLocation(),
-        ParallelCommandGroup(
-          robot.undertaker.slowIntake().andThen(
-            WaitCommand(0.25),
-            robot.pivot.moveAmp()
-          ),
-          robot.shooter.scoreAmp()
-        )
+        robot.shooter.scoreAmp()
       )
     )
 
@@ -130,11 +124,11 @@ class ControllerBindings(
       SequentialCommandGroup(
         checkNoteInLocation(),
         ParallelCommandGroup(
-          robot.undertaker.slowIntake().andThen(
-            WaitCommand(0.25),
-            robot.pivot.movePass()
-          ),
-          robot.shooter.shootAnywhere()
+//          robot.undertaker.slowIntake().andThen(
+//            WaitCommand(0.25),
+            robot.pivot.movePass(),
+//          ),
+          robot.shooter.shootPass()
         )
       )
     )
@@ -196,14 +190,22 @@ class ControllerBindings(
     mechanismController.leftTrigger().onTrue(
       SequentialCommandGroup(
         checkNoteInLocation(),
-        WaitUntilCommand { robot.shooter.atAmpSetpoint() && robot.pivot.inAmpTolerance() },
-        robot.feeder.intake(),
-      ).alongWith(
-        robot.shooter.scoreAmp(),
-        robot.pivot.moveAmp()
+        ParallelCommandGroup(
+          robot.undertaker.slowIntake().andThen(
+            WaitUntilCommand { robot.shooter.atAmpSetpoint() && robot.pivot.inAmpTolerance() },
+            robot.feeder.intake()
+          ),
+          SequentialCommandGroup(
+            WaitCommand(0.125),
+            robot.pivot.moveAmp()
+          ),
+          robot.shooter.scoreAmp()
+        )
       )
     ).onFalse(
-      stopAll()
+      stopAll().alongWith(
+        robot.pivot.moveStow()
+      )
     )
 
     driveController.leftTrigger().onTrue(
@@ -242,12 +244,15 @@ class ControllerBindings(
         checkNoteInLocation(),
         WaitUntilCommand { robot.shooter.atSetpoint() },
         robot.feeder.intake(),
-        robot.undertaker.intake()
+        robot.undertaker.intake(),
       ).alongWith(
-        robot.shooter.shootAnywhere()
+        robot.shooter.shootPass(),
+        robot.pivot.movePass()
       )
     ).onFalse(
-      stopAll()
+      stopAll().alongWith(
+        robot.pivot.moveStow()
+      )
     )
 
     mechanismController.back().onTrue(

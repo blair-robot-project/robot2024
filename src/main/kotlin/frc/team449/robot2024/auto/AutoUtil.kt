@@ -27,6 +27,30 @@ object AutoUtil {
     return ParallelCommandGroup(
       SequentialCommandGroup(
         robot.undertaker.intake(),
+        robot.feeder.slowIntake(),
+        WaitUntilCommand { !robot.infrared.get() },
+        robot.undertaker.stop(),
+        ConditionalCommand(
+          SequentialCommandGroup(
+            robot.feeder.outtake(),
+            WaitUntilCommand { !robot.closeToShooterInfrared.get() },
+            robot.feeder.stop()
+          ),
+          SequentialCommandGroup(
+            robot.feeder.outtake(),
+            WaitCommand(0.065),
+            robot.feeder.stop()
+          ),
+        ) { !robot.closeToShooterInfrared.get() }
+      ),
+      robot.shooter.shootSubwoofer()
+    )
+  }
+
+  fun autoIntakePass(robot: Robot): Command {
+    return ParallelCommandGroup(
+      SequentialCommandGroup(
+        robot.undertaker.intake(),
         robot.feeder.intake(),
         WaitUntilCommand { !robot.infrared.get() },
         robot.undertaker.stop(),
@@ -39,7 +63,7 @@ object AutoUtil {
           robot.feeder.stop(),
         ) { !robot.closeToShooterInfrared.get() }
       ),
-      robot.shooter.shootSubwoofer()
+      robot.shooter.shootPass()
     )
   }
 
@@ -56,6 +80,37 @@ object AutoUtil {
           ).withTimeout(AutoConstants.AUTO_SHOOT_TIMEOUT_SECONDS)
         ),
         robot.shooter.shootSubwoofer(),
+        InstantCommand({ robot.drive.set(ChassisSpeeds()) })
+      ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!")),
+      ParallelDeadlineGroup(
+        SequentialCommandGroup(
+          WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(AutoConstants.AUTO_SPINUP_TIMEOUT_SECONDS),
+          robot.feeder.autoShootIntake(),
+          robot.undertaker.intake(),
+          SequentialCommandGroup(
+            WaitUntilCommand { !robot.infrared.get() || !robot.closeToShooterInfrared.get() },
+            WaitUntilCommand { robot.infrared.get() && robot.closeToShooterInfrared.get() }
+          ).withTimeout(AutoConstants.AUTO_SHOOT_TIMEOUT_SECONDS)
+        ),
+        robot.shooter.shootSubwoofer(),
+        InstantCommand({ robot.drive.set(ChassisSpeeds()) })
+      ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!")).withTimeout(0.95)
+    ) { RobotBase.isReal() }
+  }
+
+  fun autoPass(robot: Robot): Command {
+    return ConditionalCommand(
+      ParallelDeadlineGroup(
+        SequentialCommandGroup(
+          WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(AutoConstants.AUTO_SPINUP_TIMEOUT_SECONDS),
+          robot.feeder.autoShootIntake(),
+          robot.undertaker.intake(),
+          SequentialCommandGroup(
+            WaitUntilCommand { !robot.infrared.get() || !robot.closeToShooterInfrared.get() },
+            WaitUntilCommand { robot.infrared.get() && robot.closeToShooterInfrared.get() }
+          ).withTimeout(AutoConstants.AUTO_SHOOT_TIMEOUT_SECONDS)
+        ),
+        robot.shooter.shootPass(),
         InstantCommand({ robot.drive.set(ChassisSpeeds()) })
       ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!")),
       ParallelDeadlineGroup(

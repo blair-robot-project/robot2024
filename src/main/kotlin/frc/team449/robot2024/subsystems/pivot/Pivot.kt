@@ -204,7 +204,7 @@ open class Pivot(
 
   fun inAmpTolerance(): Boolean {
     return abs(positionSupplier.get() - PivotConstants.AMP_ANGLE) < PivotConstants.AMP_TOL &&
-      abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_ERROR
+      abs(velocitySupplier.get()) < PivotConstants.AMP_VEL_TOL
   }
 
   fun manualUp(): Command {

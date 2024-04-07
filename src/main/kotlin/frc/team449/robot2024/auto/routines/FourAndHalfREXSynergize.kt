@@ -18,7 +18,7 @@ class FourAndHalfREXSynergize(
         0 to AutoUtil.autoIntake(robot),
         1 to AutoUtil.autoIntake(robot),
         2 to AutoUtil.autoIntake(robot),
-        3 to AutoUtil.autoIntake(robot)
+        3 to AutoUtil.autoIntakePass(robot)
       ),
       stopEventMap = hashMapOf(
         0 to AutoUtil.autoShoot(robot),
@@ -26,7 +26,7 @@ class FourAndHalfREXSynergize(
         2 to AutoUtil.autoShoot(robot),
         3 to AutoUtil.autoShoot(robot),
         // TODO: Will this actually pass the note?
-        4 to AutoUtil.autoShoot(robot).andThen(
+        4 to AutoUtil.autoPass(robot).andThen(
           InstantCommand({ robot.drive.stop() }),
           robot.undertaker.stop(),
           robot.feeder.stop(),

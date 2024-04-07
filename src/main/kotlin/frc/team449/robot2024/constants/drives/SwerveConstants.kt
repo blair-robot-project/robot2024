@@ -34,8 +34,8 @@ object SwerveConstants {
 
   /** Feed forward values for driving each module */
   const val DRIVE_KS = 0.20285 + 0.02
-  const val DRIVE_KV = 2.3887 + 0.2
-  const val DRIVE_KA = 0.43365 + 0.035
+  const val DRIVE_KV = 2.3887 + 0.2 + 0.0935
+  const val DRIVE_KA = 0.43365 + 0.035 + 0.0185
 
   // TODO: Figure out this value
   const val STEER_KS = 0.05

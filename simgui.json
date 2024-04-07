@@ -127,7 +127,10 @@
         "left": 150,
         "right": 2961,
         "top": 79,
-        "width": 16.541748046875
+        "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
       },
       "/SmartDashboard/Routine Chooser": {
         "window": {
@@ -181,7 +184,10 @@
           "selectable": false,
           "style": "Hidden"
         },
-        "width": 16.541748046875
+        "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
       }
     }
   },
@@ -314,8 +320,7 @@
             "double[]##v_/Monologuing/robot/intake/3.1 Intake 3D Position": {
               "open": true
             }
-          },
-          "open": true
+          }
         }
       },
       "Shuffleboard": {
