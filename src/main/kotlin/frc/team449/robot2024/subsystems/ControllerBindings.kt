@@ -126,7 +126,7 @@ class ControllerBindings(
         ParallelCommandGroup(
 //          robot.undertaker.slowIntake().andThen(
 //            WaitCommand(0.25),
-            robot.pivot.movePass(),
+          robot.pivot.movePass(),
 //          ),
           robot.shooter.shootPass()
         )
