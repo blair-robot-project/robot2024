@@ -21,6 +21,8 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
       "BlueSixPiece" to SixPiece(robot, false).createCommand(),
       "RedFourPieceHelper" to FourPieceHelper(robot, true).createCommand(),
       "BlueFourPieceHelper" to FourPieceHelper(robot, false).createCommand(),
+      "RedFourPieceAmp" to FourPieceAmpHelper(robot, true).createCommand(),
+      "BlueFourPieceAmp" to FourPieceAmpHelper(robot, false).createCommand()
     )
   }
 
@@ -60,6 +62,11 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
     this.addOption(
       "4 Piece Helper Centerline",
       if (isRed) "RedFourPieceHelper" else "BlueFourPieceHelper"
+    )
+
+    this.addOption(
+      "4 Piece Helper Amp Side",
+      if (isRed) "RedFourPieceAmp" else "BlueFourPieceAmp"
     )
   }
 }
