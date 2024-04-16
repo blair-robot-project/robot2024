@@ -15,12 +15,12 @@ object SpinShooterConstants {
   const val SECONDARY_CURRENT_LIMIT = 200.0
   const val BRAKE_MODE = false
 
-  val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(2800.0)
-  val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3450.0)
-  val ANYWHERE_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3850.0)
-  val ANYWHERE_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4850.0)
-  val PASS_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3500.0)
-  val PASS_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4500.0)
+  val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3450.0)
+  val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(2800.0)
+  val ANYWHERE_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4850.0)
+  val ANYWHERE_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3850.0)
+  val PASS_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4500.0)
+  val PASS_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3500.0)
   val AMP_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(1800.0)
   val OUTTAKE_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(-200.0)
 

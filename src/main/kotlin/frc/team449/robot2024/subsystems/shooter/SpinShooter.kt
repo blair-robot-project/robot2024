@@ -185,8 +185,8 @@ open class SpinShooter(
   fun shootSubwoofer(): Command {
     val cmd = this.run {
       shootPiece(
-        SpinShooterConstants.SUBWOOFER_RIGHT_SPEED,
-        SpinShooterConstants.SUBWOOFER_LEFT_SPEED
+        SpinShooterConstants.SUBWOOFER_LEFT_SPEED,
+        SpinShooterConstants.SUBWOOFER_RIGHT_SPEED
       )
     }
     cmd.name = "shooting subwoofer"
@@ -461,7 +461,7 @@ open class SpinShooter(
     return cmd
   }
 
-  fun shootPiece(rightSpeed: Double, leftSpeed: Double) {
+  fun shootPiece(leftSpeed: Double, rightSpeed: Double) {
     if (DriverStation.isDisabled()) {
       correct()
     } else {
@@ -525,8 +525,8 @@ open class SpinShooter(
       },
       this.run {
         shootPiece(
-          rightRateLimiter.calculate(0.0),
-          leftRateLimiter.calculate(0.0)
+          leftRateLimiter.calculate(0.0),
+          rightRateLimiter.calculate(0.0)
         )
       }.until {
         abs(leftVelocity.get()) < SpinShooterConstants.MIN_COAST_VEL &&
