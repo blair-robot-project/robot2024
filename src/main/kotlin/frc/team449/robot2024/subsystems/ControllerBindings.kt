@@ -59,6 +59,24 @@ class ControllerBindings(
     )
   )
 
+  val pivotRoutine = SysIdRoutine(
+    SysIdRoutine.Config(
+      Volts.of(0.085).per(Seconds.of(1.0)),
+      Volts.of(0.75),
+      Seconds.of(17.5)
+    ),
+    Mechanism(
+      { voltage: Measure<Voltage> ->
+        run {
+          robot.pivot.setVoltage(voltage.`in`(Volts))
+        }
+      },
+      null,
+      robot.pivot,
+      "pivot"
+    )
+  )
+
   val orbitCmd = OrbitAlign(
     robot.drive,
     robot.driveController,
@@ -126,7 +144,7 @@ class ControllerBindings(
         ParallelCommandGroup(
 //          robot.undertaker.slowIntake().andThen(
 //            WaitCommand(0.25),
-          robot.pivot.movePass(),
+//          robot.pivot.movePass(),
 //          ),
           robot.shooter.shootPass()
         )
@@ -162,6 +180,8 @@ class ControllerBindings(
     driveController.y().onTrue(
       SequentialCommandGroup(
         checkNoteInLocation(),
+        robot.undertaker.slowIntake(),
+        WaitCommand(0.10),
         robot.shooter.podiumShot()
       )
     ).onFalse(
@@ -175,8 +195,30 @@ class ControllerBindings(
 
     driveController.b().onTrue(
       SequentialCommandGroup(
+        InstantCommand({ robot.drive.maxLinearSpeed = 1.10 })
+          .andThen(InstantCommand({ robot.drive.maxRotSpeed = PI / 2 })),
         checkNoteInLocation(),
-        robot.shooter.autoLineShot()
+        robot.undertaker.slowIntake(),
+        WaitCommand(0.10),
+        robot.shooter.autoAim()
+      )
+    ).onFalse(
+      ParallelCommandGroup(
+        InstantCommand({ robot.drive.maxLinearSpeed = RobotConstants.MAX_LINEAR_SPEED })
+          .andThen(
+            InstantCommand({ robot.drive.maxRotSpeed = RobotConstants.MAX_ROT_SPEED })
+          ),
+        robot.undertaker.stop(),
+        robot.shooter.rampStop(),
+        robot.feeder.stop(),
+        robot.pivot.moveStow()
+      )
+    )
+
+    driveController.x().onTrue(
+      SequentialCommandGroup(
+        checkNoteInLocation(),
+        robot.shooter.passShot()
       )
     ).onFalse(
       ParallelCommandGroup(
@@ -202,11 +244,25 @@ class ControllerBindings(
           robot.shooter.scoreAmp()
         )
       )
-    ).onFalse(
-      stopAll().alongWith(
-        robot.pivot.moveStow()
-      )
-    )
+        .until { robot.infrared.get() && robot.closeToShooterInfrared.get() }
+        .andThen(
+          WaitCommand(0.15),
+          stopAll()
+            .alongWith(robot.pivot.moveStow())
+        )
+    )//.onFalse(
+//      robot.feeder.intake()
+//        .alongWith(
+//          robot.shooter.scoreAmp(),
+//          robot.pivot.moveAmp()
+//        )
+//        .until { robot.infrared.get() && robot.closeToShooterInfrared.get() }
+//        .unless { !robot.infrared.get() || !robot.closeToShooterInfrared.get() }
+//        .andThen(
+//          stopAll()
+//            .alongWith(robot.pivot.moveStow())
+//        )
+//    )
 
     driveController.leftTrigger().onTrue(
       ParallelCommandGroup(
@@ -226,18 +282,23 @@ class ControllerBindings(
     driveController.rightTrigger().onTrue(
       SequentialCommandGroup(
         intakePiece(),
-        slowIntake(),
-        outtakeToNotePosition()
+        SequentialCommandGroup(
+          slowIntake(),
+          outtakeToNotePosition()
+        )
+          .repeatedly()
+          .withTimeout(FeederConstants.CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS)
+          .andThen(checkNoteInLocation())
       )
-    ).onFalse(
-      SequentialCommandGroup(
-        slowIntake(),
-        outtakeToNotePosition()
-      )
-        .repeatedly()
-        .withTimeout(FeederConstants.CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS)
-        .andThen(checkNoteInLocation())
-    )
+    )//.onFalse(
+//      SequentialCommandGroup(
+//        slowIntake(),
+//        outtakeToNotePosition()
+//      )
+//        .repeatedly()
+//        .withTimeout(FeederConstants.CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS)
+//        .andThen(checkNoteInLocation())
+//    )
 
     mechanismController.x().onTrue(
       SequentialCommandGroup(
@@ -371,7 +432,7 @@ class ControllerBindings(
     // slow drive
     driveController.rightBumper().onTrue(
       InstantCommand({ robot.drive.maxLinearSpeed = 1.0 })
-        .andThen(InstantCommand({ robot.drive.maxRotSpeed = PI / 4 }))
+        .andThen(InstantCommand({ robot.drive.maxRotSpeed = PI / 2 }))
     ).onFalse(
       InstantCommand({ robot.drive.maxLinearSpeed = RobotConstants.MAX_LINEAR_SPEED })
         .andThen(
