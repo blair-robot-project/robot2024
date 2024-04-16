@@ -3,6 +3,7 @@ package frc.team449.robot2024.auto
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.Nat
+import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj.DriverStation
@@ -448,6 +449,62 @@ object AutoUtil {
         },
         { },
         { robot.infrared.get() && robot.closeToShooterInfrared.get() },
+        robot.shooter,
+        robot.pivot,
+        robot.feeder,
+        robot.undertaker
+      )
+    )
+    cmd.name = "auto aiming"
+    return cmd
+  }
+
+  fun autoFarShootHelperVision(robot: Robot, fast: Boolean = false): Command {
+    val cmd = SequentialCommandGroup(
+      FunctionalCommand(
+        { },
+        {
+          robot.shooter.shootPiece(
+            SpinShooterConstants.ANYWHERE_LEFT_SPEED,
+            SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+          )
+
+          val distance = abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation))
+
+          val pivotAngle = if (distance <= 1.30) 0.0 else SpinShooterConstants.SHOOTING_MAP.get(distance)
+
+          if (fast) {
+            robot.pivot.moveToAngleSlow(MathUtil.clamp(pivotAngle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
+          } else {
+            robot.pivot.moveToAngleAuto(MathUtil.clamp(pivotAngle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
+          }
+
+          val robotToPoint = FieldConstants.SPEAKER_POSE - robot.drive.pose.translation
+
+          val desiredAngle = robotToPoint.angle + Rotation2d(PI)
+
+          robot.drive.set(
+            ChassisSpeeds(
+              0.0,
+              0.0,
+              RobotConstants.ORTHOGONAL_CONTROLLER.calculate(
+                robot.drive.heading.radians,
+                desiredAngle.radians
+              )
+            )
+          )
+
+          if (robot.shooter.atSetpoint() &&
+            abs(MathUtil.angleModulus(robot.drive.heading.radians - desiredAngle.radians)) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+            (robot.pivot.inAutoTolerance(pivotAngle) && !fast) ||
+            (fast && robot.pivot.inTolerance(pivotAngle))
+          ) {
+            robot.feeder.intakeVoltage()
+            robot.undertaker.intakeVoltage()
+          }
+        },
+        { },
+        { false },
         robot.shooter,
         robot.pivot,
         robot.feeder,

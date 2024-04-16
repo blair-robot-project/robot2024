@@ -18,7 +18,7 @@ object RobotConstants {
   const val NEG_ROT_RATE_LIM = -27.5 * PI
   const val DRIVE_RADIUS_DEADBAND = .125
   const val ROTATION_DEADBAND = .125
-  val SNAP_TO_ANGLE_TOLERANCE_RAD = Units.degreesToRadians(3.25)
+  val SNAP_TO_ANGLE_TOLERANCE_RAD = Units.degreesToRadians(2.75)
 
   /** In kilograms, include bumpers and battery and all */
   const val ROBOT_WEIGHT = 55.0
