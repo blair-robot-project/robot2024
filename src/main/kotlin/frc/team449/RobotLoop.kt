@@ -101,6 +101,12 @@ class RobotLoop : TimedRobot(), Logged {
     } else if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
       FieldConstants.SPEAKER_POSE = FieldConstants.BLUE_SPEAKER_POSE
     }
+
+    if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
+      FieldConstants.PASS_POSE = FieldConstants.RED_PASS_POSE
+    } else if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
+      FieldConstants.PASS_POSE = FieldConstants.BLUE_PASS_POSE
+    }
   }
 
   override fun autonomousPeriodic() {}
@@ -110,7 +116,7 @@ class RobotLoop : TimedRobot(), Logged {
       CommandScheduler.getInstance().cancel(autoCommand)
     }
 
-    robot.drive.enableVisionFusion = false
+    robot.drive.enableVisionFusion = true
 
     (robot.light.currentCommand ?: InstantCommand()).cancel()
 
@@ -121,6 +127,12 @@ class RobotLoop : TimedRobot(), Logged {
     } else if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
       FieldConstants.SPEAKER_POSE = FieldConstants.BLUE_SPEAKER_POSE
     }
+
+    if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
+      FieldConstants.PASS_POSE = FieldConstants.RED_PASS_POSE
+    } else if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
+      FieldConstants.PASS_POSE = FieldConstants.BLUE_PASS_POSE
+    }
   }
 
   override fun teleopPeriodic() {
@@ -129,7 +141,7 @@ class RobotLoop : TimedRobot(), Logged {
   override fun disabledInit() {
     robot.drive.stop()
 
-    robot.drive.enableVisionFusion = false
+    robot.drive.enableVisionFusion = true
 
     (robot.light.currentCommand ?: InstantCommand()).cancel()
     Rainbow(robot.light).schedule()
