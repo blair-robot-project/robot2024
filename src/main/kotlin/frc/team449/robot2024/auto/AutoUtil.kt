@@ -3,7 +3,6 @@ package frc.team449.robot2024.auto
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.Nat
-import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj.DriverStation
@@ -22,6 +21,29 @@ import kotlin.math.PI
 import kotlin.math.abs
 
 object AutoUtil {
+
+  private fun autoJiggle(robot: Robot): Command {
+    return SequentialCommandGroup(
+      ConditionalCommand(
+        SequentialCommandGroup(
+          ParallelCommandGroup(
+            robot.undertaker.slowIntake(),
+            robot.feeder.slowIntake(),
+          ),
+          WaitUntilCommand { !robot.closeToShooterInfrared.get() }
+        ),
+        InstantCommand()
+      ) { robot.closeToShooterInfrared.get() },
+      SequentialCommandGroup(
+        robot.undertaker.stop(),
+        robot.feeder.outtake(),
+        WaitUntilCommand { robot.closeToShooterInfrared.get() },
+        robot.undertaker.stop().alongWith(
+          robot.feeder.stop()
+        )
+      )
+    )
+  }
 
   fun autoIntake(robot: Robot): Command {
     return ParallelCommandGroup(
@@ -42,6 +64,34 @@ object AutoUtil {
             robot.feeder.stop()
           ),
         ) { !robot.closeToShooterInfrared.get() }
+      ),
+      robot.shooter.shootSubwoofer()
+    )
+  }
+
+  fun autoIntakeCenterline(robot: Robot): Command {
+    return ParallelCommandGroup(
+      SequentialCommandGroup(
+        robot.undertaker.intake(),
+        robot.feeder.slowIntake(),
+        WaitUntilCommand { !robot.infrared.get() },
+        robot.undertaker.stop(),
+        ConditionalCommand(
+          SequentialCommandGroup(
+            robot.feeder.outtake(),
+            WaitUntilCommand { !robot.closeToShooterInfrared.get() },
+            robot.feeder.stop()
+          ),
+          SequentialCommandGroup(
+            robot.feeder.outtake(),
+            WaitCommand(0.065),
+            robot.feeder.stop()
+          ),
+        ) { !robot.closeToShooterInfrared.get() },
+        autoJiggle(robot),
+        autoJiggle(robot),
+        autoJiggle(robot),
+        autoJiggle(robot)
       ),
       robot.shooter.shootSubwoofer()
     )
@@ -95,6 +145,35 @@ object AutoUtil {
         robot.shooter.shootSubwoofer(),
         InstantCommand({ robot.drive.set(ChassisSpeeds()) })
       ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!")).withTimeout(0.95)
+    ) { RobotBase.isReal() }
+  }
+
+  fun autoShootInMotion(robot: Robot): Command {
+    return ConditionalCommand(
+      ParallelDeadlineGroup(
+        SequentialCommandGroup(
+          WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(AutoConstants.AUTO_SPINUP_TIMEOUT_SECONDS),
+          robot.feeder.autoShootIntake(),
+          robot.undertaker.intake(),
+          SequentialCommandGroup(
+            WaitUntilCommand { !robot.infrared.get() || !robot.closeToShooterInfrared.get() },
+            WaitUntilCommand { robot.infrared.get() && robot.closeToShooterInfrared.get() }
+          ).withTimeout(AutoConstants.AUTO_SHOOT_TIMEOUT_SECONDS)
+        ),
+        robot.shooter.shootSubwoofer(),
+      ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!")),
+      ParallelDeadlineGroup(
+        SequentialCommandGroup(
+          WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(AutoConstants.AUTO_SPINUP_TIMEOUT_SECONDS),
+          robot.feeder.autoShootIntake(),
+          robot.undertaker.intake(),
+          SequentialCommandGroup(
+            WaitUntilCommand { !robot.infrared.get() || !robot.closeToShooterInfrared.get() },
+            WaitUntilCommand { robot.infrared.get() && robot.closeToShooterInfrared.get() }
+          ).withTimeout(AutoConstants.AUTO_SHOOT_TIMEOUT_SECONDS)
+        ),
+        robot.shooter.shootSubwoofer(),
+      ).andThen(PrintCommand("!!!!!!!!!!!!!!FINISHED AUTO SHOOT!!!!!!!!!!!")).withTimeout(0.20)
     ) { RobotBase.isReal() }
   }
 
@@ -225,84 +304,40 @@ object AutoUtil {
         robot.undertaker.intake(),
         robot.feeder.slowIntake(),
         WaitUntilCommand { !robot.infrared.get() },
-        ConditionalCommand(
-          SequentialCommandGroup(
-            ParallelCommandGroup(
-              robot.undertaker.slowIntake(),
-              robot.feeder.slowIntake(),
-            ),
-            WaitUntilCommand { !robot.closeToShooterInfrared.get() }
-          ),
-          InstantCommand()
-        ) { robot.closeToShooterInfrared.get() },
-        SequentialCommandGroup(
-          robot.undertaker.stop(),
-          robot.feeder.outtake(),
-          WaitUntilCommand { robot.closeToShooterInfrared.get() },
-          robot.undertaker.stop().alongWith(
-            robot.feeder.stop()
-          )
-        ),
-        ConditionalCommand(
-          SequentialCommandGroup(
-            ParallelCommandGroup(
-              robot.undertaker.slowIntake(),
-              robot.feeder.slowIntake(),
-            ),
-            WaitUntilCommand { !robot.closeToShooterInfrared.get() }
-          ),
-          InstantCommand()
-        ) { robot.closeToShooterInfrared.get() },
-        SequentialCommandGroup(
-          robot.undertaker.stop(),
-          robot.feeder.outtake(),
-          WaitUntilCommand { robot.closeToShooterInfrared.get() },
-          robot.undertaker.stop().alongWith(
-            robot.feeder.stop()
-          )
-        ),
-        ConditionalCommand(
-          SequentialCommandGroup(
-            ParallelCommandGroup(
-              robot.undertaker.slowIntake(),
-              robot.feeder.slowIntake(),
-            ),
-            WaitUntilCommand { !robot.closeToShooterInfrared.get() }
-          ),
-          InstantCommand()
-        ) { robot.closeToShooterInfrared.get() },
-        SequentialCommandGroup(
-          robot.undertaker.stop(),
-          robot.feeder.outtake(),
-          WaitUntilCommand { robot.closeToShooterInfrared.get() },
-          robot.undertaker.stop().alongWith(
-            robot.feeder.stop()
-          )
-        ),
-        ConditionalCommand(
-          SequentialCommandGroup(
-            ParallelCommandGroup(
-              robot.undertaker.slowIntake(),
-              robot.feeder.slowIntake(),
-            ),
-            WaitUntilCommand { !robot.closeToShooterInfrared.get() }
-          ),
-          InstantCommand()
-        ) { robot.closeToShooterInfrared.get() },
-        SequentialCommandGroup(
-          robot.undertaker.stop(),
-          robot.feeder.outtake(),
-          WaitUntilCommand { robot.closeToShooterInfrared.get() },
-          robot.undertaker.stop().alongWith(
-            robot.feeder.stop()
-          )
-        )
+        autoJiggle(robot),
+        autoJiggle(robot),
+        autoJiggle(robot),
+        autoJiggle(robot)
       ),
       SequentialCommandGroup(
         robot.shooter.shootAnywhere()
       ),
       SequentialCommandGroup(
         robot.pivot.moveStow()
+      )
+    )
+  }
+
+  fun autoFarIntakeV2PremoveQuick(robot: Robot, angle: Double): Command {
+    return ParallelCommandGroup(
+      SequentialCommandGroup(
+        robot.pivot.moveStow().until { robot.pivot.inTolerance(PivotConstants.AMP_ANGLE) }.andThen(
+          InstantCommand({ robot.pivot.setVoltage(-0.35) })
+        ),
+        robot.undertaker.intake(),
+        robot.feeder.slowIntake(),
+        WaitUntilCommand { !robot.infrared.get() },
+        autoJiggle(robot),
+        ParallelCommandGroup(
+          SequentialCommandGroup(
+            autoJiggle(robot),
+            autoJiggle(robot)
+          ),
+          robot.pivot.moveAngleCmdAuto(angle)
+        ),
+      ),
+      SequentialCommandGroup(
+        robot.shooter.shootAnywhere()
       )
     )
   }
@@ -316,146 +351,69 @@ object AutoUtil {
         robot.undertaker.intake(),
         robot.feeder.slowIntake(),
         WaitUntilCommand { !robot.infrared.get() },
-        ConditionalCommand(
-          SequentialCommandGroup(
-            ParallelCommandGroup(
-              robot.undertaker.slowIntake(),
-              robot.feeder.slowIntake(),
-            ),
-            WaitUntilCommand { !robot.closeToShooterInfrared.get() }
-          ),
-          InstantCommand()
-        ) { robot.closeToShooterInfrared.get() },
-        SequentialCommandGroup(
-          robot.undertaker.stop(),
-          robot.feeder.outtake(),
-          WaitUntilCommand { robot.closeToShooterInfrared.get() },
-          robot.undertaker.stop().alongWith(
-            robot.feeder.stop()
-          )
-        ),
-        ConditionalCommand(
-          SequentialCommandGroup(
-            ParallelCommandGroup(
-              robot.undertaker.slowIntake(),
-              robot.feeder.slowIntake(),
-            ),
-            WaitUntilCommand { !robot.closeToShooterInfrared.get() }
-          ),
-          InstantCommand()
-        ) { robot.closeToShooterInfrared.get() },
-        SequentialCommandGroup(
-          robot.undertaker.stop(),
-          robot.feeder.outtake(),
-          WaitUntilCommand { robot.closeToShooterInfrared.get() },
-          robot.undertaker.stop().alongWith(
-            robot.feeder.stop()
-          )
-        ),
-        ConditionalCommand(
-          SequentialCommandGroup(
-            ParallelCommandGroup(
-              robot.undertaker.slowIntake(),
-              robot.feeder.slowIntake(),
-            ),
-            WaitUntilCommand { !robot.closeToShooterInfrared.get() }
-          ),
-          InstantCommand()
-        ) { robot.closeToShooterInfrared.get() },
-        SequentialCommandGroup(
-          robot.undertaker.stop(),
-          robot.feeder.outtake(),
-          WaitUntilCommand { robot.closeToShooterInfrared.get() },
-          robot.undertaker.stop().alongWith(
-            robot.feeder.stop()
-          )
-        ),
-
+        autoJiggle(robot),
+        autoJiggle(robot),
         ParallelCommandGroup(
           SequentialCommandGroup(
-            ConditionalCommand(
-              SequentialCommandGroup(
-                ParallelCommandGroup(
-                  robot.undertaker.slowIntake(),
-                  robot.feeder.slowIntake(),
-                ),
-                WaitUntilCommand { !robot.closeToShooterInfrared.get() }
-              ),
-              InstantCommand()
-            ) { robot.closeToShooterInfrared.get() },
-            SequentialCommandGroup(
-              robot.undertaker.stop(),
-              robot.feeder.outtake(),
-              WaitUntilCommand { robot.closeToShooterInfrared.get() },
-              robot.undertaker.stop().alongWith(
-                robot.feeder.stop()
-              )
-            ),
-            ConditionalCommand(
-              SequentialCommandGroup(
-                ParallelCommandGroup(
-                  robot.undertaker.slowIntake(),
-                  robot.feeder.slowIntake(),
-                ),
-                WaitUntilCommand { !robot.closeToShooterInfrared.get() }
-              ),
-              InstantCommand()
-            ) { robot.closeToShooterInfrared.get() },
-            SequentialCommandGroup(
-              robot.undertaker.stop(),
-              robot.feeder.outtake(),
-              WaitUntilCommand { robot.closeToShooterInfrared.get() },
-              robot.undertaker.stop().alongWith(
-                robot.feeder.stop()
-              )
-            ),
-            ConditionalCommand(
-              SequentialCommandGroup(
-                ParallelCommandGroup(
-                  robot.undertaker.slowIntake(),
-                  robot.feeder.slowIntake(),
-                ),
-                WaitUntilCommand { !robot.closeToShooterInfrared.get() }
-              ),
-              InstantCommand()
-            ) { robot.closeToShooterInfrared.get() },
-            SequentialCommandGroup(
-              robot.undertaker.stop(),
-              robot.feeder.outtake(),
-              WaitUntilCommand { robot.closeToShooterInfrared.get() },
-              robot.undertaker.stop().alongWith(
-                robot.feeder.stop()
-              )
-            )
-          )
+            autoJiggle(robot),
+            autoJiggle(robot),
+            autoJiggle(robot),
+            autoJiggle(robot)
+          ),
+          robot.pivot.moveAngleCmdAuto(angle)
         ),
-        robot.pivot.moveAngleCmdPremove(angle)
       ),
-
       SequentialCommandGroup(
         robot.shooter.shootAnywhere()
       )
     )
   }
 
-  fun autoFarShootHelperV2(robot: Robot, pose: Translation2d, offset: Double = 0.0): Command {
+  fun autoFarIntakeV2PremoveCenterline(robot: Robot, angle: Double, waitTime: Double): Command {
+    return ParallelCommandGroup(
+      SequentialCommandGroup(
+        robot.pivot.moveStow().until { robot.pivot.inTolerance(PivotConstants.AMP_ANGLE) }.andThen(
+          InstantCommand({ robot.pivot.setVoltage(-0.35) })
+        ),
+        robot.undertaker.intake(),
+        robot.feeder.slowIntake(),
+        WaitUntilCommand { !robot.infrared.get() },
+        autoJiggle(robot),
+        autoJiggle(robot),
+        autoJiggle(robot),
+        autoJiggle(robot),
+        WaitCommand(waitTime),
+        ParallelCommandGroup(
+          SequentialCommandGroup(
+            autoJiggle(robot),
+            autoJiggle(robot)
+          ),
+          robot.pivot.moveAngleCmdAuto(angle)
+        )
+      ),
+      SequentialCommandGroup(
+        robot.shooter.shootAnywhere()
+      )
+    )
+  }
+
+  fun autoFarShootHelperV2(robot: Robot, driveAngle: Double, pivotAngle: Double, fast: Boolean = false): Command {
     val cmd = SequentialCommandGroup(
       FunctionalCommand(
         {
-          val robotPose = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
-            Translation2d(FieldConstants.fieldLength - pose.x, pose.y)
+          val robotAngle = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
+            MathUtil.angleModulus(PI - driveAngle)
           } else {
-            pose
+            MathUtil.angleModulus(driveAngle)
           }
 
-          val robotToPoint = FieldConstants.SPEAKER_POSE - robotPose
-          RobotConstants.ORTHOGONAL_CONTROLLER.setpoint = robotToPoint.angle.radians + PI
+          RobotConstants.ORTHOGONAL_CONTROLLER.setpoint = robotAngle
         },
         {
-          val robotPose = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
-            Translation2d(FieldConstants.fieldLength - pose.x, pose.y)
+          val robotAngle = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
+            MathUtil.angleModulus(PI - driveAngle)
           } else {
-            pose
+            MathUtil.angleModulus(driveAngle)
           }
 
           robot.shooter.shootPiece(
@@ -463,13 +421,11 @@ object AutoUtil {
             SpinShooterConstants.ANYWHERE_RIGHT_SPEED
           )
 
-          val distance = Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(robotPose)))
-
-          val angle = Units.degreesToRadians(SpinShooterConstants.equation(distance) + offset)
-
-          robot.pivot.moveToAngleSlow(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
-
-          val robotToPoint = FieldConstants.SPEAKER_POSE - robotPose
+          if (fast) {
+            robot.pivot.moveToAngleSlow(MathUtil.clamp(pivotAngle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
+          } else {
+            robot.pivot.moveToAngleAuto(MathUtil.clamp(pivotAngle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
+          }
 
           robot.drive.set(
             ChassisSpeeds(
@@ -481,18 +437,10 @@ object AutoUtil {
             )
           )
 
-          println(
-            "drive thing: " +
-              if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
-                abs(MathUtil.angleModulus(robot.drive.heading.radians - robotToPoint.angle.radians + PI))
-              } else {
-                abs(MathUtil.angleModulus(robot.drive.heading.radians - robotToPoint.angle.radians + PI) - PI)
-              }
-          )
-
           if (robot.shooter.atSetpoint() &&
-            abs(MathUtil.angleModulus(robot.drive.heading.radians - robotToPoint.angle.radians + PI)) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
-            robot.pivot.inTolerance(angle)
+            abs(MathUtil.angleModulus(robot.drive.heading.radians - robotAngle)) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+            (robot.pivot.inAutoTolerance(pivotAngle) && !fast) ||
+            (fast && robot.pivot.inTolerance(pivotAngle))
           ) {
             robot.feeder.intakeVoltage()
             robot.undertaker.intakeVoltage()
