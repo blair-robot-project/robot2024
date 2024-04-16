@@ -149,7 +149,13 @@ class SwerveSim(
       getPositions()
     )
 
+    val visionPoseCopy = visionPose.clone()
+
     if (cameras.isNotEmpty()) localize()
+
+    visionRunning = visionPose[0] != visionPoseCopy[0] ||
+      visionPose[1] != visionPoseCopy[1] ||
+      visionPose[2] != visionPoseCopy[2]
 
     // Sets the robot's pose and individual module rotations on the SmartDashboard [Field2d] widget.
     setRobotPose()

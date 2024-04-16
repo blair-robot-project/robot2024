@@ -80,8 +80,8 @@ class SwerveOrthogonalCommand(
     if (abs(desAngle - drive.heading.radians) > RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
       abs(desAngle - drive.heading.radians) < 2 * PI - RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD
     ) {
-      atGoal = false
-      rotCtrl.setpoint = desAngle
+      rotCtrl.calculate(drive.heading.radians, desAngle)
+      atGoal = rotCtrl.atSetpoint()
     }
   }
 
@@ -90,12 +90,9 @@ class SwerveOrthogonalCommand(
     dt = currTime - prevTime
     prevTime = currTime
 
-    // val ctrlX = if (abs(controller.leftY) < RobotConstants.TRANSLATION_DEADBAND) .0 else -controller.leftY
-    // val ctrlY = if (abs(controller.leftX) < RobotConstants.TRANSLATION_DEADBAND) .0 else -controller.leftX
     val ctrlX = -controller.leftY
     val ctrlY = -controller.leftX
 
-    // val ctrlRadius = sqrt(ctrlX.pow(2) + ctrlY.pow(2)).pow(SwerveConstants.JOYSTICK_FILTER_ORDER)
     val ctrlRadius = MathUtil.applyDeadband(
       sqrt(ctrlX.pow(2) + ctrlY.pow(2)),
       RobotConstants.DRIVE_RADIUS_DEADBAND,
@@ -135,8 +132,11 @@ class SwerveOrthogonalCommand(
 
     if (atGoal) {
       rotScaled = rotRamp.calculate(
-        (if (abs(controller.rightX) < RobotConstants.ROTATION_DEADBAND) .0 else -controller.rightX) *
-          drive.maxRotSpeed
+        MathUtil.applyDeadband(
+          abs(controller.rightX).pow(SwerveConstants.ROT_FILTER_ORDER),
+          RobotConstants.ROTATION_DEADBAND,
+          1.0
+        ) * -sign(controller.rightX) * drive.maxRotSpeed
       )
     } else {
       rotScaled = MathUtil.clamp(

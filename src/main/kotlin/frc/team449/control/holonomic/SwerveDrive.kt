@@ -16,6 +16,7 @@ import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase.isReal
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.control.vision.VisionSubsystem
 import frc.team449.robot2024.constants.RobotConstants
@@ -56,6 +57,7 @@ open class SwerveDrive(
   protected val usedVision = BooleanArray(cameras.size)
   protected val usedVisionSights = LongArray(cameras.size)
   protected val rejectedVisionSights = LongArray(cameras.size)
+  var visionRunning = false
 
   var enableVisionFusion = true
 
@@ -79,6 +81,25 @@ open class SwerveDrive(
     VisionConstants.ENCODER_TRUST,
     VisionConstants.MULTI_TAG_TRUST
   )
+
+  init {
+    SmartDashboard.putData("Elastic Swerve Drive") { builder: SendableBuilder ->
+      builder.setSmartDashboardType("SwerveDrive")
+      builder.addDoubleProperty("Front Left Angle", { modules[0].state.angle.radians }, null)
+      builder.addDoubleProperty("Front Left Velocity", { modules[0].state.speedMetersPerSecond }, null)
+
+      builder.addDoubleProperty("Front Right Angle", { modules[1].state.angle.radians }, null)
+      builder.addDoubleProperty("Front Right Velocity", { modules[1].state.speedMetersPerSecond }, null)
+
+      builder.addDoubleProperty("Back Left Angle", { modules[2].state.angle.radians }, null)
+      builder.addDoubleProperty("Back Left Velocity", { modules[2].state.speedMetersPerSecond }, null)
+
+      builder.addDoubleProperty("Back Right Angle", { modules[3].state.angle.radians }, null)
+      builder.addDoubleProperty("Back Right Velocity", { modules[3].state.speedMetersPerSecond }, null)
+
+      builder.addDoubleProperty("Robot Angle", { heading.radians }, null)
+    }
+  }
 
   var desiredSpeeds: ChassisSpeeds = ChassisSpeeds()
 
@@ -156,7 +177,13 @@ open class SwerveDrive(
       getPositions()
     )
 
+    val visionPoseCopy = visionPose.clone()
+
     if (cameras.isNotEmpty()) localize()
+
+    visionRunning = visionPose[0] != visionPoseCopy[0] ||
+      visionPose[1] != visionPoseCopy[1] ||
+      visionPose[2] != visionPoseCopy[2]
 
     // Sets the robot's pose and individual module rotations on the SmartDashboard [Field2d] widget.
     setRobotPose()
@@ -286,6 +313,7 @@ open class SwerveDrive(
       println(index)
     }
     builder.addBooleanProperty("2.9 Enabled Vision Fusion", { enableVisionFusion }, null)
+    builder.addBooleanProperty("2.91 New Vision Measurement", { visionRunning }, null)
 
     builder.publishConstString("3.0", "Driving & Steering (Std Order FL, FR, BL, BR)")
     builder.addDoubleArrayProperty(
@@ -391,6 +419,8 @@ open class SwerveDrive(
     builder.addDoubleProperty("6.2 Pitch Degrees", { ahrs.pitch.degrees }, null)
     builder.addDoubleProperty("6.3 Roll Degrees", { ahrs.roll.degrees }, null)
     builder.addDoubleProperty("6.4 Angular X Vel", { ahrs.angularXVel() }, null)
+    builder.addBooleanProperty("6.5 Navx Connected", { ahrs.connected() }, null)
+    builder.addBooleanProperty("6.6 Navx Calibrated", { ahrs.calibrated() }, null)
 
     // Note: You should also tune UPR too
     builder.publishConstString("7.0", "Tuning Values")
