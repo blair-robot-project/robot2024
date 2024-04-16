@@ -11,5 +11,9 @@ object FieldConstants {
   val BLUE_SPEAKER_POSE = Translation2d(Units.inchesToMeters(-1.5), Units.inchesToMeters(218.42))
   val RED_SPEAKER_POSE = Translation2d(Units.inchesToMeters(652.73), Units.inchesToMeters(218.42))
 
+  val RED_PASS_POSE = Translation2d(14.50, 6.746)
+  val BLUE_PASS_POSE = Translation2d(fieldLength - 14.50, 6.746)
+
   var SPEAKER_POSE = BLUE_SPEAKER_POSE
+  var PASS_POSE = BLUE_PASS_POSE
 }
