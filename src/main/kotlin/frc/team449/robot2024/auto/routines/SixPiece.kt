@@ -2,7 +2,7 @@ package frc.team449.robot2024.auto.routines
 
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.util.Units
-import edu.wpi.first.wpilibj2.command.WaitCommand
+import edu.wpi.first.wpilibj2.command.*
 import frc.team449.control.auto.ChoreoRoutine
 import frc.team449.control.auto.ChoreoRoutineStructure
 import frc.team449.control.auto.ChoreoTrajectory
@@ -10,45 +10,73 @@ import frc.team449.robot2024.Robot
 import frc.team449.robot2024.auto.AutoUtil
 import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
-import kotlin.math.abs
 
 class SixPiece(
   robot: Robot,
   isRed: Boolean
 ) : ChoreoRoutineStructure {
 
+  private val farShot1PivotAngle = Units.degreesToRadians(24.924282375190465)
+  private val farShot1DriveAngle = Units.degreesToRadians(27.699505291327124)
+
+  private val farShot2PivotAngle = Units.degreesToRadians(23.48886092186779)
+  private val farShot2DriveAngle = Units.degreesToRadians(13.49573328082929)
+
+  private val farShot3PivotAngle = Units.degreesToRadians(23.48886092186779)
+  private val farShot3DriveAngle = Units.degreesToRadians(13.49573328082929)
+
+  init {
+    println(
+      SpinShooterConstants.equation(Units.metersToInches(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.6606411933898926, 6.152108192443848))))
+    )
+  }
+
   override val routine =
     ChoreoRoutine(
       drive = robot.drive,
       parallelEventMap = hashMapOf(
-        0 to AutoUtil.autoFarIntake(
-          robot,
-          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.146901845932007, 4.836400508880615))))))
+        0 to SequentialCommandGroup(
+          AutoUtil.autoIntake(robot).withTimeout(1.85),
+          AutoUtil.autoShootInMotion(robot),
+          AutoUtil.autoIntake(robot).withTimeout(3.55 - 2.05),
+          AutoUtil.autoShootInMotion(robot),
+          ParallelCommandGroup(
+            SequentialCommandGroup(
+              robot.undertaker.intake(),
+              robot.feeder.slowIntake(),
+              WaitUntilCommand { !robot.infrared.get() },
+              robot.undertaker.stop(),
+              ConditionalCommand(
+                SequentialCommandGroup(
+                  robot.feeder.outtake(),
+                  WaitUntilCommand { !robot.closeToShooterInfrared.get() },
+                  robot.feeder.stop()
+                ),
+                SequentialCommandGroup(
+                  robot.feeder.outtake(),
+                  WaitCommand(0.065),
+                  robot.feeder.stop()
+                ),
+              ) { !robot.closeToShooterInfrared.get() }
+            ),
+            robot.shooter.shootAnywhere()
+          )
         ),
-        1 to AutoUtil.autoFarIntake(
+        1 to AutoUtil.autoFarIntakeV2Premove(
           robot,
-          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.55, 5.525))))))
+          farShot2PivotAngle
         ),
-        2 to AutoUtil.autoFarIntake(
+        2 to AutoUtil.autoFarIntakeV2Premove(
           robot,
-          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.633739948272705, 6.8354172706604))))))
+          farShot3PivotAngle
         ),
-        3 to AutoUtil.autoFarIntake(
-          robot,
-          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.983095407485962, 6.08734130859375))))))
-        ),
-        4 to AutoUtil.autoFarIntake(
-          robot,
-          Units.degreesToRadians(SpinShooterConstants.equation(Units.metersToInches(abs(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.983095407485962, 6.08734130859375))))))
-        )
       ),
       stopEventMap = hashMapOf(
         0 to AutoUtil.autoShoot(robot),
-        1 to AutoUtil.autoFarShoot(robot),
-        2 to AutoUtil.autoFarShoot(robot),
-        3 to AutoUtil.autoFarShoot(robot),
-        4 to AutoUtil.autoFarShoot(robot),
-        5 to AutoUtil.autoFarShoot(robot).andThen(
+        1 to AutoUtil.autoFarShootHelperV2(robot, farShot1DriveAngle, farShot1PivotAngle),
+        2 to AutoUtil.autoFarShootHelperV2(robot, farShot2DriveAngle, farShot2PivotAngle),
+        3 to AutoUtil.autoFarShootHelperV2(robot, farShot3DriveAngle, farShot3PivotAngle).andThen(
+          InstantCommand({ robot.drive.stop() }),
           robot.undertaker.stop(),
           robot.feeder.stop(),
           WaitCommand(0.050),
@@ -63,9 +91,9 @@ class SixPiece(
   override val trajectory: MutableList<ChoreoTrajectory> =
     if (isRed) {
       AutoUtil.transformForRed(
-        ChoreoTrajectory.createTrajectory("6_Piece")
+        ChoreoTrajectory.createTrajectory("6_Piece_V2")
       )
     } else {
-      ChoreoTrajectory.createTrajectory("6_Piece")
+      ChoreoTrajectory.createTrajectory("6_Piece_V2")
     }
 }

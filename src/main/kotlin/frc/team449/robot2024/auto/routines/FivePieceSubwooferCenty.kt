@@ -1,5 +1,7 @@
 package frc.team449.robot2024.auto.routines
 
+import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.team449.control.auto.ChoreoRoutine
 import frc.team449.control.auto.ChoreoRoutineStructure
 import frc.team449.control.auto.ChoreoTrajectory
@@ -25,11 +27,15 @@ class FivePieceSubwooferCenty(
         1 to AutoUtil.autoShoot(robot),
         2 to AutoUtil.autoShoot(robot),
         3 to AutoUtil.autoShoot(robot),
-        4 to AutoUtil.autoShoot(robot).andThen(
-          robot.undertaker.stop(),
-          robot.feeder.stop(),
-          robot.shooter.forceStop()
-        )
+        4 to AutoUtil.autoShoot(robot)
+          .andThen(
+            InstantCommand({ robot.drive.stop() }),
+            robot.undertaker.stop(),
+            robot.feeder.stop(),
+            WaitCommand(0.050),
+            robot.shooter.forceStop(),
+            robot.pivot.moveStow(),
+          )
       ),
       debug = false,
       timeout = 0.0
