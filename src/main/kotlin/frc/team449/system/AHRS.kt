@@ -9,7 +9,7 @@ import frc.team449.util.simBooleanProp
 import frc.team449.util.simDoubleProp
 
 class AHRS(
-  private val navx: com.kauailabs.navx.frc.AHRS
+  val navx: com.kauailabs.navx.frc.AHRS
 ) {
 
   var prevPos = Double.NaN
@@ -56,7 +56,11 @@ class AHRS(
   )
 
   fun calibrated(): Boolean {
-    return navx.isMagnetometerCalibrated
+    return !navx.isCalibrating
+  }
+
+  fun connected(): Boolean {
+    return navx.isConnected
   }
 
   /**
