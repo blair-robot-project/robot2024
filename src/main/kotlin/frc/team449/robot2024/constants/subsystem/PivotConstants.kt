@@ -1,5 +1,6 @@
 package frc.team449.robot2024.constants.subsystem
 
+import edu.wpi.first.math.controller.ArmFeedforward
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj.Encoder
 import frc.team449.robot2024.constants.MotorConstants
@@ -29,22 +30,28 @@ object PivotConstants {
 
   const val NUM_MOTORS = 2
 
-  /** Moment of inertia in m^2 kg given from CAD with a 0.01 m^2kg cushion for unmodeled objects */
-  const val MOMENT_OF_INERTIA = 0.57125221 - 0.075
+  /** Moment of inertia in m^2 kg given from CAD with a 0.085 m^2kg cushion for unmodeled objects */
+  const val MOMENT_OF_INERTIA = 0.57125221 + 0.085
 
   const val EFFICIENCY = 0.875
 
   const val ARM_LENGTH = 1.0
 
-  const val KS = 0.0
+  val SIMPLE_FF = ArmFeedforward(
+    0.13496,
+    0.34977,
+    0.0
+  )
+
+  val KG_OFFSET = Units.degreesToRadians(8.343)
 
   /** Deviations for Kalman filter in units of radians or radians / seconds */
   val MODEL_POS_DEVIATION = Units.degreesToRadians(10.0)
   val MODEL_VEL_DEVIATION = Units.degreesToRadians(20.0)
-  const val MODEL_INPUT_ERROR_DEVIATION = 0.085
+  const val MODEL_INPUT_ERROR_DEVIATION = 0.050
   val ENCODER_POS_DEVIATION = Units.degreesToRadians(0.175)
 
-  val START_INPT_ERR = Units.degreesToRadians(0.5)
+  val START_INPT_ERR = Units.degreesToRadians(5.0)
 
   /** LQR Position and Velocity tolerances */
   val POS_TOLERANCE = Units.degreesToRadians(1.975)
@@ -55,7 +62,13 @@ object PivotConstants {
   val FAST_POS_TOLERANCE = Units.degreesToRadians(10.0)
   val FAST_VEL_TOLERANCE = Units.degreesToRadians(45.0)
 
-  val MAX_POS_ERROR = Units.degreesToRadians(1.55)
+  val AUTO_POS_TOLERANCE = Units.degreesToRadians(0.20)
+  val AUTO_VEL_TOLERANCE = Units.degreesToRadians(5.0)
+  val AUTO_MAX_POS_ERROR = Units.degreesToRadians(0.30)
+
+  val SHOOT_ANYWHERE_POS_TOLERANCE = Units.degreesToRadians(0.30)
+
+  val MAX_POS_ERROR = Units.degreesToRadians(1.65)
   val AMP_TOL = Units.degreesToRadians(25.0)
   val AMP_VEL_TOL = Units.degreesToRadians(85.0)
   val MAX_VEL_ERROR = Units.degreesToRadians(40.0)
@@ -68,9 +81,9 @@ object PivotConstants {
   // Max at 35A should be 178.15455320820428 (at stall)
   val MAX_ACCEL = 0.1727 * 195 // this some fire, actual value is 33.6765
 
-  const val SLOW_ACCEL = 0.5804 * 21.75 // this some fire, actual value is 10.157
+  const val SLOW_ACCEL = 0.5804 * 21.75 // this some fire, actual value is 12.6237
 
-  const val PREMOVE_ACCEL = 5.0
+  const val AUTO_ACCEL = 5.75
 
   val MIN_ANGLE = Units.degreesToRadians(0.0)
   val MAX_ANGLE = Units.degreesToRadians(105.0)
