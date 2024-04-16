@@ -24,10 +24,11 @@ class PivotSim(
   encoder: QuadEncoder,
   controller: LinearQuadraticRegulator<N2, N1, N1>,
   fastController: LinearQuadraticRegulator<N2, N1, N1>,
+  autoController: LinearQuadraticRegulator<N2, N1, N1>,
   feedforward: LinearPlantInversionFeedforward<N2, N1, N1>,
   observer: KalmanFilter<N3, N1, N1>,
   profile: TrapezoidProfile
-) : Pivot(simmedMotor, encoder, controller, fastController, feedforward, observer, profile) {
+) : Pivot(simmedMotor, encoder, controller, fastController, autoController, feedforward, observer, profile) {
 
   private var currentState = Pair(0.0, 0.0)
 
