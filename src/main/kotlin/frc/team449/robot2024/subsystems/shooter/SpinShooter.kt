@@ -5,7 +5,9 @@ import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
 import edu.wpi.first.math.estimator.KalmanFilter
 import edu.wpi.first.math.filter.SlewRateLimiter
+import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
+import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.math.system.LinearSystem
@@ -26,10 +28,7 @@ import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
 import kotlin.Pair
 import kotlin.jvm.optionals.getOrNull
-import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.pow
-import kotlin.math.sign
+import kotlin.math.*
 
 open class SpinShooter(
   val rightMotor: WrappedMotor,
@@ -251,7 +250,6 @@ open class SpinShooter(
           robot.mechController.hid.leftBumper
         ) {
           robot.feeder.intakeVoltage()
-          robot.undertaker.intakeVoltage()
         }
       },
       { },
@@ -306,23 +304,24 @@ open class SpinShooter(
     return cmd
   }
 
-  fun autoAim(): Command {
+  fun passShot(): Command {
     val cmd = FunctionalCommand(
       { },
       {
         shootPiece(
-          SpinShooterConstants.ANYWHERE_LEFT_SPEED,
-          SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+          SpinShooterConstants.PASS_LEFT_SPEED,
+          SpinShooterConstants.PASS_RIGHT_SPEED
         )
 
-        val distance = Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)))
+        robot.pivot.moveToAngleSlow(-0.75)
 
-        val angle = if (distance <= 57.0) 0.0 else Units.degreesToRadians(SpinShooterConstants.equation(distance))
+        val fieldToRobot = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
+          Translation2d(FieldConstants.fieldLength - 7.5, 1.585)
+        } else {
+          Translation2d(7.5, 1.585)
+        }
 
-        robot.pivot.moveToAngleSlow(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
-
-        val fieldToRobot = robot.drive.pose.translation
-        val robotToPoint = FieldConstants.SPEAKER_POSE - fieldToRobot
+        val robotToPoint = FieldConstants.PASS_POSE - fieldToRobot
 
         robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
 
@@ -336,9 +335,84 @@ open class SpinShooter(
         }
       },
       { },
+      { !robot.driveController.hid.xButton },
+      this,
+      robot.pivot,
+      robot.feeder,
+      robot.undertaker
+    )
+    cmd.name = "pass shot"
+    return cmd
+  }
+
+  fun autoAim(): Command {
+    val cmd = FunctionalCommand(
+      { },
       {
-        abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)) > SpinShooterConstants.MAX_RANGE ||
-          !robot.driveController.hid.leftBumper
+        shootPiece(
+          SpinShooterConstants.ANYWHERE_LEFT_SPEED,
+          SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+        )
+
+        val fieldRelSpeed = ChassisSpeeds(
+          robot.drive.currentSpeeds.vxMetersPerSecond * robot.drive.heading.cos - robot.drive.currentSpeeds.vyMetersPerSecond * robot.drive.heading.sin,
+          robot.drive.currentSpeeds.vyMetersPerSecond * robot.drive.heading.cos + robot.drive.currentSpeeds.vxMetersPerSecond * robot.drive.heading.sin,
+          robot.drive.currentSpeeds.omegaRadiansPerSecond
+        )
+
+        var noComp = false
+
+        if (hypot(fieldRelSpeed.vxMetersPerSecond, fieldRelSpeed.vyMetersPerSecond) < 0.15) {
+          noComp = true
+        }
+
+        var virtualTarget = FieldConstants.SPEAKER_POSE
+
+        for (i in 0..5) {
+          if (noComp) {
+            break
+          }
+
+          val distance = abs(virtualTarget.getDistance(robot.drive.pose.translation))
+
+          val shotTime = SpinShooterConstants.TIME_MAP.get(distance)
+
+          virtualTarget =
+            Translation2d(
+              FieldConstants.SPEAKER_POSE.x - shotTime * fieldRelSpeed.vxMetersPerSecond,
+              FieldConstants.SPEAKER_POSE.y - shotTime * fieldRelSpeed.vyMetersPerSecond,
+            )
+
+          val newShotTime = SpinShooterConstants.TIME_MAP.get(distance)
+
+          if (shotTime - newShotTime < 1e-3) {
+            break
+          }
+        }
+
+        val distance = abs(virtualTarget.getDistance(robot.drive.pose.translation))
+
+        val angle = if (distance <= 1.30) 0.0 else SpinShooterConstants.SHOOTING_MAP.get(distance)
+
+        robot.pivot.moveToAngleAuto(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
+
+        val robotToPoint = virtualTarget - robot.drive.pose.translation
+
+        val desiredAngle = robotToPoint.angle + Rotation2d(if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
+
+        robot.driveCommand.snapToAngle(desiredAngle.radians)
+
+        if (robot.shooter.atAimSetpoint() &&
+          robot.driveCommand.atGoal &&
+          robot.pivot.inShootAnywhereTolerance(angle) &&
+          robot.mechController.hid.leftBumper
+        ) {
+          robot.feeder.intakeVoltage()
+        }
+      },
+      { },
+      {
+        !robot.driveController.hid.bButton
       },
       this,
       robot.pivot,
@@ -352,6 +426,11 @@ open class SpinShooter(
   fun atSetpoint(): Boolean {
     return abs(leftVelocity.get() - desiredVels.first) < SpinShooterConstants.IN_TOLERANCE &&
       abs(rightVelocity.get() - desiredVels.second) < SpinShooterConstants.IN_TOLERANCE
+  }
+
+  fun atAimSetpoint(): Boolean {
+    return abs(leftVelocity.get() - desiredVels.first) < SpinShooterConstants.AIM_TOLERANCE &&
+      abs(rightVelocity.get() - desiredVels.second) < SpinShooterConstants.AIM_TOLERANCE
   }
 
   fun atAutoSetpoint(): Boolean {
@@ -474,7 +553,7 @@ open class SpinShooter(
     builder.addDoubleProperty("3.2 Right Vel Error Pred", { rightObserver.getXhat(0) - desiredVels.second }, null)
     builder.addDoubleProperty("3.3 Left Vel Error", { leftVelocity.get() - desiredVels.first }, null)
     builder.addDoubleProperty("3.4 Right Vel Error", { rightVelocity.get() - desiredVels.second }, null)
-    builder.addBooleanProperty("3.5 In tolerance", ::atSetpoint, null)
+    builder.addBooleanProperty("3.5 In tolerance", ::atAimSetpoint, null)
     builder.publishConstString("4.0", "Encoder Positions")
     builder.addDoubleProperty("4.1 Left Enc Pos", { leftMotor.position }, null)
     builder.addDoubleProperty("4.2 Left Enc Pos", { rightMotor.position }, null)
