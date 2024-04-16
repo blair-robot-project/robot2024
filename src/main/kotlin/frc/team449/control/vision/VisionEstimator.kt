@@ -20,6 +20,7 @@ import org.photonvision.targeting.PhotonPipelineResult
 import org.photonvision.targeting.PhotonTrackedTarget
 import org.photonvision.targeting.TargetCorner
 import java.util.Optional
+import kotlin.jvm.optionals.getOrNull
 import kotlin.math.PI
 import kotlin.math.abs
 
@@ -63,7 +64,7 @@ class VisionEstimator(
     return if (!cameraResult.hasTargets()) {
       Optional.empty()
     } else {
-      lowestAmbiguityStrategy(cameraResult)
+      useCenter(cameraResult)
     }
   }
 
@@ -179,6 +180,53 @@ class VisionEstimator(
     }
 
     return Optional.empty()
+  }
+
+  private fun useCenter(result: PhotonPipelineResult): Optional<EstimatedRobotPose> {
+    var usedTarget: PhotonTrackedTarget? = null
+    for (target: PhotonTrackedTarget in result.targets) {
+      if (target.fiducialId == 4 && DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red ||
+        target.fiducialId == 7 && DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
+        usedTarget = target
+      }
+    }
+
+    if (usedTarget == null) {
+      return Optional.empty()
+    }
+
+    // Although there are confirmed to be targets, none of them may be fiducial
+    // targets.
+    val targetPosition = tagLayout.getTagPose(usedTarget.fiducialId)
+
+
+    val bestPose = targetPosition
+      .get()
+      .transformBy(
+        usedTarget.bestCameraToTarget.inverse()
+      )
+      .transformBy(robotToCam.inverse())
+
+    if (abs(
+        MathUtil.angleModulus(
+          MathUtil.angleModulus(bestPose.rotation.z) -
+            MathUtil.angleModulus(driveHeading!!.radians)
+        )
+      )
+      > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_RAD
+    ) {
+      DriverStation.reportWarning("Best Single Tag Heading over Max Deviation, deviated by ${Units.radiansToDegrees(abs(bestPose.rotation.z - driveHeading!!.radians))}", false)
+      return Optional.empty()
+    }
+
+    return Optional.of(
+      EstimatedRobotPose(
+        bestPose,
+        result.timestampSeconds,
+        result.getTargets(),
+        PoseStrategy.LOWEST_AMBIGUITY
+      )
+    )
   }
 
   /**
