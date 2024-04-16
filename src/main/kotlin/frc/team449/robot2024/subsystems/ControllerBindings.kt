@@ -250,7 +250,7 @@ class ControllerBindings(
           stopAll()
             .alongWith(robot.pivot.moveStow())
         )
-    )//.onFalse(
+    ) // .onFalse(
 //      robot.feeder.intake()
 //        .alongWith(
 //          robot.shooter.scoreAmp(),
@@ -290,7 +290,7 @@ class ControllerBindings(
           .withTimeout(FeederConstants.CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS)
           .andThen(checkNoteInLocation())
       )
-    )//.onFalse(
+    ) // .onFalse(
 //      SequentialCommandGroup(
 //        slowIntake(),
 //        outtakeToNotePosition()

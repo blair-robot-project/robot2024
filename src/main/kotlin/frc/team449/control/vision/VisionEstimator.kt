@@ -186,7 +186,8 @@ class VisionEstimator(
     var usedTarget: PhotonTrackedTarget? = null
     for (target: PhotonTrackedTarget in result.targets) {
       if (target.fiducialId == 4 && DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red ||
-        target.fiducialId == 7 && DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
+        target.fiducialId == 7 && DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue
+      ) {
         usedTarget = target
       }
     }
@@ -199,7 +200,6 @@ class VisionEstimator(
     // targets.
     val targetPosition = tagLayout.getTagPose(usedTarget.fiducialId)
 
-
     val bestPose = targetPosition
       .get()
       .transformBy(
@@ -209,11 +209,11 @@ class VisionEstimator(
 
     if (abs(
         MathUtil.angleModulus(
-          MathUtil.angleModulus(bestPose.rotation.z) -
-            MathUtil.angleModulus(driveHeading!!.radians)
-        )
+            MathUtil.angleModulus(bestPose.rotation.z) -
+              MathUtil.angleModulus(driveHeading!!.radians)
+          )
       )
-      > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_RAD
+    > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_RAD
     ) {
       DriverStation.reportWarning("Best Single Tag Heading over Max Deviation, deviated by ${Units.radiansToDegrees(abs(bestPose.rotation.z - driveHeading!!.radians))}", false)
       return Optional.empty()

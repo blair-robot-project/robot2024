@@ -187,15 +187,27 @@ open class Pivot(
 
   private fun getSlowVoltage(): Double {
     return MathUtil.clamp(
-      controller.getU(0) + feedforward.getUff(0) - observer.getXhat(2) + PivotConstants.SIMPLE_FF.calculate(lastProfileReference.position + PivotConstants.KG_OFFSET, lastProfileReference.velocity),
-        -PivotConstants.MAX_VOLTAGE,
+      controller.getU(0) +
+        feedforward.getUff(0) -
+        observer.getXhat(2) +
+        PivotConstants.SIMPLE_FF.calculate(
+          lastProfileReference.position + PivotConstants.KG_OFFSET,
+          lastProfileReference.velocity
+        ),
+      -PivotConstants.MAX_VOLTAGE,
       PivotConstants.MAX_VOLTAGE
     )
   }
 
   private fun getFastVoltage(): Double {
     return MathUtil.clamp(
-      fastController.getU(0) + feedforward.getUff(0) - observer.getXhat(2) + PivotConstants.SIMPLE_FF.calculate(lastProfileReference.position + PivotConstants.KG_OFFSET, lastProfileReference.velocity),
+      fastController.getU(0) +
+        feedforward.getUff(0) -
+        observer.getXhat(2) +
+        PivotConstants.SIMPLE_FF.calculate(
+          lastProfileReference.position + PivotConstants.KG_OFFSET,
+          lastProfileReference.velocity
+        ),
       -PivotConstants.MAX_VOLTAGE,
       PivotConstants.MAX_VOLTAGE
     )
@@ -203,7 +215,13 @@ open class Pivot(
 
   private fun getAutoVoltage(): Double {
     return MathUtil.clamp(
-      autoController.getU(0) + feedforward.getUff(0) - observer.getXhat(2) + PivotConstants.SIMPLE_FF.calculate(lastProfileReference.position + PivotConstants.KG_OFFSET, lastProfileReference.velocity),
+      autoController.getU(0) +
+        feedforward.getUff(0) -
+        observer.getXhat(2) +
+        PivotConstants.SIMPLE_FF.calculate(
+          lastProfileReference.position + PivotConstants.KG_OFFSET,
+          lastProfileReference.velocity
+        ),
       -PivotConstants.MAX_VOLTAGE,
       PivotConstants.MAX_VOLTAGE
     )
