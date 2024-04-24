@@ -23,13 +23,10 @@ class FourPieceHelper(
   val shot0DriveAngle = Units.degreesToRadians(-44.338651066156395)
   val shot0PivotAngle = Units.degreesToRadians(14.48705441278648)
 
-  val shot1DriveAngle = Units.degreesToRadians(-38.2144036003265)
   val shot1PivotAngle = Units.degreesToRadians(26.242354379317156)
 
-  val shot2DriveAngle = Units.degreesToRadians(-36.28816690114658)
   val shot2PivotAngle = Units.degreesToRadians(27.88355832196282)
 
-  val shot3DriveAngle = Units.degreesToRadians(-35.26536028224181)
   val shot3PivotAngle = Units.degreesToRadians(31.705604274195668)
 
   override val routine =
@@ -40,7 +37,7 @@ class FourPieceHelper(
         0 to AutoUtil.autoFarIntakeV2PremoveCenterline(
           robot,
           shot1PivotAngle,
-          2.5
+          3.25
         ),
         1 to AutoUtil.autoFarIntakeV2Premove(
           robot,
@@ -62,17 +59,21 @@ class FourPieceHelper(
           },
           AutoUtil.autoFarShootHelperV2(robot, shot0DriveAngle, shot0PivotAngle, fast = true)
         ),
-        1 to AutoUtil.autoFarShootHelperV2(robot, shot1DriveAngle, shot1PivotAngle, fast = false),
-        2 to AutoUtil.autoFarShootHelperV2(robot, shot2DriveAngle, shot2PivotAngle, fast = false),
-        3 to AutoUtil.autoFarShootHelperV2(robot, shot3DriveAngle, shot3PivotAngle, fast = false)
-          .andThen(
-            InstantCommand({ robot.drive.stop() }),
-            robot.undertaker.stop(),
-            robot.feeder.stop(),
-            WaitCommand(0.050),
-            robot.shooter.forceStop(),
-            robot.pivot.moveStow(),
-          )
+        1 to AutoUtil.autoJiggle(robot).andThen(
+          AutoUtil.autoFarShootHelperVisionSlow(robot)
+        ),
+        2 to AutoUtil.autoJiggle(robot).andThen(
+          AutoUtil.autoFarShootHelperVisionSlow(robot)
+        ),
+        3 to AutoUtil.autoJiggle(robot).andThen(
+          AutoUtil.autoFarShootHelperVisionSlow(robot),
+          InstantCommand({ robot.drive.stop() }),
+          robot.undertaker.stop(),
+          robot.feeder.stop(),
+          WaitCommand(0.050),
+          robot.shooter.forceStop(),
+          robot.pivot.moveStow(),
+        )
       ),
       debug = false,
       timeout = 0.0

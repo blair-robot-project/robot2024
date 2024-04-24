@@ -42,6 +42,8 @@ open class SpinShooter(
   private val robot: Robot
 ) : SubsystemBase() {
 
+  private var robotAngleGoal = 0.0
+
   /** Left, Right Desired velocity */
   private var desiredVels = Pair(0.0, 0.0)
 
@@ -230,7 +232,7 @@ open class SpinShooter(
           Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(Translation2d(14.144, 4.211))))
         }
 
-        val angle = Units.degreesToRadians(SpinShooterConstants.equation(distance) + 0.45)
+        val angle = Units.degreesToRadians(SpinShooterConstants.equation(distance) + 0.385)
 
         robot.pivot.moveToAngleSlow(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
 
@@ -245,7 +247,7 @@ open class SpinShooter(
         robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
 
         if (robot.shooter.atSetpoint() &&
-          robot.driveCommand.atGoal &&
+          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
           robot.pivot.inTolerance() &&
           robot.mechController.hid.leftBumper
         ) {
@@ -253,7 +255,7 @@ open class SpinShooter(
         }
       },
       { },
-      { !robot.driveController.hid.yButton },
+      { !robot.driveController.hid.leftBumper },
       this,
       robot.pivot,
       robot.feeder,
@@ -308,12 +310,14 @@ open class SpinShooter(
     val cmd = FunctionalCommand(
       { },
       {
+        robot.feeder.stopVoltage()
+
+        robot.pivot.moveToAngleSlow(PivotConstants.PASS_ANGLE)
+
         shootPiece(
           SpinShooterConstants.PASS_LEFT_SPEED,
           SpinShooterConstants.PASS_RIGHT_SPEED
         )
-
-        robot.pivot.moveToAngleSlow(-0.75)
 
         val fieldToRobot = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
           Translation2d(FieldConstants.fieldLength - 7.5, 1.585)
@@ -325,10 +329,10 @@ open class SpinShooter(
 
         robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
 
-        if (robot.shooter.atSetpoint() &&
-          robot.driveCommand.atGoal &&
-          robot.pivot.inTolerance() &&
-          robot.mechController.hid.leftBumper
+        if (robot.shooter.atAimSetpoint() &&
+          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+          robot.mechController.hid.leftBumper &&
+          robot.pivot.inTolerance()
         ) {
           robot.feeder.intakeVoltage()
           robot.undertaker.intakeVoltage()
@@ -337,7 +341,90 @@ open class SpinShooter(
       { },
       { !robot.driveController.hid.xButton },
       this,
-      robot.pivot,
+      robot.feeder,
+      robot.undertaker
+    )
+    cmd.name = "pass shot"
+    return cmd
+  }
+
+  fun passShotT2(): Command {
+    val cmd = FunctionalCommand(
+      { },
+      {
+        robot.feeder.stopVoltage()
+
+        robot.pivot.moveToAngleSlow(PivotConstants.PASS_ANGLE_T2)
+
+        shootPiece(
+          SpinShooterConstants.PASS2_LEFT_SPEED,
+          SpinShooterConstants.PASS2_RIGHT_SPEED
+        )
+
+        val fieldToRobot = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
+          Translation2d(FieldConstants.fieldLength - 6.761, 4.259)
+        } else {
+          Translation2d(6.761, 4.259)
+        }
+
+        val robotToPoint = FieldConstants.PASS_POSE - fieldToRobot
+
+        robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
+
+        if (robot.shooter.atAimSetpoint() &&
+          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+          robot.mechController.hid.leftBumper &&
+          robot.pivot.inTolerance()
+        ) {
+          robot.feeder.intakeVoltage()
+          robot.undertaker.intakeVoltage()
+        }
+      },
+      { },
+      { !robot.driveController.hid.bButton },
+      this,
+      robot.feeder,
+      robot.undertaker
+    )
+    cmd.name = "pass shot"
+    return cmd
+  }
+
+  fun passShotT3(): Command {
+    val cmd = FunctionalCommand(
+      { },
+      {
+        robot.feeder.stopVoltage()
+
+        robot.pivot.moveToAngleSlow(PivotConstants.PASS_ANGLE_T3)
+
+        shootPiece(
+          SpinShooterConstants.PASS3_LEFT_SPEED,
+          SpinShooterConstants.PASS3_RIGHT_SPEED
+        )
+
+        val fieldToRobot = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
+          Translation2d(FieldConstants.fieldLength - 7.053, 6.846)
+        } else {
+          Translation2d(7.053, 6.846)
+        }
+
+        val robotToPoint = FieldConstants.PASS_POSE - fieldToRobot
+
+        robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
+
+        if (robot.shooter.atAimSetpoint() &&
+          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+          robot.mechController.hid.leftBumper &&
+          robot.pivot.inTolerance()
+        ) {
+          robot.feeder.intakeVoltage()
+          robot.undertaker.intakeVoltage()
+        }
+      },
+      { },
+      { !robot.driveController.hid.yButton },
+      this,
       robot.feeder,
       robot.undertaker
     )
@@ -347,8 +434,13 @@ open class SpinShooter(
 
   fun autoAim(): Command {
     val cmd = FunctionalCommand(
-      { },
       {
+        val robotToPoint = FieldConstants.SPEAKER_POSE - robot.drive.pose.translation
+        robotAngleGoal = (robotToPoint.angle + Rotation2d(if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)).radians
+      },
+      {
+        robot.feeder.stopVoltage()
+
         shootPiece(
           SpinShooterConstants.ANYWHERE_LEFT_SPEED,
           SpinShooterConstants.ANYWHERE_RIGHT_SPEED
@@ -400,10 +492,13 @@ open class SpinShooter(
 
         val desiredAngle = robotToPoint.angle + Rotation2d(if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
 
-        robot.driveCommand.snapToAngle(desiredAngle.radians)
+        robot.driveCommand.snapToAngle(desiredAngle.radians, 0.0)
+
+//        println(RobotConstants.ORTHOGONAL_CONTROLLER.positionError * 12.5)
+//        println(Units.radiansToDegrees(RobotConstants.ORTHOGONAL_CONTROLLER.positionError))
 
         if (robot.shooter.atAimSetpoint() &&
-          robot.driveCommand.atGoal &&
+          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
           robot.pivot.inShootAnywhereTolerance(angle) &&
           robot.mechController.hid.leftBumper
         ) {
@@ -412,7 +507,7 @@ open class SpinShooter(
       },
       { },
       {
-        !robot.driveController.hid.bButton
+        !robot.driveController.hid.leftBumper
       },
       this,
       robot.pivot,
@@ -562,6 +657,7 @@ open class SpinShooter(
     builder.addDoubleProperty("5.2 Right Inpt Err Voltage", { -rightObserver.getXhat(1) }, null)
     builder.publishConstString("6.0", "Shoot from Anywhere")
     builder.addDoubleProperty("6.1 Speaker Distance (meters)", { abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)) }, null)
+    builder.addBooleanProperty("6.2 Drive In Angle Tol", { abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD }, null)
   }
 
   companion object {

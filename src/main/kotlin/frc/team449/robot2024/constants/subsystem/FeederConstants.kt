@@ -14,5 +14,5 @@ object FeederConstants {
 
   const val BRAKE_MODE = false
 
-  const val CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS = 1.35
+  const val CHECK_NOTE_IN_LOCATION_TIMEOUT_SECONDS = 2.25
 }

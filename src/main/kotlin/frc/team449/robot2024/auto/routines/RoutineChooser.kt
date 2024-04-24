@@ -22,7 +22,13 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
       "RedFourPieceHelper" to FourPieceHelper(robot, true).createCommand(),
       "BlueFourPieceHelper" to FourPieceHelper(robot, false).createCommand(),
       "RedFourPieceAmp" to FourPieceAmpHelper(robot, true).createCommand(),
-      "BlueFourPieceAmp" to FourPieceAmpHelper(robot, false).createCommand()
+      "BlueFourPieceAmp" to FourPieceAmpHelper(robot, false).createCommand(),
+      "RedWorld" to World(robot, true).createCommand(),
+      "BlueWorld" to World(robot, false).createCommand(),
+      "RedWorld3" to World3(robot, true).createCommand(),
+      "BlueWorld3" to World3(robot, false).createCommand(),
+      "Red4" to FourPiece(robot, true).createCommand(),
+      "Blue4" to FourPiece(robot, false).createCommand()
     )
   }
 
@@ -33,6 +39,21 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
   fun updateOptions(isRed: Boolean) {
     /** Add auto options here */
     this.setDefaultOption("Do Nothing", "DoNothing")
+
+    this.addOption(
+      "4 piece",
+      if (isRed) "Red4" else "Blue4"
+    )
+
+    this.addOption(
+      "worlds center first",
+      if (isRed) "RedWorld" else "BlueWorld"
+    )
+
+    this.addOption(
+      "worlds 3",
+      if (isRed) "RedWorld3" else "BlueWorld3"
+    )
 
     this.addOption(
       "5 Piece Subwoofer MIDDY",

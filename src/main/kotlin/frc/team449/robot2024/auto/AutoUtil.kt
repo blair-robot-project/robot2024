@@ -23,7 +23,7 @@ import kotlin.math.abs
 
 object AutoUtil {
 
-  private fun autoJiggle(robot: Robot): Command {
+  fun autoJiggle(robot: Robot): Command {
     return SequentialCommandGroup(
       ConditionalCommand(
         SequentialCommandGroup(
@@ -102,7 +102,7 @@ object AutoUtil {
     return ParallelCommandGroup(
       SequentialCommandGroup(
         robot.undertaker.intake(),
-        robot.feeder.intake(),
+        robot.feeder.slowIntake(),
         WaitUntilCommand { !robot.infrared.get() },
         robot.undertaker.stop(),
         ConditionalCommand(
@@ -114,7 +114,7 @@ object AutoUtil {
           robot.feeder.stop(),
         ) { !robot.closeToShooterInfrared.get() }
       ),
-      robot.shooter.shootPass()
+      robot.shooter.shootSubwoofer()
     )
   }
 
@@ -322,8 +322,9 @@ object AutoUtil {
   fun autoFarIntakeV2PremoveQuick(robot: Robot, angle: Double): Command {
     return ParallelCommandGroup(
       SequentialCommandGroup(
-        robot.pivot.moveStow().until { robot.pivot.inTolerance(PivotConstants.AMP_ANGLE) }.andThen(
-          InstantCommand({ robot.pivot.setVoltage(-0.35) })
+        robot.feeder.stop(),
+        robot.pivot.moveStow().until { robot.pivot.inTolerance(PivotConstants.STOW_ANGLE) }.andThen(
+          InstantCommand({ robot.pivot.setVoltage(-0.25) })
         ),
         robot.undertaker.intake(),
         robot.feeder.slowIntake(),
@@ -346,8 +347,8 @@ object AutoUtil {
   fun autoFarIntakeV2Premove(robot: Robot, angle: Double): Command {
     return ParallelCommandGroup(
       SequentialCommandGroup(
-        robot.pivot.moveStow().until { robot.pivot.inTolerance(PivotConstants.AMP_ANGLE) }.andThen(
-          InstantCommand({ robot.pivot.setVoltage(-0.35) })
+        robot.pivot.moveStow().until { robot.pivot.inTolerance(PivotConstants.STOW_ANGLE) }.andThen(
+          InstantCommand({ robot.pivot.setVoltage(-0.25) })
         ),
         robot.undertaker.intake(),
         robot.feeder.slowIntake(),
@@ -373,8 +374,8 @@ object AutoUtil {
   fun autoFarIntakeV2PremoveCenterline(robot: Robot, angle: Double, waitTime: Double): Command {
     return ParallelCommandGroup(
       SequentialCommandGroup(
-        robot.pivot.moveStow().until { robot.pivot.inTolerance(PivotConstants.AMP_ANGLE) }.andThen(
-          InstantCommand({ robot.pivot.setVoltage(-0.35) })
+        robot.pivot.moveStow().until { robot.pivot.inTolerance(PivotConstants.STOW_ANGLE) }.andThen(
+          InstantCommand({ robot.pivot.setVoltage(-0.25) })
         ),
         robot.undertaker.intake(),
         robot.feeder.slowIntake(),
@@ -439,9 +440,11 @@ object AutoUtil {
           )
 
           if (robot.shooter.atSetpoint() &&
-            abs(MathUtil.angleModulus(robot.drive.heading.radians - robotAngle)) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
-            (robot.pivot.inAutoTolerance(pivotAngle) && !fast) ||
-            (fast && robot.pivot.inTolerance(pivotAngle))
+            abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+            (
+              (robot.pivot.inAutoTolerance(pivotAngle) && !fast) ||
+                (fast && robot.pivot.inTolerance(pivotAngle))
+              )
           ) {
             robot.feeder.intakeVoltage()
             robot.undertaker.intakeVoltage()
@@ -459,7 +462,7 @@ object AutoUtil {
     return cmd
   }
 
-  fun autoFarShootHelperVision(robot: Robot, fast: Boolean = false): Command {
+  fun autoFarShootHelperVisionFast(robot: Robot, offset: Double = 0.0): Command {
     val cmd = SequentialCommandGroup(
       FunctionalCommand(
         { },
@@ -473,11 +476,7 @@ object AutoUtil {
 
           val pivotAngle = if (distance <= 1.30) 0.0 else SpinShooterConstants.SHOOTING_MAP.get(distance)
 
-          if (fast) {
-            robot.pivot.moveToAngleSlow(MathUtil.clamp(pivotAngle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
-          } else {
-            robot.pivot.moveToAngleAuto(MathUtil.clamp(pivotAngle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
-          }
+          robot.pivot.moveToAngleSlow(MathUtil.clamp(pivotAngle + offset, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
 
           val robotToPoint = FieldConstants.SPEAKER_POSE - robot.drive.pose.translation
 
@@ -495,16 +494,66 @@ object AutoUtil {
           )
 
           if (robot.shooter.atSetpoint() &&
-            abs(MathUtil.angleModulus(robot.drive.heading.radians - desiredAngle.radians)) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
-            (robot.pivot.inAutoTolerance(pivotAngle) && !fast) ||
-            (fast && robot.pivot.inTolerance(pivotAngle))
+            abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+            robot.pivot.inAutoTolerance(pivotAngle)
           ) {
             robot.feeder.intakeVoltage()
             robot.undertaker.intakeVoltage()
           }
         },
         { },
-        { false },
+        { robot.infrared.get() && robot.closeToShooterInfrared.get() },
+        robot.shooter,
+        robot.pivot,
+        robot.feeder,
+        robot.undertaker
+      )
+    )
+    cmd.name = "auto aiming"
+    return cmd
+  }
+
+  fun autoFarShootHelperVisionSlow(robot: Robot, offset: Double = 0.0): Command {
+    val cmd = SequentialCommandGroup(
+      FunctionalCommand(
+        { },
+        {
+          robot.shooter.shootPiece(
+            SpinShooterConstants.ANYWHERE_LEFT_SPEED,
+            SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+          )
+
+          val distance = abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation))
+
+          val pivotAngle = if (distance <= 1.30) 0.0 else SpinShooterConstants.SHOOTING_MAP.get(distance)
+
+          robot.pivot.moveToAngleAuto(MathUtil.clamp(pivotAngle + offset, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
+
+          val robotToPoint = FieldConstants.SPEAKER_POSE - robot.drive.pose.translation
+
+          val desiredAngle = robotToPoint.angle + Rotation2d(PI)
+
+          robot.drive.set(
+            ChassisSpeeds(
+              0.0,
+              0.0,
+              RobotConstants.ORTHOGONAL_CONTROLLER.calculate(
+                robot.drive.heading.radians,
+                desiredAngle.radians
+              )
+            )
+          )
+
+          if (robot.shooter.atAimSetpoint() &&
+//            (abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD) &&
+            robot.pivot.inTolerance(pivotAngle)
+          ) {
+            robot.feeder.intakeVoltage()
+            robot.undertaker.intakeVoltage()
+          }
+        },
+        { },
+        { robot.infrared.get() && robot.closeToShooterInfrared.get() },
         robot.shooter,
         robot.pivot,
         robot.feeder,

@@ -94,14 +94,14 @@ open class Pivot(
 
   private fun correctAuto() {
     observer.correct(
-      VecBuilder.fill(getFastVoltage()),
+      VecBuilder.fill(getAutoVoltage()),
       VecBuilder.fill(positionSupplier.get())
     )
   }
 
   private fun correctFast() {
     observer.correct(
-      VecBuilder.fill(getAutoVoltage()),
+      VecBuilder.fill(getFastVoltage()),
       VecBuilder.fill(positionSupplier.get())
     )
   }

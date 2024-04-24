@@ -54,6 +54,7 @@ open class Shooter(
   private fun correct() {
     val voltage = getVoltage()
 
+    // for offseason use last motor voltage
     observer.correct(
       VecBuilder.fill(voltage),
       VecBuilder.fill(velocity.get())
@@ -78,6 +79,7 @@ open class Shooter(
       -observer.getXhat(1)
     )
 
+    // for offseason, try using the last motor voltage
     observer.predict(voltage, RobotConstants.LOOP_TIME)
   }
 

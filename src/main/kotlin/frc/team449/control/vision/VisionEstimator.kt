@@ -21,7 +21,6 @@ import org.photonvision.targeting.PhotonTrackedTarget
 import org.photonvision.targeting.TargetCorner
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
-import kotlin.math.PI
 import kotlin.math.abs
 
 /**
@@ -32,7 +31,7 @@ class VisionEstimator(
   private val tagLayout: AprilTagFieldLayout,
   val camera: PhotonCamera,
   private val robotToCam: Transform3d
-) : PhotonPoseEstimator(tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_RIO, camera, robotToCam) {
+) : PhotonPoseEstimator(tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, robotToCam) {
   private val reportedErrors: HashSet<Int> = HashSet()
   private var driveHeading: Rotation2d? = null
   private var lastPose: Pose3d? = null
@@ -64,7 +63,7 @@ class VisionEstimator(
     return if (!cameraResult.hasTargets()) {
       Optional.empty()
     } else {
-      useCenter(cameraResult)
+      multiTagOnCoprocStrategy(cameraResult)
     }
   }
 
@@ -96,9 +95,22 @@ class VisionEstimator(
 
       val visionPose = checkBest(lastPose, best, alternate) ?: best
 
-      val difference = MathUtil.angleModulus(abs(MathUtil.angleModulus(visionPose.toPose2d().rotation.radians) - MathUtil.angleModulus(driveHeading!!.radians)))
+      if (abs(
+          MathUtil.angleModulus(
+              MathUtil.angleModulus(visionPose.rotation.z) -
+                MathUtil.angleModulus(driveHeading!!.radians)
+            )
+        )
+      > VisionConstants.TAG_HEADING_MAX_DEV_RAD
+      ) {
+        DriverStation.reportWarning("Tag Heading over Max Deviation, deviated by ${Units.radiansToDegrees(abs(visionPose.rotation.z - driveHeading!!.radians))}", false)
+        return Optional.empty()
+      }
 
-      if (MathUtil.angleModulus(difference + PI) - PI > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_RAD) {
+      if ((!result.multiTagResult.fiducialIDsUsed.containsAll(listOf(3, 4)) && DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) ||
+        (!result.multiTagResult.fiducialIDsUsed.containsAll(listOf(7, 8)) && DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue)
+      ) {
+        println("throwing away estimate, non speaker")
         return Optional.empty()
       }
 
@@ -111,9 +123,9 @@ class VisionEstimator(
         )
       )
     } else {
-      Optional.empty<EstimatedRobotPose>()
-//      println("getting into single tag")
-      lowestAmbiguityStrategy(result)
+      println("getting into single tag")
+//      useCenter(result)
+      Optional.empty()
     }
   }
 
@@ -213,7 +225,7 @@ class VisionEstimator(
               MathUtil.angleModulus(driveHeading!!.radians)
           )
       )
-    > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_RAD
+    > VisionConstants.TAG_HEADING_MAX_DEV_RAD
     ) {
       DriverStation.reportWarning("Best Single Tag Heading over Max Deviation, deviated by ${Units.radiansToDegrees(abs(bestPose.rotation.z - driveHeading!!.radians))}", false)
       return Optional.empty()
@@ -223,7 +235,7 @@ class VisionEstimator(
       EstimatedRobotPose(
         bestPose,
         result.timestampSeconds,
-        result.getTargets(),
+        listOf(usedTarget),
         PoseStrategy.LOWEST_AMBIGUITY
       )
     )
@@ -272,7 +284,7 @@ class VisionEstimator(
               MathUtil.angleModulus(driveHeading!!.radians)
           )
       )
-    > VisionConstants.SINGLE_TAG_HEADING_MAX_DEV_RAD
+    > VisionConstants.TAG_HEADING_MAX_DEV_RAD
     ) {
       DriverStation.reportWarning("Best Single Tag Heading over Max Deviation, deviated by ${Units.radiansToDegrees(abs(bestPose.rotation.z - driveHeading!!.radians))}", false)
       return Optional.empty()

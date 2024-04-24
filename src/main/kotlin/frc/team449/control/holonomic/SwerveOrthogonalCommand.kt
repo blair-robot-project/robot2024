@@ -48,6 +48,9 @@ class SwerveOrthogonalCommand(
 
   private var desiredVel = doubleArrayOf(0.0, 0.0, 0.0)
 
+  private var angVelOffset = 0.0
+  private var usingAngVelOffset = false
+
   init {
     addRequirements(drive)
     rotCtrl.enableContinuousInput(-PI, PI)
@@ -75,7 +78,7 @@ class SwerveOrthogonalCommand(
     atGoal = true
   }
 
-  fun snapToAngle(angle: Double) {
+  fun orthogonalAngle(angle: Double) {
     val desAngle = MathUtil.angleModulus(angle + allianceCompensation.invoke())
     if (abs(desAngle - drive.heading.radians) > RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
       abs(desAngle - drive.heading.radians) < 2 * PI - RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD
@@ -83,6 +86,14 @@ class SwerveOrthogonalCommand(
       rotCtrl.calculate(drive.heading.radians, desAngle)
       atGoal = rotCtrl.atSetpoint()
     }
+  }
+
+  fun snapToAngle(angle: Double, angVel: Double = 0.0) {
+    val desAngle = MathUtil.angleModulus(angle + allianceCompensation.invoke())
+    rotCtrl.calculate(drive.heading.radians, desAngle)
+    atGoal = rotCtrl.atSetpoint()
+    angVelOffset = angVel
+    usingAngVelOffset = true
   }
 
   override fun execute() {
@@ -127,7 +138,7 @@ class SwerveOrthogonalCommand(
 //    }
 
     if (controller.aButtonPressed) {
-      snapToAngle(0.0)
+      orthogonalAngle(0.0)
     }
 
     if (atGoal) {
@@ -139,13 +150,24 @@ class SwerveOrthogonalCommand(
         ) * -sign(controller.rightX) * drive.maxRotSpeed
       )
     } else {
-      rotScaled = MathUtil.clamp(
-        rotCtrl.calculate(drive.heading.radians),
-        -RobotConstants.ALIGN_ROT_SPEED,
-        RobotConstants.ALIGN_ROT_SPEED
-      )
-      atGoal = rotCtrl.atSetpoint()
+      if (usingAngVelOffset) {
+        rotScaled = MathUtil.clamp(
+          rotCtrl.calculate(drive.heading.radians) + angVelOffset,
+          -RobotConstants.ALIGN_ROT_SPEED,
+          RobotConstants.ALIGN_ROT_SPEED
+        )
+        atGoal = rotCtrl.atSetpoint()
+      } else {
+        rotScaled = MathUtil.clamp(
+          rotCtrl.calculate(drive.heading.radians),
+          -RobotConstants.ALIGN_ROT_SPEED,
+          RobotConstants.ALIGN_ROT_SPEED
+        )
+        atGoal = rotCtrl.atSetpoint()
+      }
     }
+
+    usingAngVelOffset = false
 
     val vel = Translation2d(xClamped, yClamped)
 

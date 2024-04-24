@@ -35,11 +35,12 @@ object VisionConstants {
 
   /** Robot to Camera distance */
   val backLeft = Transform3d(
-    Translation3d(Units.inchesToMeters(-10.696), Units.inchesToMeters(-10.848), Units.inchesToMeters(9.11)),
+    Translation3d(Units.inchesToMeters(-10.696), Units.inchesToMeters(10.848), Units.inchesToMeters(9.11)),
     Rotation3d(0.0, Units.degreesToRadians(-28.125), Units.degreesToRadians(180.0 + 7.5))
   )
+
   val backRight = Transform3d(
-    Translation3d(Units.inchesToMeters(-10.696), Units.inchesToMeters(10.848), Units.inchesToMeters(9.11)),
+    Translation3d(Units.inchesToMeters(-10.696), Units.inchesToMeters(-10.848), Units.inchesToMeters(9.11)),
     Rotation3d(0.0, Units.degreesToRadians(-28.125), Units.degreesToRadians(180.0 - 7.5))
   )
 
@@ -51,14 +52,14 @@ object VisionConstants {
   /** Filtering Constants */
   const val MAX_AMBIGUITY = 0.25
   var MAX_DISTANCE_SINGLE_TAG = 5.0
-  const val MAX_DISTANCE_MULTI_TAG = 6.0
-  val SINGLE_TAG_HEADING_MAX_DEV_RAD = Units.radiansToDegrees(5.0)
+  var MAX_DISTANCE_MULTI_TAG = 6.0
+  val TAG_HEADING_MAX_DEV_RAD = Units.radiansToDegrees(5.0)
   var MAX_HEIGHT_ERR_METERS = 0.25
   const val NUM_TAG_FACTOR = 2.0
 
   /** Std Dev Calculation Constants */
   const val ORDER = 2
-  const val PROPORTION = 1.0 / 20.0
+  const val PROPORTION = 1.0 / 30.0
 
   val VISION_SIM = VisionSystemSim(
     "main"
@@ -77,12 +78,12 @@ object VisionConstants {
 
   /** List of cameras that we want to use */
   val ESTIMATORS: ArrayList<VisionSubsystem> = arrayListOf(
-//    VisionSubsystem(
-//      "back_left",
-//      TAG_LAYOUT,
-//      backLeft,
-//      VISION_SIM
-//    ),
+    VisionSubsystem(
+      "back_left",
+      TAG_LAYOUT,
+      backLeft,
+      VISION_SIM
+    ),
     VisionSubsystem(
       "back_right",
       TAG_LAYOUT,
@@ -93,5 +94,5 @@ object VisionConstants {
 
   val ENCODER_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .125, .125, .0125)
   val SINGLE_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .15, .15, 1e+9)
-  val MULTI_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .10, .10, .80)
+  val MULTI_TAG_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .10, .10, 1.75)
 }

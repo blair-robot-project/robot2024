@@ -46,6 +46,10 @@ class Feeder(
     }
   }
 
+  fun stopVoltage() {
+    motor.stopMotor()
+  }
+
   override fun initSendable(builder: SendableBuilder) {
     builder.publishConstString("1.0", "Motor Voltages")
     builder.addDoubleProperty("1.1 Last Voltage", { motor.lastVoltage }, null)

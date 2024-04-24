@@ -177,7 +177,7 @@ class ControllerBindings(
       robot.pivot.moveStow()
     )
 
-    driveController.y().onTrue(
+    driveController.leftBumper().onTrue(
       SequentialCommandGroup(
         checkNoteInLocation(),
         robot.undertaker.slowIntake(),
@@ -193,21 +193,45 @@ class ControllerBindings(
       )
     )
 
-    driveController.b().onTrue(
+//    driveController.leftBumper().onTrue(
+//      SequentialCommandGroup(
+//        InstantCommand({ robot.drive.maxLinearSpeed = 1.10 })
+//          .andThen(InstantCommand({ robot.drive.maxRotSpeed = PI / 2 })),
+//        checkNoteInLocation(),
+//        ConditionalCommand(
+//          SequentialCommandGroup(
+//            robot.undertaker.stop(),
+//            robot.feeder.outtake(),
+//            robot.shooter.duringIntake(),
+//            WaitUntilCommand { robot.closeToShooterInfrared.get() },
+//            stopIntake()
+//          ),
+//          stopIntake()
+//        ) { !robot.closeToShooterInfrared.get() },
+//        robot.undertaker.slowIntake(),
+//        WaitCommand(0.30),
+//        robot.shooter.autoAim()
+//      )
+//    ).onFalse(
+//      ParallelCommandGroup(
+//        InstantCommand({ robot.drive.maxLinearSpeed = RobotConstants.MAX_LINEAR_SPEED })
+//          .andThen(
+//            InstantCommand({ robot.drive.maxRotSpeed = RobotConstants.MAX_ROT_SPEED })
+//          ),
+//        robot.undertaker.stop(),
+//        robot.shooter.rampStop(),
+//        robot.feeder.stop(),
+//        robot.pivot.moveStow()
+//      )
+//    )
+
+    driveController.x().onTrue(
       SequentialCommandGroup(
-        InstantCommand({ robot.drive.maxLinearSpeed = 1.10 })
-          .andThen(InstantCommand({ robot.drive.maxRotSpeed = PI / 2 })),
         checkNoteInLocation(),
-        robot.undertaker.slowIntake(),
-        WaitCommand(0.10),
-        robot.shooter.autoAim()
+        robot.shooter.passShot()
       )
     ).onFalse(
       ParallelCommandGroup(
-        InstantCommand({ robot.drive.maxLinearSpeed = RobotConstants.MAX_LINEAR_SPEED })
-          .andThen(
-            InstantCommand({ robot.drive.maxRotSpeed = RobotConstants.MAX_ROT_SPEED })
-          ),
         robot.undertaker.stop(),
         robot.shooter.rampStop(),
         robot.feeder.stop(),
@@ -215,10 +239,24 @@ class ControllerBindings(
       )
     )
 
-    driveController.x().onTrue(
+    driveController.b().onTrue(
       SequentialCommandGroup(
         checkNoteInLocation(),
-        robot.shooter.passShot()
+        robot.shooter.passShotT2()
+      )
+    ).onFalse(
+      ParallelCommandGroup(
+        robot.undertaker.stop(),
+        robot.shooter.rampStop(),
+        robot.feeder.stop(),
+        robot.pivot.moveStow()
+      )
+    )
+
+    driveController.y().onTrue(
+      SequentialCommandGroup(
+        checkNoteInLocation(),
+        robot.shooter.passShotT3()
       )
     ).onFalse(
       ParallelCommandGroup(
@@ -359,26 +397,26 @@ class ControllerBindings(
       stopAll()
     )
 
-//    /** Characterization */
-//    // Quasistatic Forwards
-//    driveController.povUp().onTrue(
-//      shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward)
-//    )
-//
-//    // Quasistatic Reverse
-//    driveController.povDown().onTrue(
-//      shooterRoutine.quasistatic(SysIdRoutine.Direction.kReverse)
-//    )
-//
-//    // Dynamic Forwards
-//    driveController.povRight().onTrue(
-//      shooterRoutine.dynamic(SysIdRoutine.Direction.kForward)
-//    )
-//
-//    // Dynamic Reverse
-//    driveController.povLeft().onTrue(
-//      shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
-//    )
+    /** Characterization */
+    // Quasistatic Forwards
+    driveController.povUp().onTrue(
+      shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward)
+    )
+
+    // Quasistatic Reverse
+    driveController.povDown().onTrue(
+      shooterRoutine.quasistatic(SysIdRoutine.Direction.kReverse)
+    )
+
+    // Dynamic Forwards
+    driveController.povRight().onTrue(
+      shooterRoutine.dynamic(SysIdRoutine.Direction.kForward)
+    )
+
+    // Dynamic Reverse
+    driveController.povLeft().onTrue(
+      shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
+    )
   }
 
   private fun intakePiece(): Command {

@@ -6,6 +6,8 @@ import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.team449.control.auto.ChoreoRoutine
 import frc.team449.control.auto.ChoreoRoutineStructure
@@ -73,9 +75,11 @@ class FourPieceAmpHelper(
           robot,
           shot2PivotAngle
         ),
-        2 to AutoUtil.autoFarIntakeV2PremoveQuick(
-          robot,
-          shot3PivotAngle
+        2 to ParallelCommandGroup(
+          robot.pivot.moveStow(),
+          robot.shooter.shootSubwoofer(),
+          robot.feeder.intake(),
+          robot.undertaker.intake()
         ),
       ),
       stopEventMap = hashMapOf(
@@ -84,28 +88,28 @@ class FourPieceAmpHelper(
             robot.drive.enableVisionFusion = true
             VisionConstants.MAX_DISTANCE_SINGLE_TAG = 4.5
             VisionConstants.SINGLE_TAG_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .325, .325, 3.0))
-            VisionConstants.MULTI_TAG_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .325, .325, 3.0))
+            VisionConstants.MULTI_TAG_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .225, .225, 3.0))
           })
         ),
-        1 to AutoUtil.autoFarShootHelperVision(robot, fast = false),
-        2 to AutoUtil.autoFarShootHelperVision(robot, fast = false),
-        3 to AutoUtil.autoFarShootHelperVision(robot, fast = false)
-          .andThen(
-            InstantCommand({
-              VisionConstants.MAX_DISTANCE_SINGLE_TAG = 5.0
-              VisionConstants.SINGLE_TAG_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .15, .15, 3.0))
-              VisionConstants.MULTI_TAG_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .10, .10, 3.0))
-            }),
-            InstantCommand({ robot.drive.stop() }),
-            robot.undertaker.stop(),
-            robot.feeder.stop(),
-            WaitCommand(0.050),
-            robot.shooter.forceStop(),
-            robot.pivot.moveStow(),
-          )
+        1 to AutoUtil.autoFarShootHelperVisionSlow(robot, offset = Units.degreesToRadians(2.80)),
+        2 to AutoUtil.autoFarShootHelperVisionSlow(robot, offset = Units.degreesToRadians(-0.375)),
+        3 to SequentialCommandGroup(
+          InstantCommand({
+            robot.drive.enableVisionFusion = true
+            VisionConstants.MAX_DISTANCE_SINGLE_TAG = 4.5
+            VisionConstants.SINGLE_TAG_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .15, .15, 3.0))
+            VisionConstants.MULTI_TAG_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .10, .10, 3.0))
+          }),
+          InstantCommand({ robot.drive.stop() }),
+          WaitCommand(0.50),
+          robot.undertaker.stop(),
+          robot.feeder.stop(),
+          robot.shooter.forceStop(),
+          robot.pivot.moveStow()
+        )
       ),
       debug = false,
-      timeout = 0.0
+      timeout = 2.15
     )
 
   override val trajectory: MutableList<ChoreoTrajectory> =

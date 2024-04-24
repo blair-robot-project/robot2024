@@ -59,14 +59,15 @@ object PivotConstants {
   const val CONTROL_EFFORT_VOLTS = 12.0
 
   /** LQR Position and Velocity tolerances for fast Controller*/
+  // for offseason, increase these tolerances to like 20.0 and 60.0 or something
   val FAST_POS_TOLERANCE = Units.degreesToRadians(10.0)
   val FAST_VEL_TOLERANCE = Units.degreesToRadians(45.0)
 
-  val AUTO_POS_TOLERANCE = Units.degreesToRadians(0.20)
+  val AUTO_POS_TOLERANCE = Units.degreesToRadians(0.375)
   val AUTO_VEL_TOLERANCE = Units.degreesToRadians(5.0)
-  val AUTO_MAX_POS_ERROR = Units.degreesToRadians(0.30)
+  val AUTO_MAX_POS_ERROR = Units.degreesToRadians(0.325)
 
-  val SHOOT_ANYWHERE_POS_TOLERANCE = Units.degreesToRadians(0.30)
+  val SHOOT_ANYWHERE_POS_TOLERANCE = Units.degreesToRadians(0.75)
 
   val MAX_POS_ERROR = Units.degreesToRadians(1.65)
   val AMP_TOL = Units.degreesToRadians(25.0)
@@ -79,6 +80,7 @@ object PivotConstants {
   val MAX_VELOCITY = MotorConstants.FREE_SPEED * GEARING * 0.85
 
   // Max at 35A should be 178.15455320820428 (at stall)
+  // for offseason, try increasing this to 175 :joy:
   val MAX_ACCEL = 0.1727 * 195 // this some fire, actual value is 33.6765
 
   const val SLOW_ACCEL = 0.5804 * 21.75 // this some fire, actual value is 12.6237
@@ -89,6 +91,8 @@ object PivotConstants {
   val MAX_ANGLE = Units.degreesToRadians(105.0)
   val AMP_ANGLE = Units.degreesToRadians(89.0) // 95.0 at blacksburg
   val CLIMB_ANGLE = Units.degreesToRadians(60.0)
-  val PASS_ANGLE = Units.degreesToRadians(62.5)
+  val PASS_ANGLE = Units.degreesToRadians(7.5)
+  val PASS_ANGLE_T2 = Units.degreesToRadians(5.0)
+  val PASS_ANGLE_T3 = Units.degreesToRadians(0.0)
   val STOW_ANGLE = Units.degreesToRadians(-1.0)
 }

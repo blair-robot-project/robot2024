@@ -14,18 +14,18 @@ object RobotConstants {
   const val PDH_CAN = 1
 
   /** Controller Configurations */
-  const val ROT_RATE_LIMIT = 20.0 * PI
+  const val ROT_RATE_LIMIT = 17.27 * PI
   const val NEG_ROT_RATE_LIM = -27.5 * PI
   const val DRIVE_RADIUS_DEADBAND = .125
   const val ROTATION_DEADBAND = .125
-  val SNAP_TO_ANGLE_TOLERANCE_RAD = Units.degreesToRadians(2.75)
+  val SNAP_TO_ANGLE_TOLERANCE_RAD = Units.degreesToRadians(3.5)
 
   /** In kilograms, include bumpers and battery and all */
   const val ROBOT_WEIGHT = 55.0
 
   /** Drive configuration */
   val MAX_LINEAR_SPEED = SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED // m/s
-  const val MAX_ROT_SPEED = 2 * PI // rad/s
+  const val MAX_ROT_SPEED = 9 * PI / 4 // rad/s
   val MAX_ACCEL = 4 * DCMotor(
     MotorConstants.NOMINAL_VOLTAGE,
     MotorConstants.STALL_TORQUE * SwerveConstants.EFFICIENCY,
@@ -46,12 +46,12 @@ object RobotConstants {
 
   /** PID controller for Orthogonal turning */
   val ORTHOGONAL_CONTROLLER = PIDController(
-    6.25,
+    5.65,
     0.0,
     0.0
   )
 
-  const val ALIGN_ROT_SPEED = 3 * PI
+  const val ALIGN_ROT_SPEED = 7 * PI / 2
 
   val IR_CHANNEL = 3
   val IR_CHANNEL2 = 4
