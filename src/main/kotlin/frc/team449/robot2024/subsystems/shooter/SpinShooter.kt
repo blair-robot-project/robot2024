@@ -30,6 +30,7 @@ import kotlin.Pair
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.*
 
+
 open class SpinShooter(
   val rightMotor: WrappedMotor,
   val leftMotor: WrappedMotor,
