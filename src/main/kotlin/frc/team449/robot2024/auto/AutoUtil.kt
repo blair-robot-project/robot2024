@@ -514,51 +514,49 @@ object AutoUtil {
   }
 
   fun autoFarShootHelperVisionSlow(robot: Robot, offset: Double = 0.0): Command {
-    val cmd = SequentialCommandGroup(
-      FunctionalCommand(
-        { },
-        {
-          robot.shooter.shootPiece(
-            SpinShooterConstants.ANYWHERE_LEFT_SPEED,
-            SpinShooterConstants.ANYWHERE_RIGHT_SPEED
-          )
+    val cmd = FunctionalCommand(
+      { },
+      {
+        robot.shooter.shootPiece(
+          SpinShooterConstants.ANYWHERE_LEFT_SPEED,
+          SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+        )
 
-          val distance = abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation))
+        val distance = abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation))
 
-          val pivotAngle = if (distance <= 1.30) 0.0 else SpinShooterConstants.SHOOTING_MAP.get(distance)
+        val pivotAngle = MathUtil.clamp(if (distance <= 1.30) 0.0 else SpinShooterConstants.SHOOTING_MAP.get(distance) + offset, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE)
 
-          robot.pivot.moveToAngleAuto(MathUtil.clamp(pivotAngle + offset, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
+        robot.pivot.moveToAngleAuto(pivotAngle)
 
-          val robotToPoint = FieldConstants.SPEAKER_POSE - robot.drive.pose.translation
+        val robotToPoint = FieldConstants.SPEAKER_POSE - robot.drive.pose.translation
 
-          val desiredAngle = robotToPoint.angle + Rotation2d(PI)
+        val desiredAngle = robotToPoint.angle + Rotation2d(PI)
 
-          robot.drive.set(
-            ChassisSpeeds(
-              0.0,
-              0.0,
-              RobotConstants.ORTHOGONAL_CONTROLLER.calculate(
-                robot.drive.heading.radians,
-                desiredAngle.radians
-              )
+        if (robot.shooter.atAimSetpoint() &&
+          (abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD) &&
+          robot.pivot.inAutoTolerance(pivotAngle)
+        ) {
+          robot.feeder.intakeVoltage()
+          robot.undertaker.intakeVoltage()
+        }
+
+        robot.drive.set(
+          ChassisSpeeds(
+            0.0,
+            0.0,
+            RobotConstants.ORTHOGONAL_CONTROLLER.calculate(
+              robot.drive.heading.radians,
+              desiredAngle.radians
             )
           )
-
-          if (robot.shooter.atAimSetpoint() &&
-//            (abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD) &&
-            robot.pivot.inTolerance(pivotAngle)
-          ) {
-            robot.feeder.intakeVoltage()
-            robot.undertaker.intakeVoltage()
-          }
-        },
-        { },
-        { robot.infrared.get() && robot.closeToShooterInfrared.get() },
-        robot.shooter,
-        robot.pivot,
-        robot.feeder,
-        robot.undertaker
-      )
+        )
+      },
+      { },
+      { robot.infrared.get() && robot.closeToShooterInfrared.get() },
+      robot.shooter,
+      robot.pivot,
+      robot.feeder,
+      robot.undertaker
     )
     cmd.name = "auto aiming"
     return cmd
@@ -597,15 +595,6 @@ object AutoUtil {
                   robot.drive.heading.radians
                 )
               )
-            )
-
-            println(
-              "drive thing: " +
-                if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
-                  abs(MathUtil.angleModulus(robot.drive.heading.radians - robotToPoint.angle.radians + PI) - 2 * PI) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD
-                } else {
-                  abs(MathUtil.angleModulus(robot.drive.heading.radians - robotToPoint.angle.radians + PI) - PI) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD
-                }
             )
 
             if (robot.shooter.atSetpoint() &&
