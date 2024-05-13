@@ -17,8 +17,8 @@ object SpinShooterConstants {
 
   val SUBWOOFER_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3450.0)
   val SUBWOOFER_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(2800.0)
-  val ANYWHERE_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4850.0)
-  val ANYWHERE_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3850.0)
+  val ANYWHERE_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4950.0)
+  val ANYWHERE_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(4250.0)
   val PASS_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3900.0)
   val PASS_RIGHT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(2900.0)
   val PASS2_LEFT_SPEED = Units.rotationsPerMinuteToRadiansPerSecond(3550.0)
