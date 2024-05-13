@@ -1,6 +1,5 @@
 package frc.team449.robot2024.auto.routines
 
-import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj2.command.*
 import frc.team449.control.auto.ChoreoRoutine
@@ -8,8 +7,6 @@ import frc.team449.control.auto.ChoreoRoutineStructure
 import frc.team449.control.auto.ChoreoTrajectory
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.auto.AutoUtil
-import frc.team449.robot2024.constants.field.FieldConstants
-import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
 
 class SixPiece(
   robot: Robot,
@@ -24,12 +21,6 @@ class SixPiece(
 
   private val farShot3PivotAngle = Units.degreesToRadians(23.48886092186779)
   private val farShot3DriveAngle = Units.degreesToRadians(13.49573328082929)
-
-  init {
-    println(
-      SpinShooterConstants.equation(Units.metersToInches(FieldConstants.BLUE_SPEAKER_POSE.getDistance(Translation2d(2.6606411933898926, 6.152108192443848))))
-    )
-  }
 
   override val routine =
     ChoreoRoutine(

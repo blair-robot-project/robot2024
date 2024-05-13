@@ -1,5 +1,7 @@
 package frc.team449
 
+import com.ctre.phoenix6.SignalLogger
+import com.pathplanner.lib.util.PathPlannerLogging
 import edu.wpi.first.hal.FRCNetComm
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.wpilibj.*
@@ -42,6 +44,13 @@ class RobotLoop : TimedRobot(), Logged {
   override fun robotInit() {
     // Yes this should be a print statement, it's useful to know that robotInit started.
     println("Started robotInit.")
+
+    PathPlannerLogging.setLogActivePathCallback {
+      field.getObject("PathPlanner traj").setPoses(it)
+    }
+
+    SignalLogger.setPath("/media/sda1/ctre-logs/")
+    SignalLogger.start()
 
     HAL.report(FRCNetComm.tResourceType.kResourceType_Language, FRCNetComm.tInstances.kLanguage_Kotlin)
 

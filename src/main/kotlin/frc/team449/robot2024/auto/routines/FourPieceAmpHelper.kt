@@ -23,44 +23,36 @@ class FourPieceAmpHelper(
   isRed: Boolean
 ) : ChoreoRoutineStructure {
 
-  val shot1PivotAngle = Units.degreesToRadians(
-    SpinShooterConstants.SHOOTING_MAP.get(
-      Units.metersToInches(
-        FieldConstants.BLUE_SPEAKER_POSE.getDistance(
-          Translation2d(
-            3.7956974506378174,
-            6.5
-          )
-        )
-      )
-    )
-  )
+  private val shot1Offset = Units.degreesToRadians(0.0)
+  private val shot2Offset = Units.degreesToRadians(0.0)
 
-  val shot2PivotAngle = Units.degreesToRadians(
-    SpinShooterConstants.SHOOTING_MAP.get(
-      Units.metersToInches(
-        FieldConstants.BLUE_SPEAKER_POSE.getDistance(
-          Translation2d(
-            3.7956974506378174,
-            6.5
-          )
-        )
+  private val shot1PivotAngle = SpinShooterConstants.SHOOTING_MAP.get(
+    FieldConstants.BLUE_SPEAKER_POSE.getDistance(
+      Translation2d(
+        3.7641966342926025,
+        6.230502605438232
       )
     )
-  )
+  ) - shot1Offset
 
-  val shot3PivotAngle = Units.degreesToRadians(
-    SpinShooterConstants.SHOOTING_MAP.get(
-      Units.metersToInches(
-        FieldConstants.BLUE_SPEAKER_POSE.getDistance(
-          Translation2d(
-            3.7956974506378174,
-            6.5
-          )
-        )
+  private val shot2PivotAngle = SpinShooterConstants.SHOOTING_MAP.get(
+    FieldConstants.BLUE_SPEAKER_POSE.getDistance(
+      Translation2d(
+        3.7956974506378174,
+        6.230502605438232
       )
     )
-  )
+  ) - shot2Offset
+
+  init {
+    println(FieldConstants.BLUE_SPEAKER_POSE.getDistance(
+      Translation2d(
+        3.7641966342926025,
+        6.230502605438232
+      )
+    ))
+    println(shot1PivotAngle)
+  }
 
   override val routine =
     ChoreoRoutine(
@@ -91,8 +83,8 @@ class FourPieceAmpHelper(
             VisionConstants.MULTI_TAG_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .225, .225, 3.0))
           })
         ),
-        1 to AutoUtil.autoFarShootHelperVisionSlow(robot, offset = Units.degreesToRadians(2.80)),
-        2 to AutoUtil.autoFarShootHelperVisionSlow(robot, offset = Units.degreesToRadians(-0.375)),
+        1 to AutoUtil.autoFarShootHelperVisionSlow(robot, offset = shot1Offset),
+        2 to AutoUtil.autoFarShootHelperVisionSlow(robot, offset = shot2Offset),
         3 to SequentialCommandGroup(
           InstantCommand({
             robot.drive.enableVisionFusion = true
