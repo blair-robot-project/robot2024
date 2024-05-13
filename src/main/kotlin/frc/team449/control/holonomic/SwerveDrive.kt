@@ -310,7 +310,6 @@ open class SwerveDrive(
     builder.addIntegerArrayProperty("2.7 Total Rejected Vision Sights", { rejectedVisionSights }, null)
     for ((index, _) in cameras.withIndex()) {
       builder.addDoubleArrayProperty("2.8${1 + index} Vision Pose Cam $index", { visionPose.slice(IntRange(0 + 3 * index, 2 + 3 * index)).toDoubleArray() }, null)
-      println(index)
     }
     builder.addBooleanProperty("2.9 Enabled Vision Fusion", { enableVisionFusion }, null)
     builder.addBooleanProperty("2.91 New Vision Measurement", { visionRunning }, null)
@@ -362,84 +361,32 @@ open class SwerveDrive(
       null
     )
 
-    builder.publishConstString("5.0", "Motor Stats (Standard Order, FL, FR, BL, BR)")
-    builder.addDoubleArrayProperty(
-      "5.11 Driving Motor Voltage",
-      { DoubleArray(modules.size) { index -> modules[index].lastDrivingVoltage() } },
-      null
-    )
-    builder.addDoubleArrayProperty(
-      "5.12 Steering Motor Voltage",
-      { DoubleArray(modules.size) { index -> modules[index].lastSteeringVoltage() } },
-      null
-    )
-    builder.addDoubleArrayProperty(
-      "5.21 Driving Requested Duty Cycle",
-      { DoubleArray(modules.size) { index -> modules[index].requestedDutyCycleDriving() } },
-      null
-    )
-    builder.addDoubleArrayProperty(
-      "5.22 Steering Requested Duty Cycle",
-      { DoubleArray(modules.size) { index -> modules[index].requestedDutyCycleSteering() } },
-      null
-    )
-    builder.addDoubleArrayProperty(
-      "5.31 Driving Applied Duty Cycle",
-      { DoubleArray(modules.size) { index -> modules[index].appliedDutyCycleDriving() } },
-      null
-    )
-    builder.addDoubleArrayProperty(
-      "5.32 Steering Applied Duty Cycle",
-      { DoubleArray(modules.size) { index -> modules[index].appliedDutyCycleSteering() } },
-      null
-    )
-    builder.addDoubleArrayProperty(
-      "5.41 Driving Bus Voltage",
-      { DoubleArray(modules.size) { index -> modules[index].busVoltageDriving() } },
-      null
-    )
-    builder.addDoubleArrayProperty(
-      "5.42 Steering Bus Voltage",
-      { DoubleArray(modules.size) { index -> modules[index].busVoltageSteering() } },
-      null
-    )
-    builder.addDoubleArrayProperty(
-      "5.51 Driving Output Current",
-      { DoubleArray(modules.size) { index -> modules[index].outputCurrentDriving() } },
-      null
-    )
-    builder.addDoubleArrayProperty(
-      "5.52 Steering Output Current",
-      { DoubleArray(modules.size) { index -> modules[index].outputCurrentSteering() } },
-      null
-    )
-
-    builder.publishConstString("6.0", "AHRS Values")
-    builder.addDoubleProperty("6.1 Heading Degrees", { ahrs.heading.degrees }, null)
-    builder.addDoubleProperty("6.2 Pitch Degrees", { ahrs.pitch.degrees }, null)
-    builder.addDoubleProperty("6.3 Roll Degrees", { ahrs.roll.degrees }, null)
-    builder.addDoubleProperty("6.4 Angular X Vel", { ahrs.angularXVel() }, null)
-    builder.addBooleanProperty("6.5 Navx Connected", { ahrs.connected() }, null)
-    builder.addBooleanProperty("6.6 Navx Calibrated", { ahrs.calibrated() }, null)
+    builder.publishConstString("5.0", "AHRS Values")
+    builder.addDoubleProperty("5.1 Heading Degrees", { ahrs.heading.degrees }, null)
+    builder.addDoubleProperty("5.2 Pitch Degrees", { ahrs.pitch.degrees }, null)
+    builder.addDoubleProperty("5.3 Roll Degrees", { ahrs.roll.degrees }, null)
+    builder.addDoubleProperty("5.4 Angular X Vel", { ahrs.angularXVel() }, null)
+    builder.addBooleanProperty("5.5 Navx Connected", { ahrs.connected() }, null)
+    builder.addBooleanProperty("5.6 Navx Calibrated", { ahrs.calibrated() }, null)
 
     // Note: You should also tune UPR too
-    builder.publishConstString("7.0", "Tuning Values")
-    builder.addDoubleProperty("7.1 FL Drive P", { modules[0].driveController.p }, { value -> modules[0].driveController.p = value })
-    builder.addDoubleProperty("7.2 FL Drive D", { modules[0].driveController.d }, { value -> modules[0].driveController.d = value })
-    builder.addDoubleProperty("7.3 FL Turn P", { modules[0].turnController.p }, { value -> modules[0].turnController.p = value })
-    builder.addDoubleProperty("7.4 FL Turn D", { modules[0].turnController.d }, { value -> modules[0].turnController.d = value })
-    builder.addDoubleProperty("7.5 FR Drive P", { modules[1].driveController.p }, { value -> modules[1].driveController.p = value })
-    builder.addDoubleProperty("7.6 FR Drive D", { modules[1].driveController.d }, { value -> modules[1].driveController.d = value })
-    builder.addDoubleProperty("7.8 FR Turn P", { modules[1].turnController.p }, { value -> modules[1].turnController.p = value })
-    builder.addDoubleProperty("7.9 FR Turn D", { modules[1].turnController.d }, { value -> modules[1].turnController.d = value })
-    builder.addDoubleProperty("7.10 BL Drive P", { modules[2].driveController.p }, { value -> modules[2].driveController.p = value })
-    builder.addDoubleProperty("7.11 BL Drive D", { modules[2].driveController.d }, { value -> modules[2].driveController.d = value })
-    builder.addDoubleProperty("7.12 BL Turn P", { modules[2].turnController.p }, { value -> modules[2].turnController.p = value })
-    builder.addDoubleProperty("7.13 BL Turn D", { modules[2].turnController.d }, { value -> modules[2].turnController.d = value })
-    builder.addDoubleProperty("7.14 BR Drive P", { modules[3].driveController.p }, { value -> modules[3].driveController.p = value })
-    builder.addDoubleProperty("7.15 BR Drive D", { modules[3].driveController.d }, { value -> modules[3].driveController.d = value })
-    builder.addDoubleProperty("7.16 BR Turn P", { modules[3].turnController.p }, { value -> modules[3].turnController.p = value })
-    builder.addDoubleProperty("7.17 BR Turn D", { modules[3].turnController.d }, { value -> modules[3].turnController.d = value })
+    builder.publishConstString("6.0", "Tuning Values")
+    builder.addDoubleProperty("6.1 FL Drive P", { modules[0].driveController.p }, { value -> modules[0].driveController.p = value })
+    builder.addDoubleProperty("6.2 FL Drive D", { modules[0].driveController.d }, { value -> modules[0].driveController.d = value })
+    builder.addDoubleProperty("6.3 FL Turn P", { modules[0].turnController.p }, { value -> modules[0].turnController.p = value })
+    builder.addDoubleProperty("6.4 FL Turn D", { modules[0].turnController.d }, { value -> modules[0].turnController.d = value })
+    builder.addDoubleProperty("6.5 FR Drive P", { modules[1].driveController.p }, { value -> modules[1].driveController.p = value })
+    builder.addDoubleProperty("6.6 FR Drive D", { modules[1].driveController.d }, { value -> modules[1].driveController.d = value })
+    builder.addDoubleProperty("6.8 FR Turn P", { modules[1].turnController.p }, { value -> modules[1].turnController.p = value })
+    builder.addDoubleProperty("6.9 FR Turn D", { modules[1].turnController.d }, { value -> modules[1].turnController.d = value })
+    builder.addDoubleProperty("6.10 BL Drive P", { modules[2].driveController.p }, { value -> modules[2].driveController.p = value })
+    builder.addDoubleProperty("6.11 BL Drive D", { modules[2].driveController.d }, { value -> modules[2].driveController.d = value })
+    builder.addDoubleProperty("6.12 BL Turn P", { modules[2].turnController.p }, { value -> modules[2].turnController.p = value })
+    builder.addDoubleProperty("6.13 BL Turn D", { modules[2].turnController.d }, { value -> modules[2].turnController.d = value })
+    builder.addDoubleProperty("6.14 BR Drive P", { modules[3].driveController.p }, { value -> modules[3].driveController.p = value })
+    builder.addDoubleProperty("6.15 BR Drive D", { modules[3].driveController.d }, { value -> modules[3].driveController.d = value })
+    builder.addDoubleProperty("6.16 BR Turn P", { modules[3].turnController.p }, { value -> modules[3].turnController.p = value })
+    builder.addDoubleProperty("6.17 BR Turn D", { modules[3].turnController.d }, { value -> modules[3].turnController.d = value })
   }
 
   companion object {

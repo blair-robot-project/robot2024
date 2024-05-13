@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj.RobotController
 import edu.wpi.first.wpilibj.Timer
 import frc.team449.robot2024.constants.drives.SwerveConstants
 import frc.team449.system.encoder.Encoder
@@ -90,46 +89,6 @@ open class SwerveModule(
     drivingMotor.setVoltage(volts)
   }
 
-  fun lastDrivingVoltage(): Double {
-    return drivingMotor.lastVoltage
-  }
-
-  fun lastSteeringVoltage(): Double {
-    return turningMotor.lastVoltage
-  }
-
-  fun requestedDutyCycleDriving(): Double {
-    return drivingMotor.getDutyCycle?.asDouble ?: Double.NaN
-  }
-
-  fun requestedDutyCycleSteering(): Double {
-    return turningMotor.getDutyCycle?.asDouble ?: Double.NaN
-  }
-
-  fun appliedDutyCycleDriving(): Double {
-    return drivingMotor.appliedOutput?.asDouble ?: Double.NaN
-  }
-
-  fun appliedDutyCycleSteering(): Double {
-    return turningMotor.appliedOutput?.asDouble ?: Double.NaN
-  }
-
-  fun busVoltageDriving(): Double {
-    return drivingMotor.busVoltage?.asDouble ?: Double.NaN
-  }
-
-  fun busVoltageSteering(): Double {
-    return turningMotor.busVoltage?.asDouble ?: Double.NaN
-  }
-
-  fun outputCurrentDriving(): Double {
-    return drivingMotor.outputCurrent?.asDouble ?: Double.NaN
-  }
-
-  fun outputCurrentSteering(): Double {
-    return turningMotor.outputCurrent?.asDouble ?: Double.NaN
-  }
-
   /** Set module speed to zero but keep module angle the same. */
   fun stop() {
     turnController.setpoint = turningMotor.position
@@ -154,7 +113,7 @@ open class SwerveModule(
     turningMotor.set(
       turnPid +
         sign(desiredState.angle.radians - turningMotor.position) *
-        SwerveConstants.STEER_KS / RobotController.getBatteryVoltage()
+        SwerveConstants.STEER_KS
     )
   }
 
