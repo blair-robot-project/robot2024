@@ -10,7 +10,7 @@ object PivotConstants {
 
   const val MOTOR_ID = 11
   const val INVERTED = false
-  const val CURRENT_LIM = 40
+  const val CURRENT_LIM = 50
   const val FOLLOWER_ID = 12
   const val FOLLOWER_INVERTED = false
 
@@ -63,11 +63,11 @@ object PivotConstants {
   val FAST_POS_TOLERANCE = Units.degreesToRadians(10.0)
   val FAST_VEL_TOLERANCE = Units.degreesToRadians(45.0)
 
-  val AUTO_POS_TOLERANCE = Units.degreesToRadians(0.375)
-  val AUTO_VEL_TOLERANCE = Units.degreesToRadians(5.0)
-  val AUTO_MAX_POS_ERROR = Units.degreesToRadians(0.325)
+  val AUTO_POS_TOLERANCE = Units.degreesToRadians(1.0)
+  val AUTO_VEL_TOLERANCE = Units.degreesToRadians(10.0)
+  val AUTO_MAX_POS_ERROR = Units.degreesToRadians(0.85)
 
-  val SHOOT_ANYWHERE_POS_TOLERANCE = Units.degreesToRadians(0.75)
+  val SHOOT_ANYWHERE_POS_TOLERANCE = Units.degreesToRadians(1.0)
 
   val MAX_POS_ERROR = Units.degreesToRadians(1.65)
   val AMP_TOL = Units.degreesToRadians(25.0)
@@ -85,7 +85,7 @@ object PivotConstants {
 
   const val SLOW_ACCEL = 0.5804 * 21.75 // this some fire, actual value is 12.6237
 
-  const val AUTO_ACCEL = 5.75
+  const val AUTO_ACCEL = 2.5
 
   val MIN_ANGLE = Units.degreesToRadians(0.0)
   val MAX_ANGLE = Units.degreesToRadians(105.0)

@@ -24,6 +24,7 @@ import frc.team449.system.motor.WrappedMotor
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
 import kotlin.Pair
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -37,6 +38,8 @@ open class Pivot(
   private val observer: KalmanFilter<N3, N1, N1>,
   private val profile: TrapezoidProfile
 ) : SubsystemBase() {
+
+  private var calibrateAngle = 0.0
 
   private val slowProfile = TrapezoidProfile(
     TrapezoidProfile.Constraints(
@@ -298,9 +301,9 @@ open class Pivot(
 
   fun manualUp(): Command {
     val cmd = this.run {
-      moveToAngleSlow(
+      moveToAngleAuto(
         MathUtil.clamp(
-          lastProfileReference.position + PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 3,
+          lastProfileReference.position + PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 5,
           PivotConstants.MIN_ANGLE,
           PivotConstants.MAX_ANGLE
         )
@@ -312,9 +315,9 @@ open class Pivot(
 
   fun manualDown(): Command {
     val cmd = this.run {
-      moveToAngleSlow(
+      moveToAngleAuto(
         MathUtil.clamp(
-          lastProfileReference.position - PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 3,
+          lastProfileReference.position - PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 5,
           PivotConstants.MIN_ANGLE,
           PivotConstants.MAX_ANGLE
         )
@@ -372,6 +375,13 @@ open class Pivot(
     }
   }
 
+  fun calibrateAngleMap(): Command {
+    return this.run {
+      println(calibrateAngle)
+      moveToAngleAuto(calibrateAngle)
+    }
+  }
+
   override fun initSendable(builder: SendableBuilder) {
     builder.publishConstString("1.0", "Motor Voltages")
     builder.addDoubleProperty("1.1 Last Voltage", { motor.lastVoltage }, null)
@@ -389,6 +399,8 @@ open class Pivot(
     builder.addDoubleProperty("3.2 Predicted Velocity", { observer.getXhat(1) }, null)
     builder.addDoubleProperty("3.3 Predicted Input Error", { -observer.getXhat(2) }, null)
     builder.addDoubleProperty("3.4 Predicted State Error", { lastProfileReference.position - observer.getXhat(0) }, null)
+    builder.publishConstString("4.0", "Interpolating Angle Map")
+    builder.addDoubleProperty("4.1 Calibration Angle (Degrees)", { calibrateAngle }, { value -> calibrateAngle = PI * value / 180 })
   }
 
   companion object {
