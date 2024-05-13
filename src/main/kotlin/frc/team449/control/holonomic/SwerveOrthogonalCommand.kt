@@ -115,16 +115,21 @@ class SwerveOrthogonalCommand(
     val xScaled = ctrlRadius * cos(ctrlTheta) * drive.maxLinearSpeed
     val yScaled = ctrlRadius * sin(ctrlTheta) * drive.maxLinearSpeed
 
-    dx = xScaled - prevX
-    dy = yScaled - prevY
-    magAcc = hypot(dx / dt, dy / dt)
-    magAccClamped = MathUtil.clamp(magAcc, -RobotConstants.MAX_ACCEL, RobotConstants.MAX_ACCEL)
+    var xClamped = xScaled
+    var yClamped = yScaled
 
-    val factor = if (magAcc == 0.0) 0.0 else magAccClamped / magAcc
-    val dxClamped = dx * factor
-    val dyClamped = dy * factor
-    val xClamped = prevX + dxClamped
-    val yClamped = prevY + dyClamped
+    if (RobotConstants.USE_ACCEL_LIMIT) {
+      dx = xScaled - prevX
+      dy = yScaled - prevY
+      magAcc = hypot(dx / dt, dy / dt)
+      magAccClamped = MathUtil.clamp(magAcc, -RobotConstants.MAX_ACCEL, RobotConstants.MAX_ACCEL)
+
+      val factor = if (magAcc == 0.0) 0.0 else magAccClamped / magAcc
+      val dxClamped = dx * factor
+      val dyClamped = dy * factor
+      xClamped = prevX + dxClamped
+      yClamped = prevY + dyClamped
+    }
 
     prevX = xClamped
     prevY = yClamped
@@ -136,10 +141,10 @@ class SwerveOrthogonalCommand(
 //    } else if (controller.aButtonPressed) {
 //      snapToAngle(0.0)
 //    }
-
-    if (controller.aButtonPressed) {
-      orthogonalAngle(0.0)
-    }
+//
+//    if (controller.aButtonPressed) {
+//      orthogonalAngle(0.0)
+//    }
 
     if (atGoal) {
       rotScaled = rotRamp.calculate(
