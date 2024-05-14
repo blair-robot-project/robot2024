@@ -1,7 +1,5 @@
 package frc.team449.robot2024.subsystems.shooter
 
-import com.ctre.phoenix6.controls.VelocityVoltage
-import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.sim.ChassisReference
 import edu.wpi.first.math.MathUtil
@@ -19,11 +17,8 @@ import java.util.function.Supplier
 class SpinShooterKrakenSim(
   private val rightMotorThing: TalonFX,
   private val leftMotorThing: TalonFX,
-  private val voltageOut: VoltageOut,
-  private val rightVelocityControl: VelocityVoltage,
-  private val leftVelocityControl: VelocityVoltage,
-  private val robot: Robot
-) : SpinShooterKraken(rightMotorThing, leftMotorThing, voltageOut, rightVelocityControl, leftVelocityControl, robot) {
+  robot: Robot
+) : SpinShooterKraken(rightMotorThing, leftMotorThing, robot) {
 
   private val leftFlywheelSim = FlywheelSim(
     LinearSystemId.identifyVelocitySystem(

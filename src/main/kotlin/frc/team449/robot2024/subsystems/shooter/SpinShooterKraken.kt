@@ -29,11 +29,8 @@ import kotlin.math.abs
 import kotlin.math.hypot
 
 open class SpinShooterKraken(
-  open val rightMotor: TalonFX,
-  open val leftMotor: TalonFX,
-  private val voltageOut: VoltageOut,
-  private val rightVelocityControl: VelocityVoltage,
-  private val leftVelocityControl: VelocityVoltage,
+  private val rightMotor: TalonFX,
+  private val leftMotor: TalonFX,
   private val robot: Robot
 ) : SubsystemBase() {
 
@@ -43,10 +40,10 @@ open class SpinShooterKraken(
   private var desiredVels = Pair(0.0, 0.0)
 
   open val rightVelocity: Supplier<Double> =
-    Supplier { rightMotor.velocity.value }
+    rightMotor.velocity.asSupplier()
 
   open val leftVelocity: Supplier<Double> =
-    Supplier { leftMotor.velocity.value }
+    leftMotor.velocity.asSupplier()
 
   private val leftRateLimiter = SlewRateLimiter(SpinShooterKrakenConstants.BRAKE_RATE_LIMIT)
   private val rightRateLimiter = SlewRateLimiter(SpinShooterKrakenConstants.BRAKE_RATE_LIMIT)
@@ -66,11 +63,27 @@ open class SpinShooterKraken(
   }
 
   private fun setLeftVoltage(volts: Double) {
-    leftMotor.setControl(voltageOut.withOutput(volts))
+    leftMotor.setControl(
+      VoltageOut(
+        volts,
+        false,
+        false,
+        false,
+        false
+      )
+    )
   }
 
   private fun setRightVoltage(volts: Double) {
-    rightMotor.setControl(voltageOut.withOutput(volts))
+    rightMotor.setControl(
+      VoltageOut(
+        volts,
+        false,
+        false,
+        false,
+        false
+      )
+    )
   }
 
   fun shootSubwoofer(): Command {
@@ -423,8 +436,16 @@ open class SpinShooterKraken(
 
   fun shootPiece(leftSpeed: Double, rightSpeed: Double) {
     desiredVels = Pair(leftSpeed, rightSpeed)
-    rightMotor.setControl(rightVelocityControl.withVelocity(rightSpeed))
-    leftMotor.setControl(leftVelocityControl.withVelocity(leftSpeed))
+    rightMotor.setControl(
+      VelocityVoltage(rightSpeed)
+        .withEnableFOC(false)
+        .withUpdateFreqHz(500.0)
+    )
+    leftMotor.setControl(
+      VelocityVoltage(leftSpeed)
+        .withEnableFOC(false)
+        .withUpdateFreqHz(500.0)
+    )
   }
 
   fun coast(): Command {
@@ -499,6 +520,16 @@ open class SpinShooterKraken(
       val rightMotor = TalonFX(SpinShooterKrakenConstants.RIGHT_MOTOR_ID)
       val leftMotor = TalonFX(SpinShooterKrakenConstants.LEFT_MOTOR_ID)
 
+      rightMotor.closedLoopError.setUpdateFrequency(50.0)
+      rightMotor.motorVoltage.setUpdateFrequency(50.0)
+      rightMotor.velocity.setUpdateFrequency(200.0)
+      rightMotor.optimizeBusUtilization()
+
+      leftMotor.closedLoopError.setUpdateFrequency(50.0)
+      leftMotor.motorVoltage.setUpdateFrequency(50.0)
+      leftMotor.velocity.setUpdateFrequency(200.0)
+      leftMotor.optimizeBusUtilization()
+
       val rightConfig = TalonFXConfiguration()
 
       rightConfig.MotorOutput.NeutralMode = SpinShooterKrakenConstants.NEUTRAL_MODE
@@ -567,18 +598,12 @@ open class SpinShooterKraken(
         SpinShooterKraken(
           rightMotor,
           leftMotor,
-          VoltageOut(0.0),
-          VelocityVoltage(0.0),
-          VelocityVoltage(0.0),
           robot
         )
       } else {
         SpinShooterKrakenSim(
           rightMotor,
           leftMotor,
-          VoltageOut(0.0),
-          VelocityVoltage(0.0),
-          VelocityVoltage(0.0),
           robot
         )
       }
