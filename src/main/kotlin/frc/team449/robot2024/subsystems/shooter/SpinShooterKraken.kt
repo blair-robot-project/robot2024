@@ -1,44 +1,32 @@
 package frc.team449.robot2024.subsystems.shooter
 
-import edu.wpi.first.math.*
-import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
-import edu.wpi.first.math.controller.LinearQuadraticRegulator
-import edu.wpi.first.math.estimator.KalmanFilter
+import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.controls.CoastOut
+import com.ctre.phoenix6.controls.VelocityVoltage
+import com.ctre.phoenix6.hardware.TalonFX
+import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
-import edu.wpi.first.math.numbers.N1
-import edu.wpi.first.math.numbers.N2
-import edu.wpi.first.math.system.LinearSystem
-import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
 import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
-import frc.team449.system.encoder.NEOEncoder
-import frc.team449.system.motor.WrappedMotor
-import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
-import kotlin.Pair
 import kotlin.jvm.optionals.getOrNull
-import kotlin.math.*
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.hypot
 
-open class SpinShooter(
-  val rightMotor: WrappedMotor,
-  val leftMotor: WrappedMotor,
-  private val leftController: LinearQuadraticRegulator<N1, N1, N1>,
-  private val rightController: LinearQuadraticRegulator<N1, N1, N1>,
-  private val leftObserver: KalmanFilter<N2, N1, N1>,
-  private val rightObserver: KalmanFilter<N2, N1, N1>,
-  private val leftFeedforward: LinearPlantInversionFeedforward<N1, N1, N1>,
-  private val rightFeedforward: LinearPlantInversionFeedforward<N1, N1, N1>,
+open class SpinShooterKraken(
+  val rightMotor: TalonFX,
+  val leftMotor: TalonFX,
   private val robot: Robot
 ) : SubsystemBase() {
 
@@ -47,119 +35,16 @@ open class SpinShooter(
   /** Left, Right Desired velocity */
   private var desiredVels = Pair(0.0, 0.0)
 
-  open val rightVelocity: Supplier<Double> =
-    Supplier { rightMotor.velocity }
+  open val rightVelocity: Supplier<Double> = rightMotor.velocity.asSupplier()
+  open val leftVelocity: Supplier<Double> = leftMotor.velocity.asSupplier()
 
-  open val leftVelocity: Supplier<Double> =
-    Supplier { leftMotor.velocity }
+  private val velocityRequest = VelocityVoltage(0.0).withSlot(0)
 
   private val leftRateLimiter = SlewRateLimiter(SpinShooterConstants.BRAKE_RATE_LIMIT)
   private val rightRateLimiter = SlewRateLimiter(SpinShooterConstants.BRAKE_RATE_LIMIT)
 
   init {
-    leftController.reset()
-
-    leftFeedforward.reset(
-      VecBuilder.fill(
-        desiredVels.first
-      )
-    )
-
-    leftObserver.xhat = VecBuilder.fill(
-      desiredVels.first,
-      0.0
-    )
-
-    rightController.reset()
-
-    rightFeedforward.reset(
-      VecBuilder.fill(
-        desiredVels.first
-      )
-    )
-
-    rightObserver.xhat = VecBuilder.fill(
-      desiredVels.first,
-      0.0
-    )
-
     this.defaultCommand = coast()
-  }
-
-  private fun correct() {
-    val voltages = getVoltages()
-
-    leftObserver.correct(
-      VecBuilder.fill(voltages.first),
-      VecBuilder.fill(leftVelocity.get())
-    )
-
-    rightObserver.correct(
-      VecBuilder.fill(voltages.second),
-      VecBuilder.fill(rightVelocity.get())
-    )
-  }
-
-  private fun predict() {
-    val leftVoltage = leftController.calculate(
-      VecBuilder.fill(
-        leftObserver.getXhat(0)
-      ),
-      VecBuilder.fill(
-        desiredVels.first
-      )
-    ).plus(
-      leftFeedforward.calculate(
-        VecBuilder.fill(
-          desiredVels.first
-        )
-      )
-    ).plus(
-      -leftObserver.getXhat(1)
-    )
-
-    leftObserver.predict(leftVoltage, RobotConstants.LOOP_TIME)
-
-    val rightVoltage = rightController.calculate(
-      VecBuilder.fill(
-        rightObserver.getXhat(0)
-      ),
-      VecBuilder.fill(
-        desiredVels.second
-      )
-    ).plus(
-      rightFeedforward.calculate(
-        VecBuilder.fill(
-          desiredVels.second
-        )
-      )
-    ).plus(
-      -rightObserver.getXhat(1)
-    )
-
-    rightObserver.predict(rightVoltage, RobotConstants.LOOP_TIME)
-  }
-
-  private fun getVoltages(): Pair<Double, Double> {
-    val leftVoltage = MathUtil.clamp(
-      leftController.getU(0) +
-        leftFeedforward.getUff(0) -
-        leftObserver.getXhat(1) +
-        sign(desiredVels.first) * SpinShooterConstants.LEFT_KS,
-      -SpinShooterConstants.MAX_VOLTAGE,
-      SpinShooterConstants.MAX_VOLTAGE
-    )
-
-    val rightVoltage = MathUtil.clamp(
-      rightController.getU(0) +
-        rightFeedforward.getUff(0) -
-        rightObserver.getXhat(1) +
-        sign(desiredVels.second) * SpinShooterConstants.RIGHT_KS,
-      -SpinShooterConstants.MAX_VOLTAGE,
-      SpinShooterConstants.MAX_VOLTAGE
-    )
-
-    return Pair(leftVoltage, rightVoltage)
   }
 
   fun hold(): Command {
@@ -557,40 +442,16 @@ open class SpinShooter(
   }
 
   fun shootPiece(leftSpeed: Double, rightSpeed: Double) {
-    if (DriverStation.isDisabled()) {
-      correct()
-    } else {
-      desiredVels = Pair(leftSpeed, rightSpeed)
-
-      correct()
-      predict()
-
-      if (abs(rightVelocity.get() - rightSpeed) > SpinShooterConstants.START_INPT_ERR) {
-        rightObserver.setXhat(1, 0.0)
-      }
-
-      if (abs(leftVelocity.get() - leftSpeed) > SpinShooterConstants.START_INPT_ERR) {
-        leftObserver.setXhat(1, 0.0)
-      }
-
-      val voltages = getVoltages()
-
-      rightMotor.setVoltage(voltages.second)
-      leftMotor.setVoltage(voltages.first)
+    if (!DriverStation.isDisabled()) {
+      rightMotor.setControl(velocityRequest.withVelocity(rightSpeed))
+      leftMotor.setControl(velocityRequest.withVelocity(leftSpeed))
     }
   }
 
   fun coast(): Command {
     val cmd = this.runOnce {
-      desiredVels = Pair(0.0, 0.0)
-
-      correct()
-
-      leftObserver.setXhat(1, 0.0)
-      rightObserver.setXhat(1, 0.0)
-
-      leftMotor.setVoltage(0.0)
-      rightMotor.setVoltage(0.0)
+      leftMotor.setControl(CoastOut())
+      rightMotor.setControl(CoastOut())
     }
     cmd.name = "coasting shooter"
     return cmd
@@ -636,198 +497,87 @@ open class SpinShooter(
 
   override fun initSendable(builder: SendableBuilder) {
     builder.publishConstString("1.0", "Motor Voltages")
-    builder.addDoubleProperty("1.1 Last Right Voltage", { rightMotor.lastVoltage }, null)
-    builder.addDoubleProperty("1.2 Last Left Voltage", { leftMotor.lastVoltage }, null)
+    builder.addDoubleProperty("1.1 Last Right Voltage", { rightMotor.motorVoltage.value }, null)
+    builder.addDoubleProperty("1.2 Last Left Voltage", { leftMotor.motorVoltage.value }, null)
     builder.publishConstString("2.0", "Current and Desired Velocities")
     builder.addDoubleProperty("2.1 Left Current Speed", { leftVelocity.get() }, null)
     builder.addDoubleProperty("2.2 Right Current Speed", { rightVelocity.get() }, null)
     builder.addDoubleProperty("2.3 Left Desired Speed", { desiredVels.first }, null)
     builder.addDoubleProperty("2.4 Right Desired Speed", { desiredVels.second }, null)
-    builder.publishConstString("3.0", "Velocity Errors")
-    builder.addDoubleProperty("3.1 Left Vel Error Pred", { leftObserver.getXhat(0) - desiredVels.first }, null)
-    builder.addDoubleProperty("3.2 Right Vel Error Pred", { rightObserver.getXhat(0) - desiredVels.second }, null)
-    builder.addDoubleProperty("3.3 Left Vel Error", { leftVelocity.get() - desiredVels.first }, null)
-    builder.addDoubleProperty("3.4 Right Vel Error", { rightVelocity.get() - desiredVels.second }, null)
-    builder.addBooleanProperty("3.5 In tolerance", ::atAimSetpoint, null)
+//    builder.publishConstString("3.0", "Velocity Errors")
+//    builder.addDoubleProperty("3.1 Left Vel Error Pred", { leftObserver.getXhat(0) - desiredVels.first }, null)
+//    builder.addDoubleProperty("3.2 Right Vel Error Pred", { rightObserver.getXhat(0) - desiredVels.second }, null)
+//    builder.addDoubleProperty("3.3 Left Vel Error", { leftVelocity.get() - desiredVels.first }, null)
+//    builder.addDoubleProperty("3.4 Right Vel Error", { rightVelocity.get() - desiredVels.second }, null)
+//    builder.addBooleanProperty("3.5 In tolerance", ::atAimSetpoint, null)
     builder.publishConstString("4.0", "Encoder Positions")
-    builder.addDoubleProperty("4.1 Left Enc Pos", { leftMotor.position }, null)
-    builder.addDoubleProperty("4.2 Left Enc Pos", { rightMotor.position }, null)
-    builder.publishConstString("5.0", "Input Err Estimation")
-    builder.addDoubleProperty("5.1 Left Inpt Err Voltage", { -leftObserver.getXhat(1) }, null)
-    builder.addDoubleProperty("5.2 Right Inpt Err Voltage", { -rightObserver.getXhat(1) }, null)
+    builder.addDoubleProperty("4.1 Left Enc Pos", { leftMotor.position.value }, null)
+    builder.addDoubleProperty("4.2 Left Enc Pos", { rightMotor.position.value }, null)
+//    builder.publishConstString("5.0", "Input Err Estimation")
+//    builder.addDoubleProperty("5.1 Left Inpt Err Voltage", { -leftObserver.getXhat(1) }, null)
+//    builder.addDoubleProperty("5.2 Right Inpt Err Voltage", { -rightObserver.getXhat(1) }, null)
     builder.publishConstString("6.0", "Shoot from Anywhere")
     builder.addDoubleProperty("6.1 Speaker Distance (meters)", { abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)) }, null)
     builder.addBooleanProperty("6.2 Drive In Angle Tol", { abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD }, null)
   }
 
   companion object {
-    fun createSpinShooter(robot: Robot): SpinShooter {
-      val rightMotor = createSparkMax(
-        "Shooter Right Motor",
-        SpinShooterConstants.RIGHT_MOTOR_ID,
-        encCreator = NEOEncoder.creator(
-          SpinShooterConstants.UPR,
-          SpinShooterConstants.GEARING,
-          measurementPeriod = SpinShooterConstants.INTERNAL_MEASUREMENT_PD,
-          depth = SpinShooterConstants.INTERNAL_ENC_DEPTH
-        ),
-        inverted = SpinShooterConstants.RIGHT_MOTOR_INVERTED,
-        currentLimit = SpinShooterConstants.STATOR_CURRENT_LIMIT.toInt(),
-        secondaryCurrentLimit = SpinShooterConstants.SECONDARY_CURRENT_LIMIT,
-        enableBrakeMode = SpinShooterConstants.BRAKE_MODE
+    fun createSpinShooter(robot: Robot): SpinShooterKraken {
+      val rightMotor = TalonFX(SpinShooterConstants.RIGHT_MOTOR_ID)
+      val rightConfig = TalonFXConfiguration()
+      rightConfig.Voltage.PeakForwardVoltage = 12.0
+      rightConfig.Voltage.PeakReverseVoltage = -12.0
+      rightConfig.CurrentLimits.StatorCurrentLimitEnable = true
+      rightConfig.CurrentLimits.SupplyCurrentLimitEnable = true
+      rightConfig.CurrentLimits.StatorCurrentLimit = SpinShooterConstants.STATOR_CURRENT_LIMIT
+      rightConfig.CurrentLimits.SupplyCurrentLimit = SpinShooterConstants.SUPPLY_CURRENT_LIMIT
+      rightConfig.CurrentLimits.SupplyCurrentThreshold = SpinShooterConstants.BURST_CURRENT_LIMIT
+      rightConfig.CurrentLimits.SupplyTimeThreshold = SpinShooterConstants.BURST_TIME_LIMIT
+      rightConfig.Slot0.kS = SpinShooterConstants.RIGHT_KS
+      rightConfig.Slot0.kV = SpinShooterConstants.RIGHT_KV
+      rightConfig.Slot0.kA = SpinShooterConstants.RIGHT_KA
+      rightConfig.Slot0.kP = SpinShooterConstants.RIGHT_KP
+      rightConfig.Slot0.kI = SpinShooterConstants.RIGHT_KI
+      rightConfig.Slot0.kD = SpinShooterConstants.RIGHT_KD
+      rightConfig.MotorOutput.Inverted = SpinShooterConstants.RIGHT_MOTOR_ORIENTATION
+      rightConfig.MotorOutput.NeutralMode = SpinShooterConstants.RIGHT_NEUTRAL_MODE
+      rightConfig.MotorOutput.DutyCycleNeutralDeadband = SpinShooterConstants.DUTY_CYCLE_DEADBAND
+      rightConfig.Feedback.SensorToMechanismRatio = SpinShooterConstants.GEARING
+      rightMotor.configurator.apply(rightConfig)
+      rightMotor.velocity.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
+      rightMotor.motorVoltage.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
+      rightMotor.closedLoopError.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
+
+      val leftMotor = TalonFX(SpinShooterConstants.RIGHT_MOTOR_ID)
+      val leftConfig = TalonFXConfiguration()
+      leftConfig.Voltage.PeakForwardVoltage = 12.0
+      leftConfig.Voltage.PeakReverseVoltage = -12.0
+      leftConfig.CurrentLimits.StatorCurrentLimitEnable = true
+      leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true
+      leftConfig.CurrentLimits.StatorCurrentLimit = SpinShooterConstants.STATOR_CURRENT_LIMIT
+      leftConfig.CurrentLimits.SupplyCurrentLimit = SpinShooterConstants.SUPPLY_CURRENT_LIMIT
+      leftConfig.CurrentLimits.SupplyCurrentThreshold = SpinShooterConstants.BURST_CURRENT_LIMIT
+      leftConfig.CurrentLimits.SupplyTimeThreshold = SpinShooterConstants.BURST_TIME_LIMIT
+      leftConfig.Slot0.kS = SpinShooterConstants.LEFT_KS
+      leftConfig.Slot0.kV = SpinShooterConstants.LEFT_KV
+      leftConfig.Slot0.kA = SpinShooterConstants.LEFT_KA
+      leftConfig.Slot0.kP = SpinShooterConstants.LEFT_KP
+      leftConfig.Slot0.kI = SpinShooterConstants.LEFT_KI
+      leftConfig.Slot0.kD = SpinShooterConstants.LEFT_KD
+      leftConfig.MotorOutput.Inverted = SpinShooterConstants.LEFT_MOTOR_ORIENTATION
+      leftConfig.MotorOutput.NeutralMode = SpinShooterConstants.LEFT_NEUTRAL_MODE
+      leftConfig.MotorOutput.DutyCycleNeutralDeadband = SpinShooterConstants.DUTY_CYCLE_DEADBAND
+      leftConfig.Feedback.SensorToMechanismRatio = SpinShooterConstants.GEARING
+      leftMotor.configurator.apply(leftConfig)
+      leftMotor.velocity.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
+      leftMotor.motorVoltage.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
+      leftMotor.closedLoopError.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
+
+      return SpinShooterKraken(
+        rightMotor,
+        leftMotor,
+        robot
       )
-
-      val leftMotor = createSparkMax(
-        "Shooter Right Motor",
-        SpinShooterConstants.LEFT_MOTOR_ID,
-        encCreator = NEOEncoder.creator(
-          SpinShooterConstants.UPR,
-          SpinShooterConstants.GEARING,
-          measurementPeriod = SpinShooterConstants.INTERNAL_MEASUREMENT_PD,
-          depth = SpinShooterConstants.INTERNAL_ENC_DEPTH
-        ),
-        inverted = SpinShooterConstants.LEFT_MOTOR_INVERTED,
-        currentLimit = SpinShooterConstants.STATOR_CURRENT_LIMIT.toInt(),
-        secondaryCurrentLimit = SpinShooterConstants.SECONDARY_CURRENT_LIMIT,
-        enableBrakeMode = SpinShooterConstants.BRAKE_MODE
-      )
-
-      val leftPlant = LinearSystemId.identifyVelocitySystem(
-        SpinShooterConstants.LEFT_KV,
-        SpinShooterConstants.LEFT_KA
-      )
-
-      val rightPlant = LinearSystemId.identifyVelocitySystem(
-        SpinShooterConstants.RIGHT_KV,
-        SpinShooterConstants.RIGHT_KA
-      )
-
-      val leftPlantSim = LinearSystemId.identifyVelocitySystem(
-        SpinShooterConstants.LEFT_KV,
-        SpinShooterConstants.LEFT_KA
-      )
-
-      val rightPlantSim = LinearSystemId.identifyVelocitySystem(
-        SpinShooterConstants.RIGHT_KV,
-        SpinShooterConstants.RIGHT_KA
-      )
-
-      val leftObserver = KalmanFilter(
-        Nat.N2(),
-        Nat.N1(),
-        LinearSystem(
-          MatBuilder.fill(
-            Nat.N2(),
-            Nat.N2(),
-            -SpinShooterConstants.LEFT_KV / SpinShooterConstants.LEFT_KA,
-            SpinShooterConstants.LEFT_KA.pow(-1.0),
-            0.0,
-            0.0
-          ),
-          MatBuilder.fill(
-            Nat.N2(),
-            Nat.N1(),
-            SpinShooterConstants.LEFT_KA.pow(-1.0),
-            0.0
-          ),
-          MatBuilder.fill(
-            Nat.N1(),
-            Nat.N2(),
-            1.0,
-            0.0
-          ),
-          Matrix(Nat.N1(), Nat.N1())
-        ),
-        VecBuilder.fill(SpinShooterConstants.MODEL_VEL_STDDEV, SpinShooterConstants.INPT_ERR_STDDEV),
-        VecBuilder.fill(SpinShooterConstants.ENCODER_VEL_STDDEV),
-        RobotConstants.LOOP_TIME
-      )
-
-      val rightObserver = KalmanFilter(
-        Nat.N2(),
-        Nat.N1(),
-        LinearSystem(
-          MatBuilder.fill(
-            Nat.N2(),
-            Nat.N2(),
-            -SpinShooterConstants.RIGHT_KV / SpinShooterConstants.RIGHT_KA,
-            SpinShooterConstants.RIGHT_KA.pow(-1.0),
-            0.0,
-            0.0
-          ),
-          MatBuilder.fill(
-            Nat.N2(),
-            Nat.N1(),
-            SpinShooterConstants.RIGHT_KA.pow(-1.0),
-            0.0
-          ),
-          MatBuilder.fill(
-            Nat.N1(),
-            Nat.N2(),
-            1.0,
-            0.0
-          ),
-          Matrix(Nat.N1(), Nat.N1())
-        ),
-        VecBuilder.fill(SpinShooterConstants.MODEL_VEL_STDDEV, SpinShooterConstants.INPT_ERR_STDDEV),
-        VecBuilder.fill(SpinShooterConstants.ENCODER_VEL_STDDEV),
-        RobotConstants.LOOP_TIME
-      )
-
-      val leftController = LinearQuadraticRegulator(
-        leftPlant,
-        VecBuilder.fill(SpinShooterConstants.LQR_VEL_TOL),
-        VecBuilder.fill(SpinShooterConstants.LQR_MAX_VOLTS),
-        RobotConstants.LOOP_TIME
-      )
-
-      val rightController = LinearQuadraticRegulator(
-        rightPlant,
-        VecBuilder.fill(SpinShooterConstants.LQR_VEL_TOL),
-        VecBuilder.fill(SpinShooterConstants.LQR_MAX_VOLTS),
-        RobotConstants.LOOP_TIME
-      )
-
-      leftController.latencyCompensate(leftPlant, RobotConstants.LOOP_TIME, SpinShooterConstants.ENCODER_DELAY)
-      rightController.latencyCompensate(rightPlant, RobotConstants.LOOP_TIME, SpinShooterConstants.ENCODER_DELAY)
-
-      val leftFeedforward = LinearPlantInversionFeedforward(
-        leftPlant,
-        RobotConstants.LOOP_TIME
-      )
-
-      val rightFeedforward = LinearPlantInversionFeedforward(
-        rightPlant,
-        RobotConstants.LOOP_TIME
-      )
-
-      return if (RobotBase.isReal()) {
-        SpinShooter(
-          rightMotor,
-          leftMotor,
-          leftController,
-          rightController,
-          leftObserver,
-          rightObserver,
-          leftFeedforward,
-          rightFeedforward,
-          robot
-        )
-      } else {
-        SpinShooterSim(
-          rightMotor,
-          leftMotor,
-          leftController,
-          rightController,
-          leftObserver,
-          rightObserver,
-          leftFeedforward,
-          rightFeedforward,
-          leftPlantSim,
-          rightPlantSim,
-          robot
-        )
-      }
     }
   }
 }
