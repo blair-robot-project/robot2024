@@ -38,7 +38,7 @@ open class SpinShooterKraken(
   open val rightVelocity: Supplier<Double> = rightMotor.velocity.asSupplier()
   open val leftVelocity: Supplier<Double> = leftMotor.velocity.asSupplier()
 
-  private val velocityRequest = VelocityVoltage(0.0).withSlot(0)
+  private val velocityRequest = VelocityVoltage(0.0).withSlot(0).withEnableFOC(false).withUpdateFreqHz(500.0)
 
   private val leftRateLimiter = SlewRateLimiter(SpinShooterConstants.BRAKE_RATE_LIMIT)
   private val rightRateLimiter = SlewRateLimiter(SpinShooterConstants.BRAKE_RATE_LIMIT)
@@ -442,10 +442,9 @@ open class SpinShooterKraken(
   }
 
   fun shootPiece(leftSpeed: Double, rightSpeed: Double) {
-    if (!DriverStation.isDisabled()) {
-      rightMotor.setControl(velocityRequest.withVelocity(rightSpeed))
-      leftMotor.setControl(velocityRequest.withVelocity(leftSpeed))
-    }
+    desiredVels = Pair(leftSpeed, rightSpeed)
+    rightMotor.setControl(velocityRequest.withVelocity(rightSpeed))
+    leftMotor.setControl(velocityRequest.withVelocity(leftSpeed))
   }
 
   fun coast(): Command {
@@ -504,18 +503,13 @@ open class SpinShooterKraken(
     builder.addDoubleProperty("2.2 Right Current Speed", { rightVelocity.get() }, null)
     builder.addDoubleProperty("2.3 Left Desired Speed", { desiredVels.first }, null)
     builder.addDoubleProperty("2.4 Right Desired Speed", { desiredVels.second }, null)
-//    builder.publishConstString("3.0", "Velocity Errors")
-//    builder.addDoubleProperty("3.1 Left Vel Error Pred", { leftObserver.getXhat(0) - desiredVels.first }, null)
-//    builder.addDoubleProperty("3.2 Right Vel Error Pred", { rightObserver.getXhat(0) - desiredVels.second }, null)
-//    builder.addDoubleProperty("3.3 Left Vel Error", { leftVelocity.get() - desiredVels.first }, null)
-//    builder.addDoubleProperty("3.4 Right Vel Error", { rightVelocity.get() - desiredVels.second }, null)
-//    builder.addBooleanProperty("3.5 In tolerance", ::atAimSetpoint, null)
+    builder.publishConstString("3.0", "Velocity Errors")
+    builder.addDoubleProperty("3.1 Left Vel Error", { leftVelocity.get() - desiredVels.first }, null)
+    builder.addDoubleProperty("3.2 Right Vel Error", { rightVelocity.get() - desiredVels.second }, null)
+    builder.addBooleanProperty("3.3 In tolerance", ::atAimSetpoint, null)
     builder.publishConstString("4.0", "Encoder Positions")
     builder.addDoubleProperty("4.1 Left Enc Pos", { leftMotor.position.value }, null)
     builder.addDoubleProperty("4.2 Left Enc Pos", { rightMotor.position.value }, null)
-//    builder.publishConstString("5.0", "Input Err Estimation")
-//    builder.addDoubleProperty("5.1 Left Inpt Err Voltage", { -leftObserver.getXhat(1) }, null)
-//    builder.addDoubleProperty("5.2 Right Inpt Err Voltage", { -rightObserver.getXhat(1) }, null)
     builder.publishConstString("6.0", "Shoot from Anywhere")
     builder.addDoubleProperty("6.1 Speaker Distance (meters)", { abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)) }, null)
     builder.addBooleanProperty("6.2 Drive In Angle Tol", { abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD }, null)
@@ -525,8 +519,6 @@ open class SpinShooterKraken(
     fun createSpinShooter(robot: Robot): SpinShooterKraken {
       val rightMotor = TalonFX(SpinShooterConstants.RIGHT_MOTOR_ID)
       val rightConfig = TalonFXConfiguration()
-      rightConfig.Voltage.PeakForwardVoltage = 12.0
-      rightConfig.Voltage.PeakReverseVoltage = -12.0
       rightConfig.CurrentLimits.StatorCurrentLimitEnable = true
       rightConfig.CurrentLimits.SupplyCurrentLimitEnable = true
       rightConfig.CurrentLimits.StatorCurrentLimit = SpinShooterConstants.STATOR_CURRENT_LIMIT
@@ -547,11 +539,10 @@ open class SpinShooterKraken(
       rightMotor.velocity.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
       rightMotor.motorVoltage.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
       rightMotor.closedLoopError.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
+      rightMotor.optimizeBusUtilization()
 
       val leftMotor = TalonFX(SpinShooterConstants.RIGHT_MOTOR_ID)
       val leftConfig = TalonFXConfiguration()
-      leftConfig.Voltage.PeakForwardVoltage = 12.0
-      leftConfig.Voltage.PeakReverseVoltage = -12.0
       leftConfig.CurrentLimits.StatorCurrentLimitEnable = true
       leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true
       leftConfig.CurrentLimits.StatorCurrentLimit = SpinShooterConstants.STATOR_CURRENT_LIMIT
@@ -572,6 +563,7 @@ open class SpinShooterKraken(
       leftMotor.velocity.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
       leftMotor.motorVoltage.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
       leftMotor.closedLoopError.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
+      leftMotor.optimizeBusUtilization()
 
       return SpinShooterKraken(
         rightMotor,

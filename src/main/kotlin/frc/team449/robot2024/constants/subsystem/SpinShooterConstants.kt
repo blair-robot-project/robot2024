@@ -20,7 +20,7 @@ object SpinShooterConstants {
   val LEFT_MOTOR_ORIENTATION = InvertedValue.CounterClockwise_Positive
   val LEFT_NEUTRAL_MODE = NeutralModeValue.Coast
 
-  const val UPDATE_FREQUENCY = 5.0
+  const val UPDATE_FREQUENCY = 100.0
 
   const val STATOR_CURRENT_LIMIT = 150.0
   const val SUPPLY_CURRENT_LIMIT = 40.0
@@ -83,7 +83,7 @@ object SpinShooterConstants {
   const val INTERNAL_MEASUREMENT_PD = 24
   const val ENCODER_DELAY = 0.00875
   const val UPR = 2 * PI
-  const val GEARING = 2.0 / 1.0
+  const val GEARING = 1.0 / 2.0
 
   val equation = { x: Double -> -78.7 + 2.18 * x - 0.0176 * x.pow(2) + 6.82e-5 * x.pow(3) - 1e-7 * x.pow(4) }
 
