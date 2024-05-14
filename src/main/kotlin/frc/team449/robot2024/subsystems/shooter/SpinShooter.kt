@@ -672,7 +672,7 @@ open class SpinShooter(
           depth = SpinShooterConstants.INTERNAL_ENC_DEPTH
         ),
         inverted = SpinShooterConstants.RIGHT_MOTOR_INVERTED,
-        currentLimit = SpinShooterConstants.STATOR_CURRENT_LIMIT.toInt(),
+        currentLimit = SpinShooterConstants.CURRENT_LIMIT,
         secondaryCurrentLimit = SpinShooterConstants.SECONDARY_CURRENT_LIMIT,
         enableBrakeMode = SpinShooterConstants.BRAKE_MODE
       )
@@ -687,7 +687,7 @@ open class SpinShooter(
           depth = SpinShooterConstants.INTERNAL_ENC_DEPTH
         ),
         inverted = SpinShooterConstants.LEFT_MOTOR_INVERTED,
-        currentLimit = SpinShooterConstants.STATOR_CURRENT_LIMIT.toInt(),
+        currentLimit = SpinShooterConstants.CURRENT_LIMIT,
         secondaryCurrentLimit = SpinShooterConstants.SECONDARY_CURRENT_LIMIT,
         enableBrakeMode = SpinShooterConstants.BRAKE_MODE
       )

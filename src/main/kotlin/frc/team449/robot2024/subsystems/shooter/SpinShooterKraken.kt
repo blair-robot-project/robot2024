@@ -17,7 +17,7 @@ import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
-import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
+import frc.team449.robot2024.constants.subsystem.SpinShooterKrakenConstants
 import java.util.function.Supplier
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.PI
@@ -40,8 +40,8 @@ open class SpinShooterKraken(
 
   private val velocityRequest = VelocityVoltage(0.0).withSlot(0).withEnableFOC(false).withUpdateFreqHz(500.0)
 
-  private val leftRateLimiter = SlewRateLimiter(SpinShooterConstants.BRAKE_RATE_LIMIT)
-  private val rightRateLimiter = SlewRateLimiter(SpinShooterConstants.BRAKE_RATE_LIMIT)
+  private val leftRateLimiter = SlewRateLimiter(SpinShooterKrakenConstants.BRAKE_RATE_LIMIT)
+  private val rightRateLimiter = SlewRateLimiter(SpinShooterKrakenConstants.BRAKE_RATE_LIMIT)
 
   init {
     this.defaultCommand = coast()
@@ -72,8 +72,8 @@ open class SpinShooterKraken(
   fun shootSubwoofer(): Command {
     val cmd = this.run {
       shootPiece(
-        SpinShooterConstants.SUBWOOFER_LEFT_SPEED,
-        SpinShooterConstants.SUBWOOFER_RIGHT_SPEED
+        SpinShooterKrakenConstants.SUBWOOFER_LEFT_SPEED,
+        SpinShooterKrakenConstants.SUBWOOFER_RIGHT_SPEED
       )
     }
     cmd.name = "shooting subwoofer"
@@ -83,8 +83,8 @@ open class SpinShooterKraken(
   fun shootAnywhere(): Command {
     val cmd = this.run {
       shootPiece(
-        SpinShooterConstants.ANYWHERE_LEFT_SPEED,
-        SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+        SpinShooterKrakenConstants.ANYWHERE_LEFT_SPEED,
+        SpinShooterKrakenConstants.ANYWHERE_RIGHT_SPEED
       )
     }
     cmd.name = "shooting anywhere speed"
@@ -94,8 +94,8 @@ open class SpinShooterKraken(
   fun shootPass(): Command {
     val cmd = this.run {
       shootPiece(
-        SpinShooterConstants.PASS_LEFT_SPEED,
-        SpinShooterConstants.PASS_RIGHT_SPEED
+        SpinShooterKrakenConstants.PASS_LEFT_SPEED,
+        SpinShooterKrakenConstants.PASS_RIGHT_SPEED
       )
     }
     cmd.name = "shooting pass speed"
@@ -107,8 +107,8 @@ open class SpinShooterKraken(
       { },
       {
         shootPiece(
-          SpinShooterConstants.ANYWHERE_LEFT_SPEED,
-          SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+          SpinShooterKrakenConstants.ANYWHERE_LEFT_SPEED,
+          SpinShooterKrakenConstants.ANYWHERE_RIGHT_SPEED
         )
 
         val distance = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
@@ -117,7 +117,7 @@ open class SpinShooterKraken(
           Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(Translation2d(14.144, 4.211))))
         }
 
-        val angle = Units.degreesToRadians(SpinShooterConstants.equation(distance) + 0.385)
+        val angle = Units.degreesToRadians(SpinShooterKrakenConstants.equation(distance) + 0.385)
 
         robot.pivot.moveToAngleSlow(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
 
@@ -155,8 +155,8 @@ open class SpinShooterKraken(
       { },
       {
         shootPiece(
-          SpinShooterConstants.ANYWHERE_LEFT_SPEED,
-          SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+          SpinShooterKrakenConstants.ANYWHERE_LEFT_SPEED,
+          SpinShooterKrakenConstants.ANYWHERE_RIGHT_SPEED
         )
 
         val distance = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
@@ -165,7 +165,7 @@ open class SpinShooterKraken(
           Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(Translation2d(FieldConstants.fieldLength - 2.49, Units.inchesToMeters(218.42)))))
         }
 
-        val angle = Units.degreesToRadians(SpinShooterConstants.equation(distance))
+        val angle = Units.degreesToRadians(SpinShooterKrakenConstants.equation(distance))
 
         robot.pivot.moveToAngleSlow(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
 
@@ -200,8 +200,8 @@ open class SpinShooterKraken(
         robot.pivot.moveToAngleSlow(PivotConstants.PASS_ANGLE)
 
         shootPiece(
-          SpinShooterConstants.PASS_LEFT_SPEED,
-          SpinShooterConstants.PASS_RIGHT_SPEED
+          SpinShooterKrakenConstants.PASS_LEFT_SPEED,
+          SpinShooterKrakenConstants.PASS_RIGHT_SPEED
         )
 
         val fieldToRobot = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
@@ -242,8 +242,8 @@ open class SpinShooterKraken(
         robot.pivot.moveToAngleSlow(PivotConstants.PASS_ANGLE_T2)
 
         shootPiece(
-          SpinShooterConstants.PASS2_LEFT_SPEED,
-          SpinShooterConstants.PASS2_RIGHT_SPEED
+          SpinShooterKrakenConstants.PASS2_LEFT_SPEED,
+          SpinShooterKrakenConstants.PASS2_RIGHT_SPEED
         )
 
         val fieldToRobot = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
@@ -284,8 +284,8 @@ open class SpinShooterKraken(
         robot.pivot.moveToAngleSlow(PivotConstants.PASS_ANGLE_T3)
 
         shootPiece(
-          SpinShooterConstants.PASS3_LEFT_SPEED,
-          SpinShooterConstants.PASS3_RIGHT_SPEED
+          SpinShooterKrakenConstants.PASS3_LEFT_SPEED,
+          SpinShooterKrakenConstants.PASS3_RIGHT_SPEED
         )
 
         val fieldToRobot = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) {
@@ -327,8 +327,8 @@ open class SpinShooterKraken(
         robot.feeder.stopVoltage()
 
         shootPiece(
-          SpinShooterConstants.ANYWHERE_LEFT_SPEED,
-          SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+          SpinShooterKrakenConstants.ANYWHERE_LEFT_SPEED,
+          SpinShooterKrakenConstants.ANYWHERE_RIGHT_SPEED
         )
 
         val fieldRelSpeed = ChassisSpeeds(
@@ -352,7 +352,7 @@ open class SpinShooterKraken(
 
           val distance = abs(virtualTarget.getDistance(robot.drive.pose.translation))
 
-          val shotTime = SpinShooterConstants.TIME_MAP.get(distance)
+          val shotTime = SpinShooterKrakenConstants.TIME_MAP.get(distance)
 
           virtualTarget =
             Translation2d(
@@ -360,7 +360,7 @@ open class SpinShooterKraken(
               FieldConstants.SPEAKER_POSE.y - shotTime * fieldRelSpeed.vyMetersPerSecond,
             )
 
-          val newShotTime = SpinShooterConstants.TIME_MAP.get(distance)
+          val newShotTime = SpinShooterKrakenConstants.TIME_MAP.get(distance)
 
           if (shotTime - newShotTime < 1e-3) {
             break
@@ -369,7 +369,7 @@ open class SpinShooterKraken(
 
         val distance = abs(virtualTarget.getDistance(robot.drive.pose.translation))
 
-        val angle = if (distance <= 1.30) 0.0 else SpinShooterConstants.SHOOTING_MAP.get(distance)
+        val angle = if (distance <= 1.30) 0.0 else SpinShooterKrakenConstants.SHOOTING_MAP.get(distance)
 
         robot.pivot.moveToAngleAuto(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
 
@@ -404,30 +404,30 @@ open class SpinShooterKraken(
   }
 
   fun atSetpoint(): Boolean {
-    return abs(leftVelocity.get() - desiredVels.first) < SpinShooterConstants.IN_TOLERANCE &&
-      abs(rightVelocity.get() - desiredVels.second) < SpinShooterConstants.IN_TOLERANCE
+    return abs(leftVelocity.get() - desiredVels.first) < SpinShooterKrakenConstants.IN_TOLERANCE &&
+      abs(rightVelocity.get() - desiredVels.second) < SpinShooterKrakenConstants.IN_TOLERANCE
   }
 
   fun atAimSetpoint(): Boolean {
-    return abs(leftVelocity.get() - desiredVels.first) < SpinShooterConstants.AIM_TOLERANCE &&
-      abs(rightVelocity.get() - desiredVels.second) < SpinShooterConstants.AIM_TOLERANCE
+    return abs(leftVelocity.get() - desiredVels.first) < SpinShooterKrakenConstants.AIM_TOLERANCE &&
+      abs(rightVelocity.get() - desiredVels.second) < SpinShooterKrakenConstants.AIM_TOLERANCE
   }
 
   fun atAutoSetpoint(): Boolean {
-    return abs(leftVelocity.get() - desiredVels.first) < SpinShooterConstants.AUTO_SHOOT_TOL &&
-      abs(rightVelocity.get() - desiredVels.second) < SpinShooterConstants.AUTO_SHOOT_TOL &&
+    return abs(leftVelocity.get() - desiredVels.first) < SpinShooterKrakenConstants.AUTO_SHOOT_TOL &&
+      abs(rightVelocity.get() - desiredVels.second) < SpinShooterKrakenConstants.AUTO_SHOOT_TOL &&
       desiredVels.first != 0.0 &&
       desiredVels.second != 0.0
   }
 
   fun atAmpSetpoint(): Boolean {
-    return abs(leftVelocity.get() - desiredVels.first) < SpinShooterConstants.AMP_TOLERANCE &&
-      abs(rightVelocity.get() - desiredVels.second) < SpinShooterConstants.AMP_TOLERANCE
+    return abs(leftVelocity.get() - desiredVels.first) < SpinShooterKrakenConstants.AMP_TOLERANCE &&
+      abs(rightVelocity.get() - desiredVels.second) < SpinShooterKrakenConstants.AMP_TOLERANCE
   }
 
   fun scoreAmp(): Command {
     val cmd = this.run {
-      shootPiece(SpinShooterConstants.AMP_SPEED, SpinShooterConstants.AMP_SPEED)
+      shootPiece(SpinShooterKrakenConstants.AMP_SPEED, SpinShooterKrakenConstants.AMP_SPEED)
     }
     cmd.name = "scoring amp"
     return cmd
@@ -435,7 +435,7 @@ open class SpinShooterKraken(
 
   fun duringIntake(): Command {
     val cmd = this.run {
-      shootPiece(SpinShooterConstants.OUTTAKE_SPEED, SpinShooterConstants.OUTTAKE_SPEED)
+      shootPiece(SpinShooterKrakenConstants.OUTTAKE_SPEED, SpinShooterKrakenConstants.OUTTAKE_SPEED)
     }
     cmd.name = "during intake"
     return cmd
@@ -463,8 +463,8 @@ open class SpinShooterKraken(
     cmd.name = "force stop"
     return ParallelDeadlineGroup(
       WaitUntilCommand {
-        abs(leftVelocity.get() - desiredVels.first) < SpinShooterConstants.MIN_COAST_VEL &&
-          abs(rightVelocity.get() - desiredVels.second) < SpinShooterConstants.MIN_COAST_VEL
+        abs(leftVelocity.get() - desiredVels.first) < SpinShooterKrakenConstants.MIN_COAST_VEL &&
+          abs(rightVelocity.get() - desiredVels.second) < SpinShooterKrakenConstants.MIN_COAST_VEL
       },
       cmd
     ).andThen(
@@ -484,8 +484,8 @@ open class SpinShooterKraken(
           rightRateLimiter.calculate(0.0)
         )
       }.until {
-        abs(leftVelocity.get()) < SpinShooterConstants.MIN_COAST_VEL &&
-          abs(rightVelocity.get()) < SpinShooterConstants.MIN_COAST_VEL
+        abs(leftVelocity.get()) < SpinShooterKrakenConstants.MIN_COAST_VEL &&
+          abs(rightVelocity.get()) < SpinShooterKrakenConstants.MIN_COAST_VEL
       }.andThen(
         coast()
       )
@@ -517,52 +517,52 @@ open class SpinShooterKraken(
 
   companion object {
     fun createSpinShooter(robot: Robot): SpinShooterKraken {
-      val rightMotor = TalonFX(SpinShooterConstants.RIGHT_MOTOR_ID)
+      val rightMotor = TalonFX(SpinShooterKrakenConstants.RIGHT_MOTOR_ID)
       val rightConfig = TalonFXConfiguration()
       rightConfig.CurrentLimits.StatorCurrentLimitEnable = true
       rightConfig.CurrentLimits.SupplyCurrentLimitEnable = true
-      rightConfig.CurrentLimits.StatorCurrentLimit = SpinShooterConstants.STATOR_CURRENT_LIMIT
-      rightConfig.CurrentLimits.SupplyCurrentLimit = SpinShooterConstants.SUPPLY_CURRENT_LIMIT
-      rightConfig.CurrentLimits.SupplyCurrentThreshold = SpinShooterConstants.BURST_CURRENT_LIMIT
-      rightConfig.CurrentLimits.SupplyTimeThreshold = SpinShooterConstants.BURST_TIME_LIMIT
-      rightConfig.Slot0.kS = SpinShooterConstants.RIGHT_KS
-      rightConfig.Slot0.kV = SpinShooterConstants.RIGHT_KV
-      rightConfig.Slot0.kA = SpinShooterConstants.RIGHT_KA
-      rightConfig.Slot0.kP = SpinShooterConstants.RIGHT_KP
-      rightConfig.Slot0.kI = SpinShooterConstants.RIGHT_KI
-      rightConfig.Slot0.kD = SpinShooterConstants.RIGHT_KD
-      rightConfig.MotorOutput.Inverted = SpinShooterConstants.RIGHT_MOTOR_ORIENTATION
-      rightConfig.MotorOutput.NeutralMode = SpinShooterConstants.RIGHT_NEUTRAL_MODE
-      rightConfig.MotorOutput.DutyCycleNeutralDeadband = SpinShooterConstants.DUTY_CYCLE_DEADBAND
-      rightConfig.Feedback.SensorToMechanismRatio = SpinShooterConstants.GEARING
+      rightConfig.CurrentLimits.StatorCurrentLimit = SpinShooterKrakenConstants.STATOR_CURRENT_LIMIT
+      rightConfig.CurrentLimits.SupplyCurrentLimit = SpinShooterKrakenConstants.SUPPLY_CURRENT_LIMIT
+      rightConfig.CurrentLimits.SupplyCurrentThreshold = SpinShooterKrakenConstants.BURST_CURRENT_LIMIT
+      rightConfig.CurrentLimits.SupplyTimeThreshold = SpinShooterKrakenConstants.BURST_TIME_LIMIT
+      rightConfig.Slot0.kS = SpinShooterKrakenConstants.RIGHT_KS
+      rightConfig.Slot0.kV = SpinShooterKrakenConstants.RIGHT_KV
+      rightConfig.Slot0.kA = SpinShooterKrakenConstants.RIGHT_KA
+      rightConfig.Slot0.kP = SpinShooterKrakenConstants.RIGHT_KP
+      rightConfig.Slot0.kI = SpinShooterKrakenConstants.RIGHT_KI
+      rightConfig.Slot0.kD = SpinShooterKrakenConstants.RIGHT_KD
+      rightConfig.MotorOutput.Inverted = SpinShooterKrakenConstants.RIGHT_MOTOR_ORIENTATION
+      rightConfig.MotorOutput.NeutralMode = SpinShooterKrakenConstants.RIGHT_NEUTRAL_MODE
+      rightConfig.MotorOutput.DutyCycleNeutralDeadband = SpinShooterKrakenConstants.DUTY_CYCLE_DEADBAND
+      rightConfig.Feedback.SensorToMechanismRatio = SpinShooterKrakenConstants.GEARING
       rightMotor.configurator.apply(rightConfig)
-      rightMotor.velocity.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
-      rightMotor.motorVoltage.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
-      rightMotor.closedLoopError.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
+      rightMotor.velocity.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
+      rightMotor.motorVoltage.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
+      rightMotor.closedLoopError.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
       rightMotor.optimizeBusUtilization()
 
-      val leftMotor = TalonFX(SpinShooterConstants.RIGHT_MOTOR_ID)
+      val leftMotor = TalonFX(SpinShooterKrakenConstants.LEFT_MOTOR_ID)
       val leftConfig = TalonFXConfiguration()
       leftConfig.CurrentLimits.StatorCurrentLimitEnable = true
       leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true
-      leftConfig.CurrentLimits.StatorCurrentLimit = SpinShooterConstants.STATOR_CURRENT_LIMIT
-      leftConfig.CurrentLimits.SupplyCurrentLimit = SpinShooterConstants.SUPPLY_CURRENT_LIMIT
-      leftConfig.CurrentLimits.SupplyCurrentThreshold = SpinShooterConstants.BURST_CURRENT_LIMIT
-      leftConfig.CurrentLimits.SupplyTimeThreshold = SpinShooterConstants.BURST_TIME_LIMIT
-      leftConfig.Slot0.kS = SpinShooterConstants.LEFT_KS
-      leftConfig.Slot0.kV = SpinShooterConstants.LEFT_KV
-      leftConfig.Slot0.kA = SpinShooterConstants.LEFT_KA
-      leftConfig.Slot0.kP = SpinShooterConstants.LEFT_KP
-      leftConfig.Slot0.kI = SpinShooterConstants.LEFT_KI
-      leftConfig.Slot0.kD = SpinShooterConstants.LEFT_KD
-      leftConfig.MotorOutput.Inverted = SpinShooterConstants.LEFT_MOTOR_ORIENTATION
-      leftConfig.MotorOutput.NeutralMode = SpinShooterConstants.LEFT_NEUTRAL_MODE
-      leftConfig.MotorOutput.DutyCycleNeutralDeadband = SpinShooterConstants.DUTY_CYCLE_DEADBAND
-      leftConfig.Feedback.SensorToMechanismRatio = SpinShooterConstants.GEARING
+      leftConfig.CurrentLimits.StatorCurrentLimit = SpinShooterKrakenConstants.STATOR_CURRENT_LIMIT
+      leftConfig.CurrentLimits.SupplyCurrentLimit = SpinShooterKrakenConstants.SUPPLY_CURRENT_LIMIT
+      leftConfig.CurrentLimits.SupplyCurrentThreshold = SpinShooterKrakenConstants.BURST_CURRENT_LIMIT
+      leftConfig.CurrentLimits.SupplyTimeThreshold = SpinShooterKrakenConstants.BURST_TIME_LIMIT
+      leftConfig.Slot0.kS = SpinShooterKrakenConstants.LEFT_KS
+      leftConfig.Slot0.kV = SpinShooterKrakenConstants.LEFT_KV
+      leftConfig.Slot0.kA = SpinShooterKrakenConstants.LEFT_KA
+      leftConfig.Slot0.kP = SpinShooterKrakenConstants.LEFT_KP
+      leftConfig.Slot0.kI = SpinShooterKrakenConstants.LEFT_KI
+      leftConfig.Slot0.kD = SpinShooterKrakenConstants.LEFT_KD
+      leftConfig.MotorOutput.Inverted = SpinShooterKrakenConstants.LEFT_MOTOR_ORIENTATION
+      leftConfig.MotorOutput.NeutralMode = SpinShooterKrakenConstants.LEFT_NEUTRAL_MODE
+      leftConfig.MotorOutput.DutyCycleNeutralDeadband = SpinShooterKrakenConstants.DUTY_CYCLE_DEADBAND
+      leftConfig.Feedback.SensorToMechanismRatio = SpinShooterKrakenConstants.GEARING
       leftMotor.configurator.apply(leftConfig)
-      leftMotor.velocity.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
-      leftMotor.motorVoltage.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
-      leftMotor.closedLoopError.setUpdateFrequency(SpinShooterConstants.UPDATE_FREQUENCY)
+      leftMotor.velocity.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
+      leftMotor.motorVoltage.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
+      leftMotor.closedLoopError.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
       leftMotor.optimizeBusUtilization()
 
       return SpinShooterKraken(
