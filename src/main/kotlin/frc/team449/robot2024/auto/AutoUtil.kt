@@ -16,7 +16,7 @@ import frc.team449.robot2024.constants.auto.AutoConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.FeederConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
-import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
+import frc.team449.robot2024.constants.subsystem.SpinShooterKrakenConstants
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.PI
 import kotlin.math.abs
@@ -419,8 +419,8 @@ object AutoUtil {
           }
 
           robot.shooter.shootPiece(
-            SpinShooterConstants.ANYWHERE_LEFT_SPEED,
-            SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+            SpinShooterKrakenConstants.ANYWHERE_LEFT_SPEED,
+            SpinShooterKrakenConstants.ANYWHERE_RIGHT_SPEED
           )
 
           if (fast) {
@@ -468,13 +468,13 @@ object AutoUtil {
         { },
         {
           robot.shooter.shootPiece(
-            SpinShooterConstants.ANYWHERE_LEFT_SPEED,
-            SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+            SpinShooterKrakenConstants.ANYWHERE_LEFT_SPEED,
+            SpinShooterKrakenConstants.ANYWHERE_RIGHT_SPEED
           )
 
           val distance = abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation))
 
-          val pivotAngle = if (distance <= 1.30) 0.0 else SpinShooterConstants.SHOOTING_MAP.get(distance)
+          val pivotAngle = if (distance <= 1.30) 0.0 else SpinShooterKrakenConstants.SHOOTING_MAP.get(distance)
 
           robot.pivot.moveToAngleSlow(MathUtil.clamp(pivotAngle + offset, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
 
@@ -518,13 +518,13 @@ object AutoUtil {
       { },
       {
         robot.shooter.shootPiece(
-          SpinShooterConstants.ANYWHERE_LEFT_SPEED,
-          SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+          SpinShooterKrakenConstants.ANYWHERE_LEFT_SPEED,
+          SpinShooterKrakenConstants.ANYWHERE_RIGHT_SPEED
         )
 
         val distance = abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation))
 
-        val pivotAngle = MathUtil.clamp(if (distance <= 1.30) 0.0 else SpinShooterConstants.SHOOTING_MAP.get(distance) + offset, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE)
+        val pivotAngle = MathUtil.clamp(if (distance <= 1.30) 0.0 else SpinShooterKrakenConstants.SHOOTING_MAP.get(distance) + offset, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE)
 
         robot.pivot.moveToAngleAuto(pivotAngle)
 
@@ -574,13 +574,13 @@ object AutoUtil {
           },
           {
             robot.shooter.shootPiece(
-              SpinShooterConstants.ANYWHERE_LEFT_SPEED,
-              SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+              SpinShooterKrakenConstants.ANYWHERE_LEFT_SPEED,
+              SpinShooterKrakenConstants.ANYWHERE_RIGHT_SPEED
             )
 
             val distance = Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)))
 
-            val angle = Units.degreesToRadians(SpinShooterConstants.equation(distance) + offset)
+            val angle = Units.degreesToRadians(SpinShooterKrakenConstants.equation(distance) + offset)
 
             robot.pivot.moveToAngleSlow(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
 
@@ -621,13 +621,13 @@ object AutoUtil {
         },
         {
           robot.shooter.shootPiece(
-            SpinShooterConstants.ANYWHERE_LEFT_SPEED,
-            SpinShooterConstants.ANYWHERE_RIGHT_SPEED
+            SpinShooterKrakenConstants.ANYWHERE_LEFT_SPEED,
+            SpinShooterKrakenConstants.ANYWHERE_RIGHT_SPEED
           )
 
           val distance = Units.metersToInches(abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)))
 
-          val angle = Units.degreesToRadians(SpinShooterConstants.equation(distance) + offset)
+          val angle = Units.degreesToRadians(SpinShooterKrakenConstants.equation(distance) + offset)
 
           robot.pivot.moveToAngleSlow(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
 

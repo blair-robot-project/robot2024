@@ -15,7 +15,7 @@ import frc.team449.control.auto.ChoreoTrajectory
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.auto.AutoUtil
 import frc.team449.robot2024.constants.field.FieldConstants
-import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
+import frc.team449.robot2024.constants.subsystem.SpinShooterKrakenConstants
 import frc.team449.robot2024.constants.vision.VisionConstants
 
 class FourPieceAmpHelper(
@@ -26,7 +26,7 @@ class FourPieceAmpHelper(
   private val shot1Offset = Units.degreesToRadians(0.0)
   private val shot2Offset = Units.degreesToRadians(0.0)
 
-  private val shot1PivotAngle = SpinShooterConstants.SHOOTING_MAP.get(
+  private val shot1PivotAngle = SpinShooterKrakenConstants.SHOOTING_MAP.get(
     FieldConstants.BLUE_SPEAKER_POSE.getDistance(
       Translation2d(
         3.7641966342926025,
@@ -35,7 +35,7 @@ class FourPieceAmpHelper(
     )
   ) - shot1Offset
 
-  private val shot2PivotAngle = SpinShooterConstants.SHOOTING_MAP.get(
+  private val shot2PivotAngle = SpinShooterKrakenConstants.SHOOTING_MAP.get(
     FieldConstants.BLUE_SPEAKER_POSE.getDistance(
       Translation2d(
         3.7956974506378174,
