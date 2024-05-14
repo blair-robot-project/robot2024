@@ -39,14 +39,17 @@ open class SpinShooterKraken(
   /** Left, Right Desired velocity */
   private var desiredVels = Pair(0.0, 0.0)
 
-  open val rightVelocity: Supplier<Double> =
-    rightMotor.velocity.asSupplier()
+  open val rightVelocity: Supplier<Double> = rightMotor.velocity.asSupplier()
+  open val leftVelocity: Supplier<Double> = leftMotor.velocity.asSupplier()
 
-  open val leftVelocity: Supplier<Double> =
-    leftMotor.velocity.asSupplier()
+  private val velocityRequest = VelocityVoltage(0.0).withSlot(0).withEnableFOC(false).withUpdateFreqHz(500.0)
 
   private val leftRateLimiter = SlewRateLimiter(SpinShooterKrakenConstants.BRAKE_RATE_LIMIT)
   private val rightRateLimiter = SlewRateLimiter(SpinShooterKrakenConstants.BRAKE_RATE_LIMIT)
+
+  init {
+    this.defaultCommand = coast()
+  }
 
   fun hold(): Command {
     return this.run {
@@ -436,16 +439,8 @@ open class SpinShooterKraken(
 
   fun shootPiece(leftSpeed: Double, rightSpeed: Double) {
     desiredVels = Pair(leftSpeed, rightSpeed)
-    rightMotor.setControl(
-      VelocityVoltage(rightSpeed)
-        .withEnableFOC(false)
-        .withUpdateFreqHz(500.0)
-    )
-    leftMotor.setControl(
-      VelocityVoltage(leftSpeed)
-        .withEnableFOC(false)
-        .withUpdateFreqHz(500.0)
-    )
+    rightMotor.setControl(velocityRequest.withVelocity(rightSpeed))
+    leftMotor.setControl(velocityRequest.withVelocity(leftSpeed))
   }
 
   fun coast(): Command {
@@ -518,61 +513,60 @@ open class SpinShooterKraken(
   companion object {
     fun createSpinShooterKraken(robot: Robot): SpinShooterKraken {
       val rightMotor = TalonFX(SpinShooterKrakenConstants.RIGHT_MOTOR_ID)
-      val leftMotor = TalonFX(SpinShooterKrakenConstants.LEFT_MOTOR_ID)
-
-      rightMotor.closedLoopError.setUpdateFrequency(50.0)
-      rightMotor.motorVoltage.setUpdateFrequency(50.0)
-      rightMotor.velocity.setUpdateFrequency(200.0)
-      rightMotor.optimizeBusUtilization()
-
-      leftMotor.closedLoopError.setUpdateFrequency(50.0)
-      leftMotor.motorVoltage.setUpdateFrequency(50.0)
-      leftMotor.velocity.setUpdateFrequency(200.0)
-      leftMotor.optimizeBusUtilization()
 
       val rightConfig = TalonFXConfiguration()
 
-      rightConfig.MotorOutput.NeutralMode = SpinShooterKrakenConstants.NEUTRAL_MODE
-      rightConfig.MotorOutput.Inverted = SpinShooterKrakenConstants.RIGHT_MOTOR_INVERTED
-      rightConfig.MotorOutput.DutyCycleNeutralDeadband = 0.001
-
-      rightConfig.Feedback.SensorToMechanismRatio = SpinShooterKrakenConstants.GEARING
+      rightConfig.CurrentLimits.StatorCurrentLimitEnable = true
+      rightConfig.CurrentLimits.SupplyCurrentLimitEnable = true
+      rightConfig.CurrentLimits.StatorCurrentLimit = SpinShooterKrakenConstants.STATOR_CURRENT_LIMIT
+      rightConfig.CurrentLimits.SupplyCurrentLimit = SpinShooterKrakenConstants.SUPPLY_CURRENT_LIMIT
+      rightConfig.CurrentLimits.SupplyCurrentThreshold = SpinShooterKrakenConstants.BURST_CURRENT_LIMIT
+      rightConfig.CurrentLimits.SupplyTimeThreshold = SpinShooterKrakenConstants.BURST_TIME_LIMIT
 
       rightConfig.Slot0.kS = SpinShooterKrakenConstants.RIGHT_KS
       rightConfig.Slot0.kV = SpinShooterKrakenConstants.RIGHT_KV
+      rightConfig.Slot0.kP = SpinShooterKrakenConstants.RIGHT_KP
+      rightConfig.Slot0.kI = SpinShooterKrakenConstants.RIGHT_KI
+      rightConfig.Slot0.kD = SpinShooterKrakenConstants.RIGHT_KD
 
-      rightConfig.Slot0.kP = SpinShooterKrakenConstants.kP
-      rightConfig.Slot0.kI = SpinShooterKrakenConstants.kI
-      rightConfig.Slot0.kD = SpinShooterKrakenConstants.kD
+      rightConfig.MotorOutput.Inverted = SpinShooterKrakenConstants.RIGHT_MOTOR_ORIENTATION
+      rightConfig.MotorOutput.NeutralMode = SpinShooterKrakenConstants.RIGHT_NEUTRAL_MODE
+      rightConfig.MotorOutput.DutyCycleNeutralDeadband = SpinShooterKrakenConstants.DUTY_CYCLE_DEADBAND
 
-      rightConfig.CurrentLimits.StatorCurrentLimitEnable = true
-      rightConfig.CurrentLimits.SupplyCurrentLimitEnable = true
-      rightConfig.CurrentLimits.SupplyCurrentLimit = SpinShooterKrakenConstants.SUPPLY_CURRENT_LIMIT
-      rightConfig.CurrentLimits.SupplyCurrentThreshold = SpinShooterKrakenConstants.SUPPLY_PEAK_LIMIT
-      rightConfig.CurrentLimits.SupplyTimeThreshold = SpinShooterKrakenConstants.SUPPLY_PEAK_TIME
-      rightConfig.CurrentLimits.StatorCurrentLimit = SpinShooterKrakenConstants.STATOR_CURRENT_LIMIT
+      rightConfig.Feedback.SensorToMechanismRatio = SpinShooterKrakenConstants.GEARING
+
+      rightMotor.velocity.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
+      rightMotor.motorVoltage.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
+      rightMotor.closedLoopError.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
+      rightMotor.optimizeBusUtilization()
+
+      val leftMotor = TalonFX(SpinShooterKrakenConstants.LEFT_MOTOR_ID)
 
       val leftConfig = TalonFXConfiguration()
 
-      leftConfig.MotorOutput.NeutralMode = SpinShooterKrakenConstants.NEUTRAL_MODE
-      leftConfig.MotorOutput.Inverted = SpinShooterKrakenConstants.LEFT_MOTOR_INVERTED
-      rightConfig.MotorOutput.DutyCycleNeutralDeadband = 0.001
-
-      leftConfig.Feedback.SensorToMechanismRatio = SpinShooterKrakenConstants.GEARING
+      leftConfig.CurrentLimits.StatorCurrentLimitEnable = true
+      leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true
+      leftConfig.CurrentLimits.StatorCurrentLimit = SpinShooterKrakenConstants.STATOR_CURRENT_LIMIT
+      leftConfig.CurrentLimits.SupplyCurrentLimit = SpinShooterKrakenConstants.SUPPLY_CURRENT_LIMIT
+      leftConfig.CurrentLimits.SupplyCurrentThreshold = SpinShooterKrakenConstants.BURST_CURRENT_LIMIT
+      leftConfig.CurrentLimits.SupplyTimeThreshold = SpinShooterKrakenConstants.BURST_TIME_LIMIT
 
       leftConfig.Slot0.kS = SpinShooterKrakenConstants.LEFT_KS
       leftConfig.Slot0.kV = SpinShooterKrakenConstants.LEFT_KV
+      leftConfig.Slot0.kP = SpinShooterKrakenConstants.LEFT_KP
+      leftConfig.Slot0.kI = SpinShooterKrakenConstants.LEFT_KI
+      leftConfig.Slot0.kD = SpinShooterKrakenConstants.LEFT_KD
 
-      leftConfig.Slot0.kP = SpinShooterKrakenConstants.kP
-      leftConfig.Slot0.kI = SpinShooterKrakenConstants.kI
-      leftConfig.Slot0.kD = SpinShooterKrakenConstants.kD
+      leftConfig.MotorOutput.Inverted = SpinShooterKrakenConstants.LEFT_MOTOR_ORIENTATION
+      leftConfig.MotorOutput.NeutralMode = SpinShooterKrakenConstants.LEFT_NEUTRAL_MODE
+      leftConfig.MotorOutput.DutyCycleNeutralDeadband = SpinShooterKrakenConstants.DUTY_CYCLE_DEADBAND
 
-      leftConfig.CurrentLimits.StatorCurrentLimitEnable = true
-      leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true
-      leftConfig.CurrentLimits.SupplyCurrentLimit = SpinShooterKrakenConstants.SUPPLY_CURRENT_LIMIT
-      leftConfig.CurrentLimits.SupplyCurrentThreshold = SpinShooterKrakenConstants.SUPPLY_PEAK_LIMIT
-      leftConfig.CurrentLimits.SupplyTimeThreshold = SpinShooterKrakenConstants.SUPPLY_PEAK_TIME
-      leftConfig.CurrentLimits.StatorCurrentLimit = SpinShooterKrakenConstants.STATOR_CURRENT_LIMIT
+      leftConfig.Feedback.SensorToMechanismRatio = SpinShooterKrakenConstants.GEARING
+
+      leftMotor.velocity.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
+      leftMotor.motorVoltage.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
+      leftMotor.closedLoopError.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
+      leftMotor.optimizeBusUtilization()
 
       /* Retry config apply up to 5 times, report if failure */
       var status: StatusCode = StatusCode.StatusCodeNotInitialized
