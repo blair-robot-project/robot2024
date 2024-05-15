@@ -44,16 +44,6 @@ class FourPieceAmpHelper(
     )
   ) - shot2Offset
 
-  init {
-    println(FieldConstants.BLUE_SPEAKER_POSE.getDistance(
-      Translation2d(
-        3.7641966342926025,
-        6.230502605438232
-      )
-    ))
-    println(shot1PivotAngle)
-  }
-
   override val routine =
     ChoreoRoutine(
       thetaController = PIDController(2.85, 0.0, 0.075),

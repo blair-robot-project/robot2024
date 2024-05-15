@@ -278,15 +278,15 @@ class ControllerBindings(
                 )
             )
         )
-          .andThen(
-            robot.pivot.moveAmp()
-              .alongWith(
-                robot.shooter.scoreAmp(),
-                WaitUntilCommand { robot.pivot.inAmpTolerance() && robot.shooter.atAmpSetpoint() }
-                  .andThen(robot.feeder.intake())
-              )
-                .until { robot.infrared.get() && robot.closeToShooterInfrared.get() }
-          )
+        .andThen(
+          robot.pivot.moveAmp()
+            .alongWith(
+              robot.shooter.scoreAmp(),
+              WaitUntilCommand { robot.pivot.inAmpTolerance() && robot.shooter.atAmpSetpoint() }
+                .andThen(robot.feeder.intake())
+            )
+            .until { robot.infrared.get() && robot.closeToShooterInfrared.get() }
+        )
     )
 
 //    driveController.leftBumper().onTrue(

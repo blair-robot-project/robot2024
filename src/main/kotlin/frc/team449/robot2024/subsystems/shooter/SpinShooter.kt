@@ -781,7 +781,6 @@ open class SpinShooter(
       println(leftController.k.get(0, 0))
       println(rightController.k.get(0, 0))
 
-
       return if (RobotBase.isReal()) {
         SpinShooter(
           rightMotor,

@@ -113,7 +113,7 @@ open class SwerveModule(
     turningMotor.set(
       turnPid +
         sign(desiredState.angle.radians - turningMotor.position) *
-        SwerveConstants.STEER_KS
+          SwerveConstants.STEER_KS
     )
   }
 
