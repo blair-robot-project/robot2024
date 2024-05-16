@@ -1,5 +1,6 @@
 package frc.team449.robot2024.subsystems
 
+import com.ctre.phoenix6.SignalLogger
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.units.Measure
@@ -46,13 +47,9 @@ class ControllerBindings(
       Volts.of(0.5).per(Seconds.of(1.0)),
       Volts.of(3.0),
       Seconds.of(10.0)
-    ),
+    ) { state -> SignalLogger.writeString("state", state.toString()) },
     Mechanism(
-      { voltage: Measure<Voltage> ->
-        run {
-          robot.shooter.setVoltage(voltage.`in`(Volts))
-        }
-      },
+      { voltage: Measure<Voltage> -> run { robot.shooter.setVoltage(voltage.`in`(Volts)) } },
       null,
       robot.shooter,
       "shooter"

@@ -1,5 +1,6 @@
 package frc.team449.robot2024.subsystems.shooter
 
+import com.ctre.phoenix6.SignalLogger
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.CoastOut
 import com.ctre.phoenix6.controls.VelocityVoltage
@@ -44,6 +45,13 @@ open class SpinShooterKraken(
   private val rightRateLimiter = SlewRateLimiter(SpinShooterKrakenConstants.BRAKE_RATE_LIMIT)
 
   init {
+    name = "Kraken Spin Shooter"
+
+    leftMotor.optimizeBusUtilization()
+    rightMotor.optimizeBusUtilization()
+    SignalLogger.setPath("/media/sda1/ctre-logs/")
+    SignalLogger.start()
+
     this.defaultCommand = coast()
   }
 
@@ -516,7 +524,7 @@ open class SpinShooterKraken(
   }
 
   companion object {
-    fun createSpinShooter(robot: Robot): SpinShooterKraken {
+    fun createKrakenSpinShooter(robot: Robot): SpinShooterKraken {
       val rightMotor = TalonFX(SpinShooterKrakenConstants.RIGHT_MOTOR_ID)
       val rightConfig = TalonFXConfiguration()
       rightConfig.CurrentLimits.StatorCurrentLimitEnable = true
