@@ -43,14 +43,14 @@ object SpinShooterKrakenConstants {
   val SHOOTING_MAP = InterpolatingDoubleTreeMap()
   val TIME_MAP = InterpolatingDoubleTreeMap()
 
-  const val LEFT_KS = 0.2377 // 0.19599
-  const val RIGHT_KS = 0.32957 // 0.28982
-  const val LEFT_KV = 0.010607 // 0.010993
-  const val RIGHT_KV = 0.011597 // 0.010836
-  const val LEFT_KA = 0.0050 // 0.0061217
-  const val RIGHT_KA = 0.0060 // 0.00815
-  const val LEFT_KP = 1.0
-  const val RIGHT_KP = 1.0
+  const val LEFT_KS = 0.18021 // 0.19599
+  const val RIGHT_KS = 0.27081 // 0.28982
+  const val LEFT_KV = 0.061464 // 0.010993
+  const val RIGHT_KV = 0.063156 // 0.010836
+  const val LEFT_KA = 0.014574 // 0.0061217
+  const val RIGHT_KA = 0.014946 // 0.00815
+  const val LEFT_KP = 0.05
+  const val RIGHT_KP = 0.05
   const val LEFT_KI = 0.0
   const val RIGHT_KI = 0.0
   const val LEFT_KD = 0.0
