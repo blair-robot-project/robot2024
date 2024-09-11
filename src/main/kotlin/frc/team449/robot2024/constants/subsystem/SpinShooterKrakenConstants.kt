@@ -13,7 +13,7 @@ object SpinShooterKrakenConstants {
   val RIGHT_MOTOR_ORIENTATION = InvertedValue.CounterClockwise_Positive
   val RIGHT_NEUTRAL_MODE = NeutralModeValue.Coast
   const val LEFT_MOTOR_ID = 46
-  val LEFT_MOTOR_ORIENTATION = InvertedValue.CounterClockwise_Positive
+  val LEFT_MOTOR_ORIENTATION = InvertedValue.Clockwise_Positive
   val LEFT_NEUTRAL_MODE = NeutralModeValue.Coast
 
   const val UPDATE_FREQUENCY = 100.0

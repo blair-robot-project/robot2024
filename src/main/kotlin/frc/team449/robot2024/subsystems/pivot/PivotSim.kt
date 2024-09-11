@@ -1,5 +1,6 @@
 package frc.team449.robot2024.subsystems.pivot
 
+import com.revrobotics.CANSparkMax
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
@@ -16,11 +17,10 @@ import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
 import frc.team449.system.encoder.QuadEncoder
-import frc.team449.system.motor.WrappedMotor
 import java.util.function.Supplier
 
 class PivotSim(
-  simmedMotor: WrappedMotor,
+  simmedMotor: CANSparkMax,
   encoder: QuadEncoder,
   controller: LinearQuadraticRegulator<N2, N1, N1>,
   fastController: LinearQuadraticRegulator<N2, N1, N1>,
@@ -59,7 +59,7 @@ class PivotSim(
   private var currentDraw = 0.0
 
   override fun periodic() {
-    pivotSim.setInputVoltage(MathUtil.clamp(motor.lastVoltage, -12.0, 12.0))
+    pivotSim.setInputVoltage(MathUtil.clamp(motor.get(), -12.0, 12.0))
 
     pivotSim.update(RobotConstants.LOOP_TIME)
 

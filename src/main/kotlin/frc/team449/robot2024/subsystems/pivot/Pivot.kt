@@ -1,5 +1,7 @@
 package frc.team449.robot2024.subsystems.pivot
 
+import com.revrobotics.CANSparkLowLevel
+import com.revrobotics.CANSparkMax
 import edu.wpi.first.math.*
 import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
@@ -18,17 +20,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
-import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.encoder.QuadEncoder
-import frc.team449.system.motor.WrappedMotor
-import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
-import kotlin.Pair
 import kotlin.math.abs
 import kotlin.math.pow
 
 open class Pivot(
-  val motor: WrappedMotor,
+  val motor: CANSparkMax,
   val encoder: QuadEncoder,
   private val controller: LinearQuadraticRegulator<N2, N1, N1>,
   private val fastController: LinearQuadraticRegulator<N2, N1, N1>,
@@ -55,6 +53,7 @@ open class Pivot(
   open val positionSupplier: Supplier<Double> =
     Supplier { encoder.position }
 
+
   open val velocitySupplier: Supplier<Double> =
     Supplier { encoder.velocity }
 
@@ -80,6 +79,15 @@ open class Pivot(
       lastProfileReference.velocity,
       0.0
     )
+
+    motor.inverted = PivotConstants.INVERTED
+    motor.setSmartCurrentLimit(PivotConstants.CURRENT_LIM)
+    val followerSpark = CANSparkMax(PivotConstants.FOLLOWER_ID, CANSparkLowLevel.MotorType.kBrushless)
+    followerSpark.restoreFactoryDefaults()
+    followerSpark.follow(motor, PivotConstants.FOLLOWER_INVERTED)
+    followerSpark.idleMode = motor.idleMode
+    followerSpark.setSmartCurrentLimit(PivotConstants.CURRENT_LIM)
+    followerSpark.burnFlash()
 
     this.defaultCommand = hold()
   }
@@ -374,15 +382,15 @@ open class Pivot(
 
   override fun initSendable(builder: SendableBuilder) {
     builder.publishConstString("1.0", "Motor Voltages")
-    builder.addDoubleProperty("1.1 Last Voltage", { motor.lastVoltage }, null)
+    builder.addDoubleProperty("1.1 Last Voltage", { motor.get() }, null)
     builder.publishConstString("2.0", "Position and Velocity")
     builder.addDoubleProperty("2.1 Current Position", { positionSupplier.get() }, null)
     builder.addDoubleProperty("2.2 Current Velocity", { velocitySupplier.get() }, null)
     builder.addDoubleProperty("2.3 Desired Position", { lastProfileReference.position }, null)
     builder.addDoubleProperty("2.4 Desired Velocity", { lastProfileReference.velocity }, null)
     builder.addDoubleProperty("2.5 Error", { lastProfileReference.position - positionSupplier.get() }, null)
-    builder.addDoubleProperty("2.6 Absolute Position", { motor.position }, null)
-    builder.addDoubleProperty("2.7 Absolute Velocity", { motor.velocity }, null)
+    builder.addDoubleProperty("2.6 Absolute Position", { motor.encoder.position }, null)
+    builder.addDoubleProperty("2.7 Absolute Velocity", { motor.encoder.velocity }, null)
     builder.addBooleanProperty("2.8 In tolerance", ::inTolerance, null)
     builder.publishConstString("3.0", "State Space Stuff")
     builder.addDoubleProperty("3.1 Predicted Position", { observer.getXhat(0) }, null)
@@ -393,18 +401,9 @@ open class Pivot(
 
   companion object {
     fun createPivot(): Pivot {
-      val motor = createSparkMax(
-        "Pivot Motors",
+      val motor = CANSparkMax(
         PivotConstants.MOTOR_ID,
-        encCreator = AbsoluteEncoder.creator(
-          PivotConstants.ENC_CHANNEL,
-          PivotConstants.OFFSET,
-          PivotConstants.UPR,
-          PivotConstants.ENC_INVERTED,
-        ),
-        inverted = PivotConstants.INVERTED,
-        currentLimit = PivotConstants.CURRENT_LIM,
-        slaveSparks = mapOf(Pair(PivotConstants.FOLLOWER_ID, PivotConstants.FOLLOWER_INVERTED))
+        CANSparkLowLevel.MotorType.kBrushless
       )
 
       val encoder = QuadEncoder(

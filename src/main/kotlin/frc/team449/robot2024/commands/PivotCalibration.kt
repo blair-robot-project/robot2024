@@ -15,7 +15,7 @@ class PivotCalibration(
   private var samples = mutableListOf<Double>()
 
   override fun execute() {
-    samples.add(pivot.motor.position)
+    samples.add(pivot.motor.encoder.position)
   }
 
   override fun isFinished(): Boolean {
