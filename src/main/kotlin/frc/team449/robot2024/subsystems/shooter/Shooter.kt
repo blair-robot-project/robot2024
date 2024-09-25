@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.*
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
 import frc.team449.system.encoder.NEOEncoder
-import frc.team449.system.motor.WrappedMotor
+import frc.team449.system.motor.WrappedNEO
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
 import kotlin.Pair
@@ -25,7 +25,7 @@ import kotlin.math.pow
 import kotlin.math.sign
 
 open class Shooter(
-  val motor: WrappedMotor,
+  val motor: WrappedNEO,
   private val controller: LinearQuadraticRegulator<N1, N1, N1>,
   private val observer: KalmanFilter<N2, N1, N1>,
   private val feedforward: LinearPlantInversionFeedforward<N1, N1, N1>

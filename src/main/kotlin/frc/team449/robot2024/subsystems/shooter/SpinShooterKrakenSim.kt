@@ -13,6 +13,7 @@ import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.SpinShooterKrakenConstants
 import java.util.function.Supplier
+import kotlin.math.PI
 
 class SpinShooterKrakenSim(
   private val rightMotorThing: TalonFX,
@@ -22,22 +23,22 @@ class SpinShooterKrakenSim(
 
   private val leftFlywheelSim = FlywheelSim(
     LinearSystemId.identifyVelocitySystem(
-      SpinShooterKrakenConstants.GEARING / (DCMotor.getKrakenX60(1).KvRadPerSecPerVolt),
-      0.0055
+      SpinShooterKrakenConstants.LEFT_KV / (2 * PI),
+      SpinShooterKrakenConstants.LEFT_KA / (2 * PI)
     ),
     DCMotor.getKrakenX60(1),
     SpinShooterKrakenConstants.GEARING,
-    VecBuilder.fill(0.35)
+    VecBuilder.fill(2.15)
   )
 
   private val rightFlywheelSim = FlywheelSim(
     LinearSystemId.identifyVelocitySystem(
-      SpinShooterKrakenConstants.GEARING / (DCMotor.getKrakenX60(1).KvRadPerSecPerVolt),
-      0.0055
+      SpinShooterKrakenConstants.RIGHT_KV / (2 * PI),
+      SpinShooterKrakenConstants.RIGHT_KA / (2 * PI)
     ),
     DCMotor.getKrakenX60(1),
     SpinShooterKrakenConstants.GEARING,
-    VecBuilder.fill(0.35)
+    VecBuilder.fill(2.15)
   )
 
   override val leftVelocity: Supplier<Double> =

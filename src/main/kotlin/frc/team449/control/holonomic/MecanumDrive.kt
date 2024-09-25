@@ -19,7 +19,7 @@ import frc.team449.robot2024.constants.drives.MecanumConstants
 import frc.team449.robot2024.constants.vision.VisionConstants
 import frc.team449.system.AHRS
 import frc.team449.system.encoder.NEOEncoder
-import frc.team449.system.motor.WrappedMotor
+import frc.team449.system.motor.WrappedNEO
 import frc.team449.system.motor.createSparkMax
 
 /**
@@ -37,10 +37,10 @@ import frc.team449.system.motor.createSparkMax
  * @param controller the PIDController for the robot
  */
 open class MecanumDrive(
-  private val frontLeftMotor: WrappedMotor,
-  private val frontRightMotor: WrappedMotor,
-  private val backLeftMotor: WrappedMotor,
-  private val backRightMotor: WrappedMotor,
+  private val frontLeftMotor: WrappedNEO,
+  private val frontRightMotor: WrappedNEO,
+  private val backLeftMotor: WrappedNEO,
+  private val backRightMotor: WrappedNEO,
   frontLeftLocation: Translation2d,
   frontRightLocation: Translation2d,
   backLeftLocation: Translation2d,
@@ -168,7 +168,7 @@ open class MecanumDrive(
   companion object {
 
     /** Helper method to create a motor for each wheel */
-    private fun createCorner(name: String, motorID: Int, inverted: Boolean): WrappedMotor {
+    private fun createCorner(name: String, motorID: Int, inverted: Boolean): WrappedNEO {
       return createSparkMax(
         name,
         motorID,

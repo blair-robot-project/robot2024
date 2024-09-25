@@ -12,7 +12,6 @@ import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.math.system.LinearSystem
 import edu.wpi.first.math.system.plant.LinearSystemId
-import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
@@ -24,7 +23,7 @@ import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
 import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
 import frc.team449.system.encoder.NEOEncoder
-import frc.team449.system.motor.WrappedMotor
+import frc.team449.system.motor.WrappedNEO
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
 import kotlin.Pair
@@ -32,8 +31,8 @@ import kotlin.jvm.optionals.getOrNull
 import kotlin.math.*
 
 open class SpinShooter(
-  val rightMotor: WrappedMotor,
-  val leftMotor: WrappedMotor,
+  val rightMotor: WrappedNEO,
+  val leftMotor: WrappedNEO,
   private val leftController: LinearQuadraticRegulator<N1, N1, N1>,
   private val rightController: LinearQuadraticRegulator<N1, N1, N1>,
   private val leftObserver: KalmanFilter<N2, N1, N1>,
@@ -220,7 +219,9 @@ open class SpinShooter(
 
   fun podiumShot(): Command {
     val cmd = FunctionalCommand(
-      { },
+      {
+        robot.pivot.resetProfileReference()
+      },
       {
         shootPiece(
           SpinShooterConstants.ANYWHERE_LEFT_SPEED,
@@ -248,7 +249,7 @@ open class SpinShooter(
         robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
 
         if (robot.shooter.atSetpoint() &&
-          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+          robot.driveCommand.checkSnapToAngleTolerance() &&
           robot.pivot.inTolerance() &&
           robot.mechController.hid.leftBumper
         ) {
@@ -266,13 +267,10 @@ open class SpinShooter(
     return cmd
   }
 
-  fun passShot(): Command {
+  fun passShotSourceSide(): Command {
     val cmd = FunctionalCommand(
       {
-        robot.pivot.lastProfileReference = TrapezoidProfile.State(
-          robot.pivot.positionSupplier.get(),
-          robot.pivot.velocitySupplier.get()
-        )
+        robot.pivot.resetProfileReference()
       },
       {
         robot.feeder.stopVoltage()
@@ -295,7 +293,7 @@ open class SpinShooter(
         robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
 
         if (robot.shooter.atAimSetpoint() &&
-          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+          robot.driveCommand.checkSnapToAngleTolerance() &&
           robot.mechController.hid.leftBumper &&
           robot.pivot.inTolerance()
         ) {
@@ -313,13 +311,10 @@ open class SpinShooter(
     return cmd
   }
 
-  fun passShotT2(): Command {
+  fun passShotBehindStage(): Command {
     val cmd = FunctionalCommand(
       {
-        robot.pivot.lastProfileReference = TrapezoidProfile.State(
-          robot.pivot.positionSupplier.get(),
-          robot.pivot.velocitySupplier.get()
-        )
+        robot.pivot.resetProfileReference()
       },
       {
         robot.feeder.stopVoltage()
@@ -342,7 +337,7 @@ open class SpinShooter(
         robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
 
         if (robot.shooter.atAimSetpoint() &&
-          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+          robot.driveCommand.checkSnapToAngleTolerance() &&
           robot.mechController.hid.leftBumper &&
           robot.pivot.inTolerance()
         ) {
@@ -360,13 +355,10 @@ open class SpinShooter(
     return cmd
   }
 
-  fun passShotT3(): Command {
+  fun passShotAmpSide(): Command {
     val cmd = FunctionalCommand(
       {
-        robot.pivot.lastProfileReference = TrapezoidProfile.State(
-          robot.pivot.positionSupplier.get(),
-          robot.pivot.velocitySupplier.get()
-        )
+        robot.pivot.resetProfileReference()
       },
       {
         robot.feeder.stopVoltage()
@@ -389,7 +381,7 @@ open class SpinShooter(
         robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
 
         if (robot.shooter.atAimSetpoint() &&
-          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+          robot.driveCommand.checkSnapToAngleTolerance() &&
           robot.mechController.hid.leftBumper &&
           robot.pivot.inTolerance()
         ) {
@@ -410,10 +402,7 @@ open class SpinShooter(
   fun autoAim(): Command {
     val cmd = FunctionalCommand(
       {
-        robot.pivot.lastProfileReference = TrapezoidProfile.State(
-          robot.pivot.positionSupplier.get(),
-          robot.pivot.velocitySupplier.get()
-        )
+        robot.pivot.resetProfileReference()
 
         val robotToPoint = FieldConstants.SPEAKER_POSE - robot.drive.pose.translation
         robotAngleGoal = (robotToPoint.angle + Rotation2d(if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)).radians
@@ -475,7 +464,7 @@ open class SpinShooter(
         robot.driveCommand.snapToAngle(desiredAngle.radians, 0.0)
 
         if (robot.shooter.atAimSetpoint() &&
-          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+          robot.driveCommand.checkSnapToAngleTolerance() &&
           robot.pivot.inShootAnywhereTolerance(angle) &&
           robot.mechController.hid.leftBumper
         ) {
@@ -634,7 +623,7 @@ open class SpinShooter(
     builder.addDoubleProperty("5.2 Right Inpt Err Voltage", { -rightObserver.getXhat(1) }, null)
     builder.publishConstString("6.0", "Shoot from Anywhere")
     builder.addDoubleProperty("6.1 Speaker Distance (meters)", { abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)) }, null)
-    builder.addBooleanProperty("6.2 Drive In Angle Tol", { abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD }, null)
+    builder.addBooleanProperty("6.2 Drive In Angle Tol", { robot.driveCommand.checkSnapToAngleTolerance() }, null)
   }
 
   companion object {

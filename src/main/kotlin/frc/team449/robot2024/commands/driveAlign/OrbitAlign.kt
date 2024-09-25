@@ -1,6 +1,7 @@
 package frc.team449.robot2024.commands.driveAlign
 
 import edu.wpi.first.math.MathUtil
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
@@ -59,7 +60,11 @@ class OrbitAlign(
 
   private val timer = Timer()
 
-  private val rotCtrl = RobotConstants.ORTHOGONAL_CONTROLLER
+  private val rotCtrl = PIDController(
+    RobotConstants.SNAP_KP,
+    RobotConstants.SNAP_KI,
+    RobotConstants.SNAP_KD
+  )
 
   private var skewConstant = SwerveConstants.SKEW_CONSTANT
 

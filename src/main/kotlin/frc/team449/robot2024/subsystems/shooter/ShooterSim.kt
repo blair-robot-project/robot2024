@@ -13,11 +13,11 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim
 import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.ShooterConstants
-import frc.team449.system.motor.WrappedMotor
+import frc.team449.system.motor.WrappedNEO
 import java.util.function.Supplier
 
 class ShooterSim(
-  motor: WrappedMotor,
+  motor: WrappedNEO,
   controller: LinearQuadraticRegulator<N1, N1, N1>,
   observer: KalmanFilter<N2, N1, N1>,
   feedforward: LinearPlantInversionFeedforward<N1, N1, N1>,

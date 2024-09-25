@@ -1,14 +1,15 @@
 package frc.team449.control.holonomic
 
+import com.ctre.phoenix6.controls.VelocityVoltage
+import com.ctre.phoenix6.hardware.TalonFX
 import edu.wpi.first.math.controller.PIDController
-import edu.wpi.first.math.controller.SimpleMotorFeedforward
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.Timer
-import frc.team449.robot2024.constants.drives.SwerveConstants
+import frc.team449.robot2024.constants.drives.SwerveConstantsKraken
 import frc.team449.system.encoder.Encoder
 import frc.team449.system.motor.WrappedNEO
 import kotlin.math.PI
@@ -20,24 +21,19 @@ import kotlin.math.sign
  * @param name The name of the module (used for logging).
  * @param drivingMotor The motor that controls the speed of the module.
  * @param turningMotor The motor that controls the angle of the module
- * @param driveController The velocity control for speed of the module
  * @param turnController The position control for the angle of the module
- * @param driveFeedforward The voltage predicting equation for a given speed of the module.
  * @param location The location of the module in reference to the center of the robot.
  * NOTE: In relation to the robot [+X is forward, +Y is left, and +THETA is Counter Clock-Wise].
  */
-open class SwerveModule(
+open class SwerveModuleKraken(
   private val name: String,
-  private val drivingMotor: WrappedNEO,
+  private val drivingMotor: TalonFX,
   private val turningMotor: WrappedNEO,
-  val driveController: PIDController,
   val turnController: PIDController,
-  private val driveFeedforward: SimpleMotorFeedforward,
   val location: Translation2d
 ) {
   init {
     turnController.enableContinuousInput(.0, 2 * PI)
-    driveController.reset()
     turnController.reset()
   }
 
@@ -50,7 +46,7 @@ open class SwerveModule(
   open var state: SwerveModuleState
     get() {
       return SwerveModuleState(
-        drivingMotor.velocity,
+        drivingMotor.velocity.value,
         Rotation2d(turningMotor.position)
       )
     }
@@ -66,7 +62,6 @@ open class SwerveModule(
       )
 
       turnController.setpoint = optimizedState.angle.radians
-      driveController.setpoint = optimizedState.speedMetersPerSecond
       desiredState.speedMetersPerSecond = optimizedState.speedMetersPerSecond
       desiredState.angle = optimizedState.angle
     }
@@ -75,13 +70,12 @@ open class SwerveModule(
   open val position: SwerveModulePosition
     get() {
       return SwerveModulePosition(
-        drivingMotor.position,
+        drivingMotor.position.value,
         Rotation2d(turningMotor.position)
       )
     }
 
   fun setVoltage(volts: Double) {
-    driveController.setpoint = 0.0
     desiredState.speedMetersPerSecond = 0.0
     turnController.setpoint = 0.0
 
@@ -97,13 +91,11 @@ open class SwerveModule(
 
   open fun update() {
     /** CONTROL speed of module */
-    val drivePid = driveController.calculate(
-      drivingMotor.velocity
+    drivingMotor.setControl(
+      VelocityVoltage(desiredState.speedMetersPerSecond / SwerveConstantsKraken.DRIVE_UPR)
+        .withUpdateFreqHz(1000.0)
+        .withEnableFOC(SwerveConstantsKraken.USE_FOC)
     )
-    val driveFF = driveFeedforward.calculate(
-      desiredState.speedMetersPerSecond
-    )
-    drivingMotor.setVoltage(drivePid + driveFF)
 
     /** CONTROL direction of module */
     val turnPid = turnController.calculate(
@@ -113,7 +105,7 @@ open class SwerveModule(
     turningMotor.set(
       turnPid +
         sign(desiredState.angle.radians - turningMotor.position) *
-          SwerveConstants.STEER_KS
+          SwerveConstantsKraken.STEER_KS
     )
   }
 
@@ -121,31 +113,25 @@ open class SwerveModule(
     /** Create a real or simulated [SwerveModule] based on the simulation status of the robot. */
     fun create(
       name: String,
-      drivingMotor: WrappedNEO,
+      drivingMotor: TalonFX,
       turningMotor: WrappedNEO,
-      driveController: PIDController,
       turnController: PIDController,
-      driveFeedforward: SimpleMotorFeedforward,
       location: Translation2d
-    ): SwerveModule {
+    ): SwerveModuleKraken {
       if (RobotBase.isReal()) {
-        return SwerveModule(
+        return SwerveModuleKraken(
           name,
           drivingMotor,
           turningMotor,
-          driveController,
           turnController,
-          driveFeedforward,
           location
         )
       } else {
-        return SwerveModuleSim(
+        return SwerveModuleSimKraken(
           name,
           drivingMotor,
           turningMotor,
-          driveController,
           turnController,
-          driveFeedforward,
           location
         )
       }
@@ -154,45 +140,39 @@ open class SwerveModule(
 }
 
 /** A "simulated" swerve module. Immediately reaches to its desired state. */
-class SwerveModuleSim(
+class SwerveModuleSimKraken(
   name: String,
-  drivingMotor: WrappedNEO,
+  drivingMotor: TalonFX,
   turningMotor: WrappedNEO,
-  driveController: PIDController,
   turnController: PIDController,
-  driveFeedforward: SimpleMotorFeedforward,
   location: Translation2d
-) : SwerveModule(
+) : SwerveModuleKraken(
   name,
   drivingMotor,
   turningMotor,
-  driveController,
   turnController,
-  driveFeedforward,
   location
 ) {
   private val turningMotorEncoder = Encoder.SimController(turningMotor.encoder)
-  private val driveEncoder = Encoder.SimController(drivingMotor.encoder)
+
+  private var drivePosition = 0.0
+  private var driveVelocity = 0.0
+
   private var prevTime = Timer.getFPGATimestamp()
   override var state: SwerveModuleState
     get() = SwerveModuleState(
-      driveEncoder.velocity,
+      driveVelocity,
       Rotation2d(turningMotorEncoder.position)
     )
     set(desiredState) {
       super.state = desiredState
       turningMotorEncoder.position = desiredState.angle.radians
-      driveEncoder.velocity = desiredState.speedMetersPerSecond
+      driveVelocity = desiredState.speedMetersPerSecond
     }
-  override val position: SwerveModulePosition
-    get() = SwerveModulePosition(
-      driveEncoder.position,
-      Rotation2d(turningMotorEncoder.position)
-    )
 
   override fun update() {
     val currTime = Timer.getFPGATimestamp()
-    driveEncoder.position += driveEncoder.velocity * (currTime - prevTime)
+    drivePosition += driveVelocity * (currTime - prevTime)
     prevTime = currTime
   }
 }

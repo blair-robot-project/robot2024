@@ -1,14 +1,7 @@
 package frc.team449.robot2024.subsystems
 
-import com.pathplanner.lib.commands.FollowPathHolonomic
-import com.pathplanner.lib.path.GoalEndState
-import com.pathplanner.lib.path.PathConstraints
-import com.pathplanner.lib.path.PathPlannerPath
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig
-import com.pathplanner.lib.util.PIDConstants
-import com.pathplanner.lib.util.ReplanningConfig
+import com.ctre.phoenix6.SignalLogger
 import edu.wpi.first.math.MathUtil
-import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.units.Measure
 import edu.wpi.first.units.MutableMeasure.mutable
@@ -21,12 +14,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
-import frc.team449.control.auto.PIDPoseAlign
 import frc.team449.robot2024.Robot
 import frc.team449.robot2024.commands.driveAlign.OrbitAlign
 import frc.team449.robot2024.constants.RobotConstants
-import frc.team449.robot2024.constants.auto.AutoConstants
-import frc.team449.robot2024.constants.drives.SwerveConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.FeederConstants
 import kotlin.jvm.optionals.getOrNull
@@ -57,13 +47,9 @@ class ControllerBindings(
       Volts.of(0.5).per(Seconds.of(1.0)),
       Volts.of(3.0),
       Seconds.of(10.0)
-    ),
+    ) { state -> SignalLogger.writeString("state", state.toString()) },
     Mechanism(
-      { voltage: Measure<Voltage> ->
-        run {
-          robot.shooter.setVoltage(voltage.`in`(Volts))
-        }
-      },
+      { voltage: Measure<Voltage> -> run { robot.shooter.setVoltage(voltage.`in`(Volts)) } },
       null,
       robot.shooter,
       "shooter"
@@ -162,13 +148,6 @@ class ControllerBindings(
 //      )
 //    )
 
-    mechanismController.povLeft().onTrue(
-      ParallelCommandGroup(
-        robot.shooter.shootAnywhere(),
-        robot.pivot.calibrateAngleMap()
-      )
-    )
-
     robot.mechController.povRight().onTrue(
       robot.pivot.moveAmp().alongWith(
         SequentialCommandGroup(
@@ -192,144 +171,18 @@ class ControllerBindings(
     )
 
     mechanismController.a().onTrue(
-      robot.pivot.moveStow().alongWith(
-        stopAll()
-      )
+      robot.pivot.moveStow()
     )
-
-    driveController.a().onTrue(
-      ConditionalCommand(
-        FollowPathHolonomic(
-          PathPlannerPath(
-            PathPlannerPath.bezierFromPoses(
-              Pose2d(1.825, 6.0, Rotation2d.fromDegrees(90.0)),
-              Pose2d(1.825, 7.25, Rotation2d.fromDegrees(90.0)),
-              Pose2d(1.825, 7.75, Rotation2d.fromDegrees(90.0))
-            ),
-            PathConstraints(4.0, 4.0, 2 * PI, 8 * PI),
-            GoalEndState(0.0, Rotation2d.fromDegrees(-90.0))
-          ),
-          robot.drive::pose,
-          robot.drive::currentSpeeds,
-          robot.drive::set,
-          HolonomicPathFollowerConfig(
-            PIDConstants(AutoConstants.DEFAULT_X_KP, AutoConstants.DEFAULT_X_KD, 0.0),
-            PIDConstants(AutoConstants.DEFAULT_ROTATION_KP, AutoConstants.DEFAULT_ROTATION_KD, 0.0),
-            SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED,
-            0.3486433367353,
-            ReplanningConfig(
-              true,
-              true,
-              1.0,
-              0.20
-            )
-          ),
-          { false },
-          robot.drive
-        ).andThen(
-          PIDPoseAlign(
-            robot.drive,
-            Pose2d(1.825, 7.75, Rotation2d.fromDegrees(-90.0)),
-            timeout = 0.85
-          )
-        ),
-        FollowPathHolonomic(
-          PathPlannerPath(
-            PathPlannerPath.bezierFromPoses(
-              Pose2d(FieldConstants.fieldLength - 1.825, 6.0, Rotation2d.fromDegrees(90.0)),
-              Pose2d(FieldConstants.fieldLength - 1.825, 7.25, Rotation2d.fromDegrees(90.0)),
-              Pose2d(FieldConstants.fieldLength - 1.825, 7.75, Rotation2d.fromDegrees(90.0))
-            ),
-            PathConstraints(4.0, 4.0, 2 * PI, 8 * PI),
-            GoalEndState(0.0, Rotation2d.fromDegrees(-90.0))
-          ),
-          robot.drive::pose,
-          robot.drive::currentSpeeds,
-          robot.drive::set,
-          HolonomicPathFollowerConfig(
-            PIDConstants(AutoConstants.DEFAULT_X_KP, AutoConstants.DEFAULT_X_KD, 0.0),
-            PIDConstants(AutoConstants.DEFAULT_ROTATION_KP, AutoConstants.DEFAULT_ROTATION_KD, 0.0),
-            SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED,
-            0.3486433367353,
-            ReplanningConfig(
-              true,
-              true,
-              1.0,
-              0.20
-            )
-          ),
-          { false },
-          robot.drive
-        ).andThen(
-          PIDPoseAlign(
-            robot.drive,
-            Pose2d(FieldConstants.fieldLength - 1.825, 7.75, Rotation2d.fromDegrees(-90.0)),
-            timeout = 0.85
-          )
-        )
-      ) { DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue }
-        .deadlineWith(
-          robot.undertaker.intake()
-            .andThen(
-              WaitCommand(0.175),
-              robot.pivot.moveAmp()
-                .alongWith(
-                  robot.shooter.scoreAmp()
-                )
-            )
-        )
-        .andThen(
-          robot.pivot.moveAmp()
-            .alongWith(
-              robot.shooter.scoreAmp(),
-              WaitUntilCommand { robot.pivot.inAmpTolerance() && robot.shooter.atAmpSetpoint() }
-                .andThen(robot.feeder.intake())
-            )
-            .until { robot.infrared.get() && robot.closeToShooterInfrared.get() }
-        )
-    )
-
-//    driveController.leftBumper().onTrue(
-//      SequentialCommandGroup(
-//        checkNoteInLocation(),
-//        robot.undertaker.slowIntake(),
-//        WaitCommand(0.10),
-//        robot.shooter.podiumShot()
-//      )
-//    ).onFalse(
-//      ParallelCommandGroup(
-//        robot.undertaker.stop(),
-//        robot.shooter.rampStop(),
-//        robot.feeder.stop(),
-//        robot.pivot.moveStow()
-//      )
-//    )
 
     driveController.leftBumper().onTrue(
       SequentialCommandGroup(
-        InstantCommand({ robot.drive.maxLinearSpeed = 1.10 })
-          .andThen(InstantCommand({ robot.drive.maxRotSpeed = PI / 2 })),
         checkNoteInLocation(),
-        ConditionalCommand(
-          SequentialCommandGroup(
-            robot.undertaker.stop(),
-            robot.feeder.outtake(),
-            robot.shooter.duringIntake(),
-            WaitUntilCommand { robot.closeToShooterInfrared.get() },
-            stopIntake()
-          ),
-          stopIntake()
-        ) { !robot.closeToShooterInfrared.get() },
         robot.undertaker.slowIntake(),
-        WaitCommand(0.30),
-        robot.shooter.autoAim()
+        WaitCommand(0.10),
+        robot.shooter.podiumShot()
       )
     ).onFalse(
       ParallelCommandGroup(
-        InstantCommand({ robot.drive.maxLinearSpeed = RobotConstants.MAX_LINEAR_SPEED })
-          .andThen(
-            InstantCommand({ robot.drive.maxRotSpeed = RobotConstants.MAX_ROT_SPEED })
-          ),
         robot.undertaker.stop(),
         robot.shooter.rampStop(),
         robot.feeder.stop(),
@@ -450,21 +303,21 @@ class ControllerBindings(
 //        .andThen(checkNoteInLocation())
 //    )
 
-    mechanismController.x().onTrue(
-      SequentialCommandGroup(
-        checkNoteInLocation(),
-        WaitUntilCommand { robot.shooter.atSetpoint() },
-        robot.feeder.intake(),
-        robot.undertaker.intake(),
-      ).alongWith(
-        robot.shooter.shootPass(),
-        robot.pivot.movePass()
-      )
-    ).onFalse(
-      stopAll().alongWith(
-        robot.pivot.moveStow()
-      )
-    )
+//    mechanismController.x().onTrue(
+//      SequentialCommandGroup(
+//        checkNoteInLocation(),
+//        WaitUntilCommand { robot.shooter.atSetpoint() },
+//        robot.feeder.intake(),
+//        robot.undertaker.intake(),
+//      ).alongWith(
+//        robot.shooter.shootPass(),
+//        robot.pivot.movePass()
+//      )
+//    ).onFalse(
+//      stopAll().alongWith(
+//        robot.pivot.moveStow()
+//      )
+//    )
 
     mechanismController.back().onTrue(
       SequentialCommandGroup(

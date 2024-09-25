@@ -10,7 +10,7 @@ import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.ClimberConstants
 import frc.team449.system.encoder.NEOEncoder
-import frc.team449.system.motor.WrappedMotor
+import frc.team449.system.motor.WrappedNEO
 import frc.team449.system.motor.createSparkMax
 import java.util.function.DoubleSupplier
 import kotlin.math.pow
@@ -18,8 +18,8 @@ import kotlin.math.sign
 
 class Climber(
   private val robot: Robot,
-  private val rightMotor: WrappedMotor,
-  private val leftMotor: WrappedMotor,
+  private val rightMotor: WrappedNEO,
+  private val leftMotor: WrappedNEO,
   private val controller: PIDController
 ) : SubsystemBase() {
   private var simCurrentPos = 0.0

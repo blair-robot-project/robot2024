@@ -4,7 +4,6 @@ import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
 import edu.wpi.first.math.estimator.KalmanFilter
-import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.math.numbers.N3
@@ -16,11 +15,11 @@ import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
 import frc.team449.system.encoder.QuadEncoder
-import frc.team449.system.motor.WrappedMotor
+import frc.team449.system.motor.WrappedNEO
 import java.util.function.Supplier
 
 class PivotSim(
-  simmedMotor: WrappedMotor,
+  simmedMotor: WrappedNEO,
   encoder: QuadEncoder,
   controller: LinearQuadraticRegulator<N2, N1, N1>,
   fastController: LinearQuadraticRegulator<N2, N1, N1>,
@@ -46,7 +45,7 @@ class PivotSim(
     PivotConstants.ARM_LENGTH,
     PivotConstants.MIN_ANGLE,
     PivotConstants.MAX_ANGLE,
-    true,
+    false,
     PivotConstants.MIN_ANGLE
   )
 
@@ -71,25 +70,7 @@ class PivotSim(
   override fun initSendable(builder: SendableBuilder) {
     super.initSendable(builder)
 
-    builder.publishConstString("4.0", "Current")
-    builder.addDoubleProperty("4.1 Simulated current Draw", { currentDraw }, {})
-
-    builder.publishConstString("5.0", "Advantage Scope 3D Pos")
-    builder.addDoubleArrayProperty(
-      "5.1 3D Position",
-      {
-        val angle = Rotation3d(0.0, -currentState.first, 0.0)
-        doubleArrayOf(
-          -0.225,
-          0.095,
-          0.51,
-          angle.quaternion.w,
-          angle.quaternion.x,
-          angle.quaternion.y,
-          angle.quaternion.z,
-        )
-      },
-      null
-    )
+    builder.publishConstString("6.0", "Current")
+    builder.addDoubleProperty("6.1 Simulated current Draw", { currentDraw }, {})
   }
 }

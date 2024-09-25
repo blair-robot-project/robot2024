@@ -3,6 +3,7 @@ package frc.team449.robot2024.auto
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.Nat
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.util.Units
@@ -22,6 +23,12 @@ import kotlin.math.PI
 import kotlin.math.abs
 
 object AutoUtil {
+
+  val turnController = PIDController(
+    RobotConstants.SNAP_KP,
+    RobotConstants.SNAP_KI,
+    RobotConstants.SNAP_KD
+  )
 
   fun autoJiggle(robot: Robot): Command {
     return SequentialCommandGroup(
@@ -46,6 +53,20 @@ object AutoUtil {
     )
   }
 
+  private fun autoReadyNote(robot: Robot): Command {
+    return ConditionalCommand(
+      SequentialCommandGroup(
+        ParallelCommandGroup(
+          robot.undertaker.slowIntake(),
+          robot.feeder.verySlowIntake(),
+        ),
+        WaitUntilCommand { !robot.closeToShooterInfrared.get() },
+        robot.feeder.stop()
+      ),
+      InstantCommand()
+    ) { robot.closeToShooterInfrared.get() }
+  }
+
   fun autoIntake(robot: Robot): Command {
     return ParallelCommandGroup(
       SequentialCommandGroup(
@@ -56,7 +77,7 @@ object AutoUtil {
         ConditionalCommand(
           SequentialCommandGroup(
             robot.feeder.outtake(),
-            WaitUntilCommand { !robot.closeToShooterInfrared.get() },
+            WaitUntilCommand { robot.closeToShooterInfrared.get() },
             robot.feeder.stop()
           ),
           SequentialCommandGroup(
@@ -98,26 +119,6 @@ object AutoUtil {
     )
   }
 
-  fun autoIntakePass(robot: Robot): Command {
-    return ParallelCommandGroup(
-      SequentialCommandGroup(
-        robot.undertaker.intake(),
-        robot.feeder.slowIntake(),
-        WaitUntilCommand { !robot.infrared.get() },
-        robot.undertaker.stop(),
-        ConditionalCommand(
-          SequentialCommandGroup(
-            robot.feeder.outtake(),
-            WaitUntilCommand { !robot.closeToShooterInfrared.get() },
-            robot.feeder.stop()
-          ),
-          robot.feeder.stop(),
-        ) { !robot.closeToShooterInfrared.get() }
-      ),
-      robot.shooter.shootSubwoofer()
-    )
-  }
-
   fun autoShoot(robot: Robot): Command {
     return ConditionalCommand(
       ParallelDeadlineGroup(
@@ -153,7 +154,6 @@ object AutoUtil {
     return ConditionalCommand(
       ParallelDeadlineGroup(
         SequentialCommandGroup(
-          WaitUntilCommand { robot.shooter.atAutoSetpoint() }.withTimeout(AutoConstants.AUTO_SPINUP_TIMEOUT_SECONDS),
           robot.feeder.autoShootIntake(),
           robot.undertaker.intake(),
           SequentialCommandGroup(
@@ -330,13 +330,10 @@ object AutoUtil {
         robot.feeder.slowIntake(),
         WaitUntilCommand { !robot.infrared.get() },
         autoJiggle(robot),
-        ParallelCommandGroup(
-          SequentialCommandGroup(
-            autoJiggle(robot),
-            autoJiggle(robot)
-          ),
-          robot.pivot.moveAngleCmdAuto(angle)
-        ),
+        autoJiggle(robot),
+        autoJiggle(robot),
+        autoReadyNote(robot),
+        robot.pivot.moveAngleCmdAuto(angle)
       ),
       SequentialCommandGroup(
         robot.shooter.shootAnywhere()
@@ -409,7 +406,7 @@ object AutoUtil {
             MathUtil.angleModulus(driveAngle)
           }
 
-          RobotConstants.ORTHOGONAL_CONTROLLER.setpoint = robotAngle
+          turnController.setpoint = robotAngle
         },
         {
           val robotAngle = if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
@@ -433,14 +430,14 @@ object AutoUtil {
             ChassisSpeeds(
               0.0,
               0.0,
-              RobotConstants.ORTHOGONAL_CONTROLLER.calculate(
+              turnController.calculate(
                 robot.drive.heading.radians
               )
             )
           )
 
           if (robot.shooter.atSetpoint() &&
-            abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+            abs(turnController.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
             (
               (robot.pivot.inAutoTolerance(pivotAngle) && !fast) ||
                 (fast && robot.pivot.inTolerance(pivotAngle))
@@ -486,7 +483,7 @@ object AutoUtil {
             ChassisSpeeds(
               0.0,
               0.0,
-              RobotConstants.ORTHOGONAL_CONTROLLER.calculate(
+              turnController.calculate(
                 robot.drive.heading.radians,
                 desiredAngle.radians
               )
@@ -494,7 +491,7 @@ object AutoUtil {
           )
 
           if (robot.shooter.atSetpoint() &&
-            abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+            abs(turnController.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
             robot.pivot.inAutoTolerance(pivotAngle)
           ) {
             robot.feeder.intakeVoltage()
@@ -533,7 +530,7 @@ object AutoUtil {
         val desiredAngle = robotToPoint.angle + Rotation2d(PI)
 
         if (robot.shooter.atAimSetpoint() &&
-          (abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD) &&
+          (abs(turnController.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD) &&
           robot.pivot.inAutoTolerance(pivotAngle)
         ) {
           robot.feeder.intakeVoltage()
@@ -544,7 +541,7 @@ object AutoUtil {
           ChassisSpeeds(
             0.0,
             0.0,
-            RobotConstants.ORTHOGONAL_CONTROLLER.calculate(
+            turnController.calculate(
               robot.drive.heading.radians,
               desiredAngle.radians
             )
@@ -570,7 +567,7 @@ object AutoUtil {
           {
             val fieldToRobot = robot.drive.pose.translation
             val robotToPoint = FieldConstants.SPEAKER_POSE - fieldToRobot
-            RobotConstants.ORTHOGONAL_CONTROLLER.setpoint = robotToPoint.angle.radians + PI
+            turnController.setpoint = robotToPoint.angle.radians + PI
           },
           {
             robot.shooter.shootPiece(
@@ -591,7 +588,7 @@ object AutoUtil {
               ChassisSpeeds(
                 0.0,
                 0.0,
-                RobotConstants.ORTHOGONAL_CONTROLLER.calculate(
+                turnController.calculate(
                   robot.drive.heading.radians
                 )
               )
@@ -617,7 +614,7 @@ object AutoUtil {
         {
           val fieldToRobot = robot.drive.pose.translation
           val robotToPoint = FieldConstants.SPEAKER_POSE - fieldToRobot
-          RobotConstants.ORTHOGONAL_CONTROLLER.setpoint = robotToPoint.angle.radians + PI
+          turnController.setpoint = robotToPoint.angle.radians + PI
         },
         {
           robot.shooter.shootPiece(
@@ -638,7 +635,7 @@ object AutoUtil {
             ChassisSpeeds(
               0.0,
               0.0,
-              RobotConstants.ORTHOGONAL_CONTROLLER.calculate(
+              turnController.calculate(
                 robot.drive.heading.radians
               )
             )

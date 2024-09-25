@@ -29,7 +29,7 @@ class SixPiece(
         0 to SequentialCommandGroup(
           AutoUtil.autoIntake(robot).withTimeout(1.85),
           AutoUtil.autoShootInMotion(robot),
-          AutoUtil.autoIntake(robot).withTimeout(3.55 - 2.05),
+          AutoUtil.autoIntake(robot).withTimeout(3.55 - 2.15),
           AutoUtil.autoShootInMotion(robot),
           ParallelCommandGroup(
             SequentialCommandGroup(
@@ -40,7 +40,7 @@ class SixPiece(
               ConditionalCommand(
                 SequentialCommandGroup(
                   robot.feeder.outtake(),
-                  WaitUntilCommand { !robot.closeToShooterInfrared.get() },
+                  WaitUntilCommand { robot.closeToShooterInfrared.get() },
                   robot.feeder.stop()
                 ),
                 SequentialCommandGroup(

@@ -1,6 +1,5 @@
 package frc.team449.robot2024.constants
 
-import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.system.plant.DCMotor
@@ -47,12 +46,10 @@ object RobotConstants {
 
   const val LOOP_TIME = 0.020
 
-  /** PID controller for Orthogonal turning */
-  val ORTHOGONAL_CONTROLLER = PIDController(
-    5.65,
-    0.0,
-    0.0
-  )
+  /** PID controller for snap to angle turning */
+  val SNAP_KP = 5.85
+  val SNAP_KI = 0.0
+  val SNAP_KD = 0.0
 
   const val ALIGN_ROT_SPEED = 7 * PI / 2
 

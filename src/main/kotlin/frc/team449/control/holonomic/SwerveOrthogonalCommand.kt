@@ -1,6 +1,7 @@
 package frc.team449.control.holonomic
 
 import edu.wpi.first.math.MathUtil
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
@@ -42,7 +43,11 @@ class SwerveOrthogonalCommand(
 
   private val timer = Timer()
 
-  private val rotCtrl = RobotConstants.ORTHOGONAL_CONTROLLER
+  private val rotCtrl = PIDController(
+    RobotConstants.SNAP_KP,
+    RobotConstants.SNAP_KI,
+    RobotConstants.SNAP_KD
+  )
 
   private var skewConstant = SwerveConstants.SKEW_CONSTANT
 
@@ -96,6 +101,10 @@ class SwerveOrthogonalCommand(
     usingAngVelOffset = true
   }
 
+  fun checkSnapToAngleTolerance(): Boolean {
+    return abs(rotCtrl.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD
+  }
+
   override fun execute() {
     val currTime = timer.get()
     dt = currTime - prevTime
@@ -105,7 +114,7 @@ class SwerveOrthogonalCommand(
     val ctrlY = -controller.leftX
 
     val ctrlRadius = MathUtil.applyDeadband(
-      sqrt(ctrlX.pow(2) + ctrlY.pow(2)),
+      min(sqrt(ctrlX.pow(2) + ctrlY.pow(2)), 1.0),
       RobotConstants.DRIVE_RADIUS_DEADBAND,
       1.0
     ).pow(SwerveConstants.JOYSTICK_FILTER_ORDER)

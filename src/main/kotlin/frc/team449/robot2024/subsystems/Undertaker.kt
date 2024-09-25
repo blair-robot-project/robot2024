@@ -5,11 +5,11 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.robot2024.constants.subsystem.UndertakerConstants
 import frc.team449.system.encoder.NEOEncoder
-import frc.team449.system.motor.WrappedMotor
+import frc.team449.system.motor.WrappedNEO
 import frc.team449.system.motor.createSparkMax
 
 class Undertaker(
-  private val motor: WrappedMotor
+  private val motor: WrappedNEO
 ) : SubsystemBase() {
 
   fun intake(): Command {

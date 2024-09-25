@@ -5,11 +5,11 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.robot2024.constants.subsystem.FeederConstants
 import frc.team449.system.encoder.NEOEncoder
-import frc.team449.system.motor.WrappedMotor
+import frc.team449.system.motor.WrappedNEO
 import frc.team449.system.motor.createSparkMax
 
 class Feeder(
-  val motor: WrappedMotor
+  val motor: WrappedNEO
 ) : SubsystemBase() {
 
   fun intake(): Command {
@@ -31,6 +31,12 @@ class Feeder(
   fun slowIntake(): Command {
     return this.runOnce {
       motor.setVoltage(FeederConstants.SLOW_INTAKE_VOLTAGE)
+    }
+  }
+
+  fun verySlowIntake(): Command {
+    return this.runOnce {
+      motor.setVoltage(FeederConstants.VERY_SLOW_INTAKE_VOLTAGE)
     }
   }
 

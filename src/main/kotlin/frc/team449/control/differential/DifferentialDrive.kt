@@ -13,7 +13,7 @@ import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.drives.DifferentialConstants
 import frc.team449.system.AHRS
 import frc.team449.system.encoder.QuadEncoder
-import frc.team449.system.motor.WrappedMotor
+import frc.team449.system.motor.WrappedNEO
 import frc.team449.system.motor.createSparkMax
 
 /**
@@ -26,8 +26,8 @@ import frc.team449.system.motor.createSparkMax
  * @param trackwidth The distance between the two wheel sides of the robot.
  */
 open class DifferentialDrive(
-  private val leftLeader: WrappedMotor,
-  private val rightLeader: WrappedMotor,
+  private val leftLeader: WrappedNEO,
+  private val rightLeader: WrappedNEO,
   private val ahrs: AHRS,
   private val feedForward: DifferentialDriveFeedforward,
   private val makeSidePID: () -> PIDController,

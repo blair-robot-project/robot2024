@@ -107,12 +107,12 @@ class VisionEstimator(
         return Optional.empty()
       }
 
-//      if ((!result.multiTagResult.fiducialIDsUsed.containsAll(listOf(3, 4)) && DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) ||
-//        (!result.multiTagResult.fiducialIDsUsed.containsAll(listOf(7, 8)) && DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue)
-//      ) {
-//        println("throwing away estimate, non speaker")
-//        return Optional.empty()
-//      }
+      if ((!result.multiTagResult.fiducialIDsUsed.containsAll(listOf(3, 4)) && DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) ||
+        (!result.multiTagResult.fiducialIDsUsed.containsAll(listOf(7, 8)) && DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue)
+      ) {
+        println("throwing away estimate, non speaker")
+        return Optional.empty()
+      }
 
       Optional.of(
         EstimatedRobotPose(
@@ -123,7 +123,7 @@ class VisionEstimator(
         )
       )
     } else {
-      println("getting into single tag")
+//      println("getting into single tag")
       lowestAmbiguityStrategy(result)
       Optional.empty()
     }

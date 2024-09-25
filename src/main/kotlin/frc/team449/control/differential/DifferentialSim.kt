@@ -8,12 +8,12 @@ import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim
 import frc.team449.system.AHRS
 import frc.team449.system.encoder.Encoder
-import frc.team449.system.motor.WrappedMotor
+import frc.team449.system.motor.WrappedNEO
 
 class DifferentialSim(
   private val driveSim: DifferentialDrivetrainSim,
-  leftLeader: WrappedMotor,
-  rightLeader: WrappedMotor,
+  leftLeader: WrappedNEO,
+  rightLeader: WrappedNEO,
   ahrs: AHRS,
   private val feedForward: DifferentialDriveFeedforward,
   makeVelPID: () -> PIDController,

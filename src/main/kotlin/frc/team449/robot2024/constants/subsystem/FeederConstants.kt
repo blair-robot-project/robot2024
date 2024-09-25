@@ -9,6 +9,7 @@ object FeederConstants {
 
   const val INTAKE_VOLTAGE = 7.0
   const val SLOW_INTAKE_VOLTAGE = 3.85
+  const val VERY_SLOW_INTAKE_VOLTAGE = 1.35
   const val AUTO_SHOOT_INTAKE_VOLTAGE = 12.0
   const val REVERSE_VOLTAGE = -2.15
 

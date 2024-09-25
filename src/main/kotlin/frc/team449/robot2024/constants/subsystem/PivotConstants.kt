@@ -3,6 +3,7 @@ package frc.team449.robot2024.constants.subsystem
 import edu.wpi.first.math.controller.ArmFeedforward
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj.Encoder
+import edu.wpi.first.wpilibj.RobotBase
 import frc.team449.robot2024.constants.MotorConstants
 import kotlin.math.PI
 
@@ -35,11 +36,11 @@ object PivotConstants {
 
   const val EFFICIENCY = 0.875
 
-  const val ARM_LENGTH = 1.0
+  const val ARM_LENGTH = 0.4027778
 
   val SIMPLE_FF = ArmFeedforward(
-    0.13496,
-    0.34977,
+    if (RobotBase.isReal()) 0.13496 else 0.0,
+    if (RobotBase.isReal()) 0.34977 else 0.0,
     0.0
   )
 
@@ -49,7 +50,7 @@ object PivotConstants {
   val MODEL_POS_DEVIATION = Units.degreesToRadians(10.0)
   val MODEL_VEL_DEVIATION = Units.degreesToRadians(20.0)
   const val MODEL_INPUT_ERROR_DEVIATION = 0.050
-  val ENCODER_POS_DEVIATION = Units.degreesToRadians(0.175)
+  val ENCODER_POS_DEVIATION = Units.degreesToRadians(0.025)
 
   val START_INPT_ERR = Units.degreesToRadians(5.0)
 
@@ -65,14 +66,15 @@ object PivotConstants {
 
   val AUTO_POS_TOLERANCE = Units.degreesToRadians(1.0)
   val AUTO_VEL_TOLERANCE = Units.degreesToRadians(10.0)
-  val AUTO_MAX_POS_ERROR = Units.degreesToRadians(0.85)
+  val AUTO_MAX_POS_ERROR = Units.degreesToRadians(0.90)
 
-  val SHOOT_ANYWHERE_POS_TOLERANCE = Units.degreesToRadians(1.0)
+  val SHOOT_ANYWHERE_POS_TOLERANCE = Units.degreesToRadians(0.95)
 
   val MAX_POS_ERROR = Units.degreesToRadians(1.65)
-  val AMP_TOL = Units.degreesToRadians(25.0)
-  val AMP_VEL_TOL = Units.degreesToRadians(85.0)
-  val MAX_VEL_ERROR = Units.degreesToRadians(40.0)
+  val AMP_TOL_RANGE = 75.0..115.0
+  val AMP_VEL_TOL = Units.degreesToRadians(115.0)
+  val STOW_TOL = Units.degreesToRadians(12.5)
+  val MAX_VEL_ERROR = Units.degreesToRadians(30.0)
 
   const val MAX_VOLTAGE = 12.0
 
@@ -85,7 +87,7 @@ object PivotConstants {
 
   const val SLOW_ACCEL = 0.5804 * 21.75 // this some fire, actual value is 12.6237
 
-  const val AUTO_ACCEL = 2.5
+  const val AUTO_ACCEL = 2.75
 
   val MIN_ANGLE = Units.degreesToRadians(0.0)
   val MAX_ANGLE = Units.degreesToRadians(105.0)

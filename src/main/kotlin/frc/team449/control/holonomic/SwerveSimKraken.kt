@@ -16,14 +16,14 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.random.Random
 
-class SwerveSim(
-  modules: List<SwerveModule>,
+class SwerveSimKraken(
+  modules: List<SwerveModuleKraken>,
   ahrs: AHRS,
   maxLinearSpeed: Double,
   maxRotSpeed: Double,
   cameras: List<VisionSubsystem>,
   field: Field2d
-) : SwerveDrive(modules, ahrs, maxLinearSpeed, maxRotSpeed, cameras, field) {
+) : SwerveDriveKraken(modules, ahrs, maxLinearSpeed, maxRotSpeed, cameras, field) {
 
   private var lastTime = getFPGATimestamp()
   var odoPose = Pose2d()
@@ -55,12 +55,12 @@ class SwerveSim(
 
   fun resetPos() {
     val newPose = Pose2d(
-      poseEstimator.estimatedPosition.x + Random.nextDouble(-1.0, 1.0),
-      poseEstimator.estimatedPosition.y + Random.nextDouble(-1.0, 1.0),
-      poseEstimator.estimatedPosition.rotation
+      odometry.poseMeters.x + Random.nextDouble(-1.0, 1.0),
+      odometry.poseMeters.y + Random.nextDouble(-1.0, 1.0),
+      odometry.poseMeters.rotation
     )
 
-    poseEstimator.resetPosition(
+    odometry.resetPosition(
       currHeading,
       getPositions(),
       newPose

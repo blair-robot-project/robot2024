@@ -11,14 +11,12 @@ import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
-import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
 import frc.team449.robot2024.Robot
-import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
 import frc.team449.robot2024.constants.subsystem.SpinShooterKrakenConstants
@@ -41,8 +39,6 @@ open class SpinShooterKraken(
 
   open val rightVelocity: Supplier<Double> = rightMotor.velocity.asSupplier()
   open val leftVelocity: Supplier<Double> = leftMotor.velocity.asSupplier()
-
-  private val velocityRequest = VelocityVoltage(0.0).withSlot(0).withEnableFOC(false).withUpdateFreqHz(500.0)
 
   private val leftRateLimiter = SlewRateLimiter(SpinShooterKrakenConstants.BRAKE_RATE_LIMIT)
   private val rightRateLimiter = SlewRateLimiter(SpinShooterKrakenConstants.BRAKE_RATE_LIMIT)
@@ -124,7 +120,9 @@ open class SpinShooterKraken(
 
   fun podiumShot(): Command {
     val cmd = FunctionalCommand(
-      { },
+      {
+        robot.pivot.resetProfileReference()
+      },
       {
         shootPiece(
           SpinShooterKrakenConstants.ANYWHERE_LEFT_SPEED,
@@ -152,15 +150,15 @@ open class SpinShooterKraken(
         robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
 
         if (robot.shooter.atSetpoint() &&
-          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
-          robot.pivot.inTolerance() &&
+          robot.driveCommand.checkSnapToAngleTolerance() &&
+          robot.pivot.inTolerance(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE)) &&
           robot.mechController.hid.leftBumper
         ) {
           robot.feeder.intakeVoltage()
         }
       },
       { },
-      { !robot.driveController.hid.leftBumper },
+      { robot.infrared.get() && robot.closeToShooterInfrared.get() },
       this,
       robot.pivot,
       robot.feeder,
@@ -173,15 +171,10 @@ open class SpinShooterKraken(
   fun passShotSourceSide(): Command {
     val cmd = FunctionalCommand(
       {
-        robot.pivot.lastProfileReference = TrapezoidProfile.State(
-          robot.pivot.positionSupplier.get(),
-          robot.pivot.velocitySupplier.get()
-        )
+        robot.pivot.resetProfileReference()
       },
       {
-        robot.feeder.stopVoltage()
-
-        robot.pivot.moveToAngleSlow(PivotConstants.PASS_ANGLE)
+        robot.pivot.moveToAngleSlow(PivotConstants.STOW_ANGLE)
 
         shootPiece(
           SpinShooterKrakenConstants.PASS_LEFT_SPEED,
@@ -199,12 +192,14 @@ open class SpinShooterKraken(
         robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
 
         if (robot.shooter.atAimSetpoint() &&
-          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
-          robot.mechController.hid.leftBumper &&
-          robot.pivot.inTolerance()
+          robot.driveCommand.checkSnapToAngleTolerance() &&
+          robot.driveController.hid.xButton &&
+          robot.pivot.inTolerance(PivotConstants.STOW_ANGLE)
         ) {
           robot.feeder.intakeVoltage()
           robot.undertaker.intakeVoltage()
+        } else {
+          robot.feeder.stopVoltage()
         }
       },
       { },
@@ -220,15 +215,10 @@ open class SpinShooterKraken(
   fun passShotBehindStage(): Command {
     val cmd = FunctionalCommand(
       {
-        robot.pivot.lastProfileReference = TrapezoidProfile.State(
-          robot.pivot.positionSupplier.get(),
-          robot.pivot.velocitySupplier.get()
-        )
+        robot.pivot.resetProfileReference()
       },
       {
-        robot.feeder.stopVoltage()
-
-        robot.pivot.moveToAngleSlow(PivotConstants.PASS_ANGLE_T2)
+        robot.pivot.moveToAngleSlow(PivotConstants.STOW_ANGLE)
 
         shootPiece(
           SpinShooterKrakenConstants.PASS2_LEFT_SPEED,
@@ -246,12 +236,14 @@ open class SpinShooterKraken(
         robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
 
         if (robot.shooter.atAimSetpoint() &&
-          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
-          robot.mechController.hid.leftBumper &&
-          robot.pivot.inTolerance()
+          robot.driveCommand.checkSnapToAngleTolerance() &&
+          robot.driveController.hid.xButton &&
+          robot.pivot.inTolerance(PivotConstants.STOW_ANGLE)
         ) {
           robot.feeder.intakeVoltage()
           robot.undertaker.intakeVoltage()
+        } else {
+          robot.feeder.stopVoltage()
         }
       },
       { },
@@ -267,10 +259,7 @@ open class SpinShooterKraken(
   fun passShotAmpSide(): Command {
     val cmd = FunctionalCommand(
       {
-        robot.pivot.lastProfileReference = TrapezoidProfile.State(
-          robot.pivot.positionSupplier.get(),
-          robot.pivot.velocitySupplier.get()
-        )
+        robot.pivot.resetProfileReference()
       },
       {
         robot.feeder.stopVoltage()
@@ -293,9 +282,9 @@ open class SpinShooterKraken(
         robot.driveCommand.snapToAngle(robotToPoint.angle.radians + if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
 
         if (robot.shooter.atAimSetpoint() &&
-          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+          robot.driveCommand.checkSnapToAngleTolerance() &&
           robot.mechController.hid.leftBumper &&
-          robot.pivot.inTolerance()
+          robot.pivot.inTolerance(PivotConstants.PASS_ANGLE_T3)
         ) {
           robot.feeder.intakeVoltage()
           robot.undertaker.intakeVoltage()
@@ -311,13 +300,10 @@ open class SpinShooterKraken(
     return cmd
   }
 
-  fun autoAim(): Command {
+  fun autoAimSpeedComp(): Command {
     val cmd = FunctionalCommand(
       {
-        robot.pivot.lastProfileReference = TrapezoidProfile.State(
-          robot.pivot.positionSupplier.get(),
-          robot.pivot.velocitySupplier.get()
-        )
+        robot.pivot.resetProfileReference()
 
         val robotToPoint = FieldConstants.SPEAKER_POSE - robot.drive.pose.translation
         robotAngleGoal = (robotToPoint.angle + Rotation2d(if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)).radians
@@ -379,9 +365,71 @@ open class SpinShooterKraken(
         robot.driveCommand.snapToAngle(desiredAngle.radians, 0.0)
 
         if (robot.shooter.atAimSetpoint() &&
-          abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD &&
+          robot.driveCommand.checkSnapToAngleTolerance() &&
           robot.pivot.inShootAnywhereTolerance(angle) &&
           robot.mechController.hid.leftBumper
+        ) {
+          robot.feeder.intakeVoltage()
+        }
+      },
+      { },
+      {
+        !robot.driveController.hid.leftBumper
+      },
+      this,
+      robot.pivot,
+      robot.feeder,
+      robot.undertaker
+    )
+    cmd.name = "auto aiming with vel comp"
+    return cmd
+  }
+
+  fun autoAim(calibrationMode: Boolean = false): Command {
+    val cmd = FunctionalCommand(
+      {
+        robot.pivot.resetProfileReference()
+
+        val robotToPoint = FieldConstants.SPEAKER_POSE - robot.drive.pose.translation
+        robotAngleGoal = (robotToPoint.angle + Rotation2d(if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)).radians
+      },
+      {
+        robot.feeder.stopVoltage()
+
+        shootPiece(
+          SpinShooterKrakenConstants.ANYWHERE_LEFT_SPEED,
+          SpinShooterKrakenConstants.ANYWHERE_RIGHT_SPEED
+        )
+
+        val distance = abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation))
+
+        val angle = if (!calibrationMode) {
+          if (distance <= 1.30) {
+            0.0
+          } else {
+            SpinShooterKrakenConstants.SHOOTING_MAP.get(distance)
+          }
+        } else {
+          robot.pivot.getCalibrationAngle()
+        }
+
+        robot.pivot.moveToAngleAuto(MathUtil.clamp(angle, PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE))
+
+        val robotToPoint = FieldConstants.SPEAKER_POSE - robot.drive.pose.translation
+
+        val desiredAngle = robotToPoint.angle + Rotation2d(if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Blue) PI else 0.0)
+
+        robot.driveCommand.snapToAngle(desiredAngle.radians)
+
+        val currentSpeedMag = hypot(
+          robot.drive.currentSpeeds.vxMetersPerSecond,
+          robot.drive.currentSpeeds.vyMetersPerSecond
+        )
+
+        if (robot.shooter.atAimSetpoint() &&
+          robot.driveCommand.checkSnapToAngleTolerance() &&
+          robot.pivot.inShootAnywhereTolerance(angle) &&
+          currentSpeedMag < SpinShooterKrakenConstants.MAX_AUTO_AIM_DRIVE_SPEED
         ) {
           robot.feeder.intakeVoltage()
         }
@@ -439,8 +487,32 @@ open class SpinShooterKraken(
 
   fun shootPiece(leftSpeed: Double, rightSpeed: Double) {
     desiredVels = Pair(leftSpeed, rightSpeed)
-    rightMotor.setControl(velocityRequest.withVelocity(rightSpeed))
-    leftMotor.setControl(velocityRequest.withVelocity(leftSpeed))
+    rightMotor.setControl(
+      VelocityVoltage(rightSpeed)
+        .withEnableFOC(false)
+        .withUpdateFreqHz(1000.0)
+    )
+    leftMotor.setControl(
+      VelocityVoltage(leftSpeed)
+        .withEnableFOC(false)
+        .withUpdateFreqHz(1000.0)
+    )
+  }
+
+  fun shootPiece(leftSpeed: Double, rightSpeed: Double, accel: Double) {
+    desiredVels = Pair(leftSpeed, rightSpeed)
+    rightMotor.setControl(
+      VelocityVoltage(rightSpeed)
+        .withEnableFOC(false)
+        .withUpdateFreqHz(1000.0)
+        .withAcceleration(if (rightSpeed == 0.0) 0.0 else accel)
+    )
+    leftMotor.setControl(
+      VelocityVoltage(leftSpeed)
+        .withEnableFOC(false)
+        .withUpdateFreqHz(1000.0)
+        .withAcceleration(if (leftSpeed == 0.0) 0.0 else accel)
+    )
   }
 
   fun coast(): Command {
@@ -507,7 +579,7 @@ open class SpinShooterKraken(
     builder.addBooleanProperty("3.5 In tolerance", ::atAimSetpoint, null)
     builder.publishConstString("4.0", "Shoot from Anywhere")
     builder.addDoubleProperty("4.1 Speaker Distance (meters)", { abs(FieldConstants.SPEAKER_POSE.getDistance(robot.drive.pose.translation)) }, null)
-    builder.addBooleanProperty("4.2 Drive In Angle Tol", { abs(RobotConstants.ORTHOGONAL_CONTROLLER.positionError) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD }, null)
+    builder.addBooleanProperty("4.2 Drive In Angle Tol", { robot.driveCommand.checkSnapToAngleTolerance() }, null)
   }
 
   companion object {
@@ -525,6 +597,7 @@ open class SpinShooterKraken(
 
       rightConfig.Slot0.kS = SpinShooterKrakenConstants.RIGHT_KS
       rightConfig.Slot0.kV = SpinShooterKrakenConstants.RIGHT_KV
+      rightConfig.Slot0.kA = SpinShooterKrakenConstants.RIGHT_KA
       rightConfig.Slot0.kP = SpinShooterKrakenConstants.RIGHT_KP
       rightConfig.Slot0.kI = SpinShooterKrakenConstants.RIGHT_KI
       rightConfig.Slot0.kD = SpinShooterKrakenConstants.RIGHT_KD
@@ -553,6 +626,7 @@ open class SpinShooterKraken(
 
       leftConfig.Slot0.kS = SpinShooterKrakenConstants.LEFT_KS
       leftConfig.Slot0.kV = SpinShooterKrakenConstants.LEFT_KV
+      leftConfig.Slot0.kA = SpinShooterKrakenConstants.LEFT_KA
       leftConfig.Slot0.kP = SpinShooterKrakenConstants.LEFT_KP
       leftConfig.Slot0.kI = SpinShooterKrakenConstants.LEFT_KI
       leftConfig.Slot0.kD = SpinShooterKrakenConstants.LEFT_KD
@@ -563,6 +637,8 @@ open class SpinShooterKraken(
 
       leftConfig.Feedback.SensorToMechanismRatio = SpinShooterKrakenConstants.GEARING
 
+      leftMotor.statorCurrent.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
+      leftMotor.supplyCurrent.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
       leftMotor.velocity.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
       leftMotor.motorVoltage.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)
       leftMotor.closedLoopError.setUpdateFrequency(SpinShooterKrakenConstants.UPDATE_FREQUENCY)

@@ -4,6 +4,7 @@ import edu.wpi.first.math.*
 import edu.wpi.first.math.controller.LinearPlantInversionFeedforward
 import edu.wpi.first.math.controller.LinearQuadraticRegulator
 import edu.wpi.first.math.estimator.KalmanFilter
+import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.math.numbers.N3
@@ -20,7 +21,7 @@ import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
 import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.encoder.QuadEncoder
-import frc.team449.system.motor.WrappedMotor
+import frc.team449.system.motor.WrappedNEO
 import frc.team449.system.motor.createSparkMax
 import java.util.function.Supplier
 import kotlin.Pair
@@ -29,7 +30,7 @@ import kotlin.math.abs
 import kotlin.math.pow
 
 open class Pivot(
-  val motor: WrappedMotor,
+  val motor: WrappedNEO,
   val encoder: QuadEncoder,
   private val controller: LinearQuadraticRegulator<N2, N1, N1>,
   private val fastController: LinearQuadraticRegulator<N2, N1, N1>,
@@ -61,7 +62,7 @@ open class Pivot(
   open val velocitySupplier: Supplier<Double> =
     Supplier { encoder.velocity }
 
-  var lastProfileReference = TrapezoidProfile.State(
+  private var lastProfileReference = TrapezoidProfile.State(
     PivotConstants.STOW_ANGLE,
     0.0
   )
@@ -238,9 +239,13 @@ open class Pivot(
   }
 
   fun moveAmp(): Command {
-    return this.run {
-      moveToAngleFast(PivotConstants.AMP_ANGLE)
-    }
+    return this.runOnce {
+      resetProfileReference()
+    }.andThen(
+      this.run {
+        moveToAngleFast(PivotConstants.AMP_ANGLE)
+      }
+    )
   }
 
   fun moveClimb(): Command {
@@ -249,16 +254,14 @@ open class Pivot(
     }
   }
 
-  fun movePass(): Command {
-    return this.run {
-      moveToAngleSlow(PivotConstants.PASS_ANGLE)
-    }
-  }
-
   fun moveAngleCmd(angle: Double): Command {
-    return this.run {
-      moveToAngleSlow(angle)
-    }
+    return this.runOnce {
+      resetProfileReference()
+    }.andThen(
+      this.run {
+        moveToAngleSlow(angle)
+      }
+    )
   }
 
   fun moveAngleCmdAuto(angle: Double): Command {
@@ -289,21 +292,37 @@ open class Pivot(
       abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_ERROR
   }
 
+  /** STRICTLY for logging, since it doesn't check for tolerance within a goal setpoint, but rather for tolerance on the profile setpoint */
+  fun inAutoTolerance(): Boolean {
+    return abs(positionSupplier.get() - lastProfileReference.position) < PivotConstants.AUTO_MAX_POS_ERROR &&
+      abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_ERROR
+  }
+
+  fun inCalibrationTolerance(): Boolean {
+    return abs(positionSupplier.get() - calibrateAngle) < PivotConstants.AUTO_MAX_POS_ERROR &&
+      abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_ERROR
+  }
+
+  fun inStowTolerance(): Boolean {
+    return abs(positionSupplier.get() - PivotConstants.STOW_ANGLE) < PivotConstants.STOW_TOL &&
+      abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_ERROR
+  }
+
   fun inShootAnywhereTolerance(pos: Double): Boolean {
     return abs(positionSupplier.get() - pos) < PivotConstants.SHOOT_ANYWHERE_POS_TOLERANCE &&
       abs(velocitySupplier.get()) < PivotConstants.MAX_VEL_ERROR
   }
 
   fun inAmpTolerance(): Boolean {
-    return abs(positionSupplier.get() - PivotConstants.AMP_ANGLE) < PivotConstants.AMP_TOL &&
+    return PivotConstants.AMP_TOL_RANGE.contains(positionSupplier.get()) &&
       abs(velocitySupplier.get()) < PivotConstants.AMP_VEL_TOL
   }
 
   fun manualUp(): Command {
     val cmd = this.run {
-      moveToAngleAuto(
+      moveToAngleSlow(
         MathUtil.clamp(
-          lastProfileReference.position + PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 5,
+          lastProfileReference.position + PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 3,
           PivotConstants.MIN_ANGLE,
           PivotConstants.MAX_ANGLE
         )
@@ -315,9 +334,9 @@ open class Pivot(
 
   fun manualDown(): Command {
     val cmd = this.run {
-      moveToAngleAuto(
+      moveToAngleSlow(
         MathUtil.clamp(
-          lastProfileReference.position - PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 5,
+          lastProfileReference.position - PivotConstants.MAX_VELOCITY * RobotConstants.LOOP_TIME / 3,
           PivotConstants.MIN_ANGLE,
           PivotConstants.MAX_ANGLE
         )
@@ -332,6 +351,13 @@ open class Pivot(
       moveToAngleSlow(PivotConstants.STOW_ANGLE)
       observer.setXhat(2, 0.0)
     }
+  }
+
+  fun resetProfileReference() {
+    lastProfileReference = TrapezoidProfile.State(
+      MathUtil.clamp(positionSupplier.get(), PivotConstants.MIN_ANGLE, PivotConstants.MAX_ANGLE),
+      velocitySupplier.get()
+    )
   }
 
   fun moveToAngleSlow(goal: Double) {
@@ -375,11 +401,8 @@ open class Pivot(
     }
   }
 
-  fun calibrateAngleMap(): Command {
-    return this.run {
-      println(calibrateAngle)
-      moveToAngleAuto(calibrateAngle)
-    }
+  fun getCalibrationAngle(): Double {
+    return calibrateAngle
   }
 
   override fun initSendable(builder: SendableBuilder) {
@@ -394,13 +417,31 @@ open class Pivot(
     builder.addDoubleProperty("2.6 Absolute Position", { motor.position }, null)
     builder.addDoubleProperty("2.7 Absolute Velocity", { motor.velocity }, null)
     builder.addBooleanProperty("2.8 In tolerance", ::inTolerance, null)
+    builder.addBooleanProperty("2.9 In AUTO tolerance", ::inAutoTolerance, null)
     builder.publishConstString("3.0", "State Space Stuff")
     builder.addDoubleProperty("3.1 Predicted Position", { observer.getXhat(0) }, null)
     builder.addDoubleProperty("3.2 Predicted Velocity", { observer.getXhat(1) }, null)
     builder.addDoubleProperty("3.3 Predicted Input Error", { -observer.getXhat(2) }, null)
     builder.addDoubleProperty("3.4 Predicted State Error", { lastProfileReference.position - observer.getXhat(0) }, null)
     builder.publishConstString("4.0", "Interpolating Angle Map")
-    builder.addDoubleProperty("4.1 Calibration Angle (Degrees)", { calibrateAngle }, { value -> calibrateAngle = PI * value / 180 })
+    builder.addDoubleProperty("4.1 Calibration Angle (Input in Degrees)", { calibrateAngle }, { value -> calibrateAngle = PI * value / 180 })
+    builder.publishConstString("5.0", "Advantage Scope 3D Pos")
+    builder.addDoubleArrayProperty(
+      "5.1 3D Position",
+      {
+        val angle = Rotation3d(0.0, -positionSupplier.get(), 0.0)
+        doubleArrayOf(
+          -0.225,
+          0.095,
+          0.51,
+          angle.quaternion.w,
+          angle.quaternion.x,
+          angle.quaternion.y,
+          angle.quaternion.z,
+        )
+      },
+      null
+    )
   }
 
   companion object {

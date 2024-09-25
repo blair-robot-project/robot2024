@@ -1,7 +1,5 @@
 package frc.team449.robot2024.auto.routines
 
-import edu.wpi.first.math.MatBuilder
-import edu.wpi.first.math.Nat
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.util.Units
@@ -18,7 +16,7 @@ import frc.team449.robot2024.constants.field.FieldConstants
 import frc.team449.robot2024.constants.subsystem.SpinShooterKrakenConstants
 import frc.team449.robot2024.constants.vision.VisionConstants
 
-class FourPieceAmpHelper(
+class ThreePieceAmpHelper(
   robot: Robot,
   isRed: Boolean
 ) : ChoreoRoutineStructure {
@@ -29,8 +27,8 @@ class FourPieceAmpHelper(
   private val shot1PivotAngle = SpinShooterKrakenConstants.SHOOTING_MAP.get(
     FieldConstants.BLUE_SPEAKER_POSE.getDistance(
       Translation2d(
-        3.7641966342926025,
-        6.230502605438232
+        3.85,
+        5.584280490875244
       )
     )
   ) - shot1Offset
@@ -38,8 +36,8 @@ class FourPieceAmpHelper(
   private val shot2PivotAngle = SpinShooterKrakenConstants.SHOOTING_MAP.get(
     FieldConstants.BLUE_SPEAKER_POSE.getDistance(
       Translation2d(
-        3.7956974506378174,
-        6.230502605438232
+        3.85,
+        5.584280490875244
       )
     )
   ) - shot2Offset
@@ -68,21 +66,16 @@ class FourPieceAmpHelper(
         0 to AutoUtil.autoShoot(robot).andThen(
           InstantCommand({
             robot.drive.enableVisionFusion = true
-            VisionConstants.MAX_DISTANCE_SINGLE_TAG = 4.5
-            VisionConstants.SINGLE_TAG_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .325, .325, 3.0))
-            VisionConstants.MULTI_TAG_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .225, .225, 3.0))
+            VisionConstants.MAX_DISTANCE_SINGLE_TAG = 1e-6
           })
         ),
         1 to AutoUtil.autoFarShootHelperVisionSlow(robot, offset = shot1Offset),
         2 to AutoUtil.autoFarShootHelperVisionSlow(robot, offset = shot2Offset),
         3 to SequentialCommandGroup(
           InstantCommand({
-            robot.drive.enableVisionFusion = true
-            VisionConstants.MAX_DISTANCE_SINGLE_TAG = 4.5
-            VisionConstants.SINGLE_TAG_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .15, .15, 3.0))
-            VisionConstants.MULTI_TAG_TRUST.setColumn(0, MatBuilder.fill(Nat.N3(), Nat.N1(), .10, .10, 3.0))
-          }),
-          InstantCommand({ robot.drive.stop() }),
+            robot.drive.stop()
+            VisionConstants.MAX_DISTANCE_SINGLE_TAG = 5.0
+          }, robot.drive),
           WaitCommand(0.50),
           robot.undertaker.stop(),
           robot.feeder.stop(),

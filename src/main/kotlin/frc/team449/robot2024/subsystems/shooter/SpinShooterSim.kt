@@ -14,12 +14,12 @@ import frc.team449.robot2024.Robot
 import frc.team449.robot2024.constants.MotorConstants
 import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.SpinShooterConstants
-import frc.team449.system.motor.WrappedMotor
+import frc.team449.system.motor.WrappedNEO
 import java.util.function.Supplier
 
 class SpinShooterSim(
-  rightMotor: WrappedMotor,
-  leftMotor: WrappedMotor,
+  rightMotor: WrappedNEO,
+  leftMotor: WrappedNEO,
   leftController: LinearQuadraticRegulator<N1, N1, N1>,
   rightController: LinearQuadraticRegulator<N1, N1, N1>,
   leftObserver: KalmanFilter<N2, N1, N1>,

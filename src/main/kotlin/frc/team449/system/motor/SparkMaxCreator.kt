@@ -13,18 +13,18 @@ import frc.team449.system.encoder.EncoderCreator
 
 // TODO: Test if disabling voltage compensation helps reduce brownouts
 fun createSparkMax(
-  name: String,
+  name: String = "",
   id: Int,
   encCreator: EncoderCreator<CANSparkMax>,
   enableBrakeMode: Boolean = true,
   inverted: Boolean = false,
-  currentLimit: Int = 0,
+  currentLimit: Int = 40,
   secondaryCurrentLimit: Double = 0.0,
   enableVoltageComp: Boolean = false,
   slaveSparks: Map<Int, Boolean> = mapOf(),
   controlFrameRateMillis: Int = -1,
   statusFrameRatesMillis: Map<CANSparkLowLevel.PeriodicFrame, Int> = mapOf()
-): WrappedMotor {
+): WrappedNEO {
   val motor = CANSparkMax(
     id,
     CANSparkLowLevel.MotorType.kBrushless
@@ -91,7 +91,7 @@ fun createSparkMax(
 
   motor.burnFlash()
 
-  return WrappedMotor(motor, enc, { motor.get() }, { motor.appliedOutput }, { motor.busVoltage }, { motor.outputCurrent })
+  return WrappedNEO(motor, enc)
 }
 
 /**
