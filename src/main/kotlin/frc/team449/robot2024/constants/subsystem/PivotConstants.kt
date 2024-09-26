@@ -68,7 +68,7 @@ object PivotConstants {
   val SHOOT_ANYWHERE_POS_TOLERANCE = Units.degreesToRadians(0.95)
 
   val MAX_POS_ERROR = Units.degreesToRadians(1.65)
-  val AMP_TOL_RANGE = 75.0..115.0
+  val AMP_TOL_RANGE = Units.degreesToRadians(75.0)..Units.degreesToRadians(115.0)
   val AMP_VEL_TOL = Units.degreesToRadians(115.0)
   val STOW_TOL = Units.degreesToRadians(12.5)
   val MAX_VEL_ERROR = Units.degreesToRadians(30.0)
