@@ -21,7 +21,7 @@ object PivotConstants {
   const val OFFSET = -0.2125 + (0.150882 / UPR) + (0.829237 / UPR) - (0.012295 / UPR) +
     (0.020301 / UPR) + (0.339 / UPR) - (0.050935 / UPR) - (0.033839 / UPR) + (0.719451 / UPR) +
     (0.078581 / UPR) - (0.008894 / UPR) - (0.017786 / UPR) - (0.0243075 / UPR) -
-    (2.1740530090891848 / UPR) - (0.35254264234886784 / UPR)
+    (2.1740530090891848 / UPR) + (0.35254264234886784) -0.09934996570960275
   const val ENC_INVERTED = true
 
   val QUAD_ENCODER = Encoder(1, 2)
