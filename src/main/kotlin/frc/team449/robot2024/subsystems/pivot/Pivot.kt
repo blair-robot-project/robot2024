@@ -22,6 +22,7 @@ import frc.team449.robot2024.constants.RobotConstants
 import frc.team449.robot2024.constants.subsystem.PivotConstants
 import frc.team449.system.encoder.QuadEncoder
 import java.util.function.Supplier
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -51,7 +52,7 @@ open class Pivot(
   )
 
   open val positionSupplier: Supplier<Double> =
-    Supplier { encoder.position }
+    Supplier { encoder.position - PivotConstants.OFFSET}
 
 
   open val velocitySupplier: Supplier<Double> =
@@ -389,7 +390,7 @@ open class Pivot(
     builder.addDoubleProperty("2.3 Desired Position", { lastProfileReference.position }, null)
     builder.addDoubleProperty("2.4 Desired Velocity", { lastProfileReference.velocity }, null)
     builder.addDoubleProperty("2.5 Error", { lastProfileReference.position - positionSupplier.get() }, null)
-    builder.addDoubleProperty("2.6 Absolute Position", { motor.encoder.position }, null)
+    builder.addDoubleProperty("2.6 Absolute Position", { motor.encoder.position / 75 * 2 * PI}, null)
     builder.addDoubleProperty("2.7 Absolute Velocity", { motor.encoder.velocity }, null)
     builder.addBooleanProperty("2.8 In tolerance", ::inTolerance, null)
     builder.publishConstString("3.0", "State Space Stuff")
