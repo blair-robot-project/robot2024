@@ -19,7 +19,7 @@ object PivotConstants {
   const val ENC_CHANNEL = 0
   const val GEARING = 1.0 / 75.0
   const val UPR = 2.0 * PI * (26.0 / 36.0)
-  const val OFFSET = - (0.3333333134651184 / UPR)
+  const val OFFSET = - (0.3333333134651184 / UPR) - (1.1585707388652555 / UPR)
   const val ENC_INVERTED = true
 
   val QUAD_ENCODER = Encoder(1, 2)
