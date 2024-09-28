@@ -41,7 +41,7 @@ object SwerveConstants {
   const val STEER_KS = 0.05 / 12.0
 
   /** PID gains for driving each module*/
-  const val DRIVE_KP = 0.475
+  const val DRIVE_KP = 0.95
   const val DRIVE_KI = 0.0
   const val DRIVE_KD = 0.0
 

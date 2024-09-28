@@ -55,12 +55,12 @@ object SpinShooterKrakenConstants {
   const val RIGHT_KV = 0.062757 // 0.010836
   const val LEFT_KA = 0.014748 // 0.0061217
   const val RIGHT_KA = 0.015507 // 0.00815
-  const val LEFT_KP = 0.15
-  const val RIGHT_KP = 0.175
+  const val LEFT_KP = 0.1
+  const val RIGHT_KP = 0.125
   const val LEFT_KI = 0.0
   const val RIGHT_KI = 0.0
-  const val LEFT_KD = 0.1
-  const val RIGHT_KD = 0.1
+  const val LEFT_KD = 0.0
+  const val RIGHT_KD = 0.0
 
   const val MAX_AUTO_AIM_DRIVE_SPEED = 0.10
 

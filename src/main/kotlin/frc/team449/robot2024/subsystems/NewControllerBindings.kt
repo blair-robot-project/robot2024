@@ -313,8 +313,9 @@ class NewControllerBindings(
         SequentialCommandGroup(
           checkNoteInLocation(),
           ParallelCommandGroup(
-            robot.undertaker.slowIntake().andThen(
-              WaitUntilCommand { robot.shooter.atAmpSetpoint() && robot.pivot.inAmpTolerance() },
+            robot.undertaker.slowIntake(),
+            SequentialCommandGroup(
+              WaitCommand(1.0),
               robot.feeder.intake()
             ),
             SequentialCommandGroup(
@@ -333,8 +334,9 @@ class NewControllerBindings(
         SequentialCommandGroup(
           checkNoteInLocation(),
           ParallelCommandGroup(
-            robot.undertaker.slowIntake().andThen(
-              WaitUntilCommand { robot.shooter.atAmpSetpoint() && robot.pivot.inAmpTolerance() },
+            robot.undertaker.slowIntake(),
+            SequentialCommandGroup(
+              WaitCommand(1.0),
               robot.feeder.intake()
             ),
             robot.pivot.moveAmp(),
