@@ -79,6 +79,7 @@ class SpinShooterKrakenSim(
     leftMotorSim.setRotorVelocity(leftVelocity.get() * SpinShooterKrakenConstants.GEARING)
 
     rightMotorSim.setRotorVelocity(rightVelocity.get() * SpinShooterKrakenConstants.GEARING)
+
   }
 
   override fun initSendable(builder: SendableBuilder) {
